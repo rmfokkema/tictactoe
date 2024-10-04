@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "Bundler",
+        "module": "NodeNext",
+        "composite": true
+    },
+    "include": ["vite.config.ts"]
+}
