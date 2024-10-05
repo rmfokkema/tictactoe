@@ -15,7 +15,7 @@
   "author": "Emile Fokkema",
   "license": "ISC",
   "devDependencies": {
-    "ef-infinite-canvas": "^0.6.6",
+    "ef-infinite-canvas": "^0.6.7",
     "typescript": "^5.6.2",
     "vite": "^5.4.8"
   }

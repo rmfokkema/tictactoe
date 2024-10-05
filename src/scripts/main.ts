@@ -8,7 +8,7 @@ function initialize(): void{
     const { width, height } = canvas.getBoundingClientRect();
     canvas.width = width * devicePixelRatio;
     canvas.height = height * devicePixelRatio;
-    const infCanvas = new InfiniteCanvas(canvas, {greedyGestureHandling: true, units: Units.CSS})
+    const infCanvas = new InfiniteCanvas(canvas, {units: Units.CSS})
     const ctx = infCanvas.getContext('2d');
 
     const tictactoe = TicTacToe.createContent(getInitialMeasurements(width, height), 0, 0)
@@ -17,9 +17,11 @@ function initialize(): void{
         requestAnimationFrame(draw)
 
     })
+
     infCanvas.addEventListener('click', ({offsetX, offsetY}) => {
         if(tictactoe.willHandleClick(offsetX, offsetY)){
-            return tictactoe.handleClick(offsetX, offsetY)
+            tictactoe.handleClick(offsetX, offsetY);
+            return;
         }
         console.log('click is not handled by tictactoe')
     })
