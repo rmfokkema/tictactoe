@@ -1,70 +1,14 @@
+import { Cell } from "./cell";
+import { Content } from "./content";
 import { Measurements } from "./measurements";
+import { Possibility } from "./possibility";
+import { Tac } from "./tac";
+import { Tic } from "./tic";
+import { TicTacToeFactory } from "./tictactoe-factory";
 
-interface Content{
-    draw(): void
-}
-
-class Tic{
-    public constructor(
-        private readonly context: CanvasRenderingContext2D,
-        private readonly measurements: Measurements
-    ){
-        
-    }
-
-    public draw(): void{
-        const ctx = this.context;
-        const {x, y, size} = this.measurements;
-        ctx.lineWidth = size / 10;
-        ctx.beginPath();
-        ctx.moveTo(x + size / 4, y + size / 4);
-        ctx.lineTo(x + 3 * size / 4, y + 3 * size / 4);
-        ctx.moveTo(x + 3 * size / 4, y + size / 4);
-        ctx.lineTo(x + size / 4, y + 3 * size / 4);
-        ctx.stroke();
-    }
-}
-
-class Tac{
-    public constructor(
-        private readonly context: CanvasRenderingContext2D,
-        private readonly measurements: Measurements
-    ){
-        
-    }
-
-    public draw(): void{
-        const ctx = this.context;
-        const {x, y, size} = this.measurements;
-        ctx.lineWidth = size / 10;
-        ctx.beginPath();
-        ctx.arc(x + size / 2, y + size / 2, size / 4, 0, 2 * Math.PI);
-        ctx.stroke();
-    }
-}
-
-class TicTacToeCell{
-    public get empty(): boolean{return !this.content;}
-
-    public constructor(
-        public readonly measurements: Measurements,
-        private content: Content | undefined
-    ){
-
-    }
-
-    public setContent(content: Content): void{
-        this.content = content;
-    }
-
-    public draw(){
-        if(this.content){
-            this.content.draw();
-        }
-    }
-}
-
-export class TicTacToe{
+let ticTacToeId = 0;
+export class TicTacToe implements Content {
+    private readonly id: number;
     private readonly lineWidth: number;
     private readonly bottom: number;
     private readonly right: number;
@@ -72,14 +16,13 @@ export class TicTacToe{
     private readonly vertical2: number;
     private readonly horizontal1: number;
     private readonly horizontal2: number;
-    private readonly cells: TicTacToeCell[]
+    private readonly cells: Cell[]
     public constructor(
-        private readonly context: CanvasRenderingContext2D,
-        private readonly canvasEl: GlobalEventHandlers,
         private readonly measurements: Measurements,
-        private readonly gameState: number,
-        private readonly player: number
+        gameState: number,
+        player: number
     ){
+        this.id = ticTacToeId++;
         const { size, x, y } = measurements;
         const lineWidth = this.lineWidth = size / 100;
         const cellSize = (size - 2 * lineWidth) / 3;
@@ -98,15 +41,18 @@ export class TicTacToe{
 
                 const cellIndex = 3 * rowIndex + columnIndex;
                 const playerAtCell = (gameState >> (2 * cellIndex)) & 3;
-                const cellContent: Content | undefined = playerAtCell === 0 ? undefined : playerAtCell === 1 ? new Tic(context, cellMeasurements) : new Tac(context, cellMeasurements);
+                const cellContent: Content = playerAtCell === 0 
+                    ? new Possibility(cellMeasurements, gameState, player, cellIndex, TicTacToe.createContent)
+                    : playerAtCell === 1
+                        ? new Tic(cellMeasurements)
+                        : new Tac(cellMeasurements);
                 
-                cells[cellIndex] = new TicTacToeCell(cellMeasurements, cellContent);
+                cells[cellIndex] = new Cell(cellMeasurements, cellContent);
             }
         }
     }
 
-    public draw(): void{
-        const ctx = this.context;
+    public draw(ctx: CanvasRenderingContext2D): void{
         const {x, y} = this.measurements;
         ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
@@ -119,52 +65,25 @@ export class TicTacToe{
         ctx.moveTo(x, this.horizontal2);
         ctx.lineTo(this.right, this.horizontal2);
         ctx.stroke();
-        this.cells.forEach(c => c.draw())
+        this.cells.forEach(c => c.draw(ctx))
     }
 
-    private getColumnIndex(offsetX: number): number{
-        if(offsetX < this.vertical1){
-            return 0;
-        }
-        if(offsetX > this.vertical2){
-            return 2;
-        }
-        return 1;
+    public onChange(callback: () => void): void {
+        this.cells.forEach(c => c.onChange(callback))
     }
 
-    private getRowIndex(offsetY: number): number{
-        if(offsetY < this.horizontal1){
-            return 0;
-        }
-        if(offsetY > this.horizontal2){
-            return 2;
-        }
-        return 1;
-    }
-
-    private chooseCell(rowIndex: number, columnIndex: number): void{
-        const cellIndex = 3 * rowIndex + columnIndex;
-        const cell = this.cells[cellIndex];
-        if(!cell.empty){
+    public handleClick(x: number, y: number): undefined{
+        const cell = this.cells.find(c => c.willHandleClick(x, y));
+        if(!cell){
             return;
         }
-        const newMeasurements = this.cells[cellIndex].measurements;
-        const newGameState = this.gameState | ((1 + this.player) << (2 * cellIndex))
-        console.log('new game state', newGameState.toString(2))
-        const newTicTacToe = new TicTacToe(this.context, this.canvasEl, newMeasurements, newGameState, (this.player + 1) % 2);
-        newTicTacToe.draw();
-        newTicTacToe.activate();
-        cell.setContent(newTicTacToe);
+        console.log(`tictactoe #${this.id} handles click`)
+        cell.handleClick(x, y)
     }
 
-    public activate(): void{
-        const {x, y} = this.measurements;
-        const listener = ({offsetX, offsetY}: MouseEvent): void => {
-            if(offsetX < x || offsetX > this.right || offsetY < y || offsetY > this.bottom){
-                return;
-            }
-            this.chooseCell(this.getRowIndex(offsetY), this.getColumnIndex(offsetX))
-        }
-        this.canvasEl.addEventListener('click', listener);
+    public willHandleClick(x: number, y: number): boolean {
+        return this.cells.some(c => c.willHandleClick(x, y))
     }
+
+    public static createContent: TicTacToeFactory = (measurements, gameState, player) => new TicTacToe(measurements, gameState, player)
 }
