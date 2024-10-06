@@ -1,6 +1,9 @@
 import { Cell } from "./cell";
+import { defaultColor, emphasisColor } from "./colors";
 import { Content } from "./content";
+import { GameState } from "./game-state";
 import { Measurements } from "./measurements";
+import { Player } from "./player";
 import { Possibility } from "./possibility";
 import { Tac } from "./tac";
 import { Tic } from "./tic";
@@ -19,8 +22,7 @@ export class TicTacToe implements Content {
     private readonly cells: Cell[]
     public constructor(
         private readonly measurements: Measurements,
-        gameState: number,
-        player: number
+        gameState: GameState
     ){
         this.id = ticTacToeId++;
         const { size, x, y } = measurements;
@@ -39,15 +41,17 @@ export class TicTacToe implements Content {
                 const cellY = rowIndex === 0 ? y : rowIndex === 1 ? horizontal1 + lineWidth / 2 : horizontal2 + lineWidth / 2;
                 const cellMeasurements: Measurements = {x: cellX, y: cellY, size: cellSize};
 
-                const cellIndex = 3 * rowIndex + columnIndex;
-                const playerAtCell = (gameState >> (2 * cellIndex)) & 3;
+                const position = 3 * rowIndex + columnIndex;
+                const isLastPlayed = position === gameState.lastPlayedPosition;
+                const color = isLastPlayed ? emphasisColor : defaultColor;
+                const playerAtCell = gameState.getPlayerAtPosition(position)
                 const cellContent: Content = playerAtCell === 0 
-                    ? new Possibility(cellMeasurements, gameState, player, cellIndex, TicTacToe.createContent)
-                    : playerAtCell === 1
-                        ? new Tic(cellMeasurements)
-                        : new Tac(cellMeasurements);
+                    ? new Possibility(cellMeasurements, gameState, position, TicTacToe.createContent)
+                    : playerAtCell === Player.Tic
+                        ? new Tic(cellMeasurements, color)
+                        : new Tac(cellMeasurements, color);
                 
-                cells[cellIndex] = new Cell(cellMeasurements, cellContent);
+                cells[position] = new Cell(cellMeasurements, cellContent);
             }
         }
     }
@@ -85,5 +89,5 @@ export class TicTacToe implements Content {
         return this.cells.some(c => c.willHandleClick(x, y))
     }
 
-    public static createContent: TicTacToeFactory = (measurements, gameState, player) => new TicTacToe(measurements, gameState, player)
+    public static createContent: TicTacToeFactory = (measurements, gameState) => new TicTacToe(measurements, gameState)
 }

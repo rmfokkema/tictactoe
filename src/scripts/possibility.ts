@@ -1,4 +1,5 @@
 import { Content } from "./content";
+import { GameState } from "./game-state";
 import { Measurements } from "./measurements";
 import { TicTacToeFactory } from "./tictactoe-factory";
 
@@ -6,8 +7,7 @@ export class Possibility implements Content{
     private onChangeCallback: (() => void) | undefined;
     public constructor(
         private readonly measurements: Measurements,
-        private readonly gameState: number,
-        private readonly currentPlayer: number,
+        private readonly gameState: GameState,
         private readonly position: number,
         private readonly createTicTacToe: TicTacToeFactory
     ){
@@ -27,9 +27,7 @@ export class Possibility implements Content{
     }
 
     public handleClick(): Content {
-        const newGameState = this.gameState | ((1 + this.currentPlayer) << (2 * this.position))
-        const nextPlayer = (this.currentPlayer + 1) % 2;
-        const newContent = this.createTicTacToe(this.measurements, newGameState, nextPlayer);
+        const newContent = this.createTicTacToe(this.measurements, this.gameState.playPosition(this.position));
         if(this.onChangeCallback){
             newContent.onChange(this.onChangeCallback)
         }
