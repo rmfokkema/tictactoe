@@ -1,4 +1,6 @@
 import { Player } from "./player";
+import { getThrees } from "./three";
+import { Winner } from "./winner";
 
 export class GameState{
     private constructor(
@@ -7,6 +9,28 @@ export class GameState{
         public readonly currentPlayer: Player
     ){
 
+    }
+
+    public findWinner(): Winner | undefined{
+        for(const three of getThrees()){
+            const playerAtFirstPosition = this.getPlayerAtPosition(three.positions[0]);
+            if(playerAtFirstPosition === 0){
+                continue;
+            }
+            const playerAtSecondPosition = this.getPlayerAtPosition(three.positions[1]);
+            if(playerAtSecondPosition !== playerAtFirstPosition){
+                continue;
+            }
+            const playerAtThirdPosition = this.getPlayerAtPosition(three.positions[2]);
+            if(playerAtThirdPosition !== playerAtFirstPosition){
+                continue;
+            }
+            return {
+                three,
+                player: playerAtFirstPosition
+            }
+        }
+        return undefined;
     }
 
     public getPlayerAtPosition(position: number): Player | 0 {
