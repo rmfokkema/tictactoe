@@ -1,7 +1,7 @@
 import { Content } from "./content";
 import { Measurements, measurementsInclude } from "./measurements";
 
-export class Cell{
+export class Cell implements Content{
     private onChangeCallback: (() => void) | undefined;
 
     public constructor(
@@ -23,7 +23,7 @@ export class Cell{
         this.content.onChange(callback);
     }
 
-    public handleClick(x: number, y: number): void{
+    public handleClick(x: number, y: number): undefined{
         const newContent = this.content.handleClick(x, y);
         if(newContent){
             this.content = newContent;

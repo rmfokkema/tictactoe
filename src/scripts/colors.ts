@@ -1,2 +1,2 @@
-export const defaultColor = '#555';
-export const emphasisColor = '#000';
+export const defaultColor = '#000';
+export const emphasisColor = '#eee';
