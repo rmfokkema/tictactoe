@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "vite dev"
+    "dev": "vite dev",
+    "check-types": "tsc --project tsconfig-app.json"
   },
   "keywords": [
     "tic",
