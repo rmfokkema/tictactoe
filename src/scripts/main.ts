@@ -1,6 +1,6 @@
 import '../main.css'
 import InfiniteCanvas, { Units } from 'ef-infinite-canvas'
-import { TicTacToe } from './tictactoe';
+import { TicTacToe } from './content/tictactoe';
 import { getInitialMeasurements } from './measurements';
 import { GameState } from './game-state';
 import { defaultColor } from './colors';

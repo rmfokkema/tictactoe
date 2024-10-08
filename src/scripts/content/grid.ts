@@ -1,7 +1,10 @@
+import { Measurements } from "../measurements";
+import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
 import { Content } from "./content";
-import { Measurements } from "./measurements";
+import { ContentImpl } from "./content-impl";
+import { Win } from "./win";
 
-export class Grid implements Content{
+export class Grid extends ContentImpl{
     private readonly lineWidth: number;
     private readonly bottom: number;
     private readonly right: number;
@@ -9,18 +12,58 @@ export class Grid implements Content{
     private readonly vertical2: number;
     private readonly horizontal1: number;
     private readonly horizontal2: number;
+    private readonly cellSize: number;
     public constructor(
         private readonly measurements: Measurements
     ){
+        super();
         const { size, x, y } = measurements;
         const lineWidth = this.lineWidth = size / 100;
-        const cellSize = (size - 2 * lineWidth) / 3;
+        const cellSize = this.cellSize = (size - 2 * lineWidth) / 3;
         const right = this.right = x + size;
         this.vertical1 = x + cellSize + lineWidth / 2;
         this.vertical2 = right - cellSize - lineWidth / 2;
         const bottom = this.bottom = y + size;
         this.horizontal1 = y + cellSize + lineWidth / 2;
         this.horizontal2 = bottom - cellSize - lineWidth / 2;
+    }
+
+    public createWin(three: Three): Content{
+        const { x, y, size } = this.measurements;
+        const fromEdge = this.cellSize / 8;
+        const lineWidth = this.cellSize / 10;
+        if(isInRow(three)){
+            const winX1 = x + fromEdge;
+            const winX2 = x + size - fromEdge;
+            const winY = three.rowIndex === 0
+                ? y + this.cellSize / 2
+                : three.rowIndex === 1
+                    ? y + size / 2
+                    : y + size - this.cellSize / 2;
+            return new Win(winX1, winX2, winY, winY, lineWidth);
+        }
+        if(isInColumn(three)){
+            const winY1 = y + fromEdge;
+            const winY2 = y + size - fromEdge;
+            const winX = three.columnIndex === 0
+                ? x + this.cellSize / 2
+                : three.columnIndex === 1
+                    ? x + size / 2
+                    : x + size - this.cellSize / 2;
+            return new Win(winX, winX, winY1, winY2, lineWidth);
+        }
+        if(isMainDiagonal(three)){
+            const winX1 = x + fromEdge;
+            const winX2 = x + size - fromEdge;
+            const winY1 = y + fromEdge;
+            const winY2 = y + size - fromEdge;
+            return new Win(winX1, winX2, winY1, winY2, lineWidth)
+        }
+        const winX1 = x + size - this.cellSize / 4;
+        const winX2 = x + this.cellSize / 4;
+        const winY1 = y + this.cellSize / 4;
+        const winY2 = y + size - this.cellSize / 4;
+        return new Win(winX1, winX2, winY1, winY2, lineWidth)
     }
 
     public *getCellMeasurements(): Iterable<Measurements>{
@@ -34,18 +77,6 @@ export class Grid implements Content{
                 yield {x: cellX, y: cellY, size: cellSize};
             }
         }
-    }
-
-    public onChange(): void {
-        
-    }
-
-    public willHandleClick(): boolean {
-        return false;
-    }
-
-    public handleClick(): undefined {
-        
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {

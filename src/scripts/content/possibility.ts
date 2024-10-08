@@ -1,6 +1,6 @@
 import { Content } from "./content";
-import { GameState } from "./game-state";
-import { Measurements } from "./measurements";
+import { GameState } from "../game-state";
+import { Measurements } from "../measurements";
 import { TicTacToeFactory } from "./tictactoe-factory";
 
 export class Possibility implements Content{

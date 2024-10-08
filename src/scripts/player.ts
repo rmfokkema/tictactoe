@@ -1,4 +1,4 @@
 export enum Player{
-    Tic = 1,
-    Tac = 2
+    X = 1,
+    O = 2
 }

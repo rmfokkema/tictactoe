@@ -1,5 +1,5 @@
 import { Content } from "./content";
-import { Measurements, measurementsInclude } from "./measurements";
+import { Measurements, measurementsInclude } from "../measurements";
 
 export class Cell implements Content{
     private onChangeCallback: (() => void) | undefined;

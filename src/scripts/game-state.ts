@@ -43,5 +43,5 @@ export class GameState{
         return new GameState(newPlayed, position, nextPlayer);
     }
 
-    public static initial: GameState = new GameState(0, undefined, Player.Tic)
+    public static initial: GameState = new GameState(0, undefined, Player.X)
 }

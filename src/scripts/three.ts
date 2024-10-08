@@ -54,6 +54,14 @@ export function isInColumn(three: Three): three is ThreeInColumn{
     return (three as ThreeInColumn).columnIndex !== undefined;
 }
 
+export function isMainDiagonal(three: Three): three is typeof MAIN_DIAGONAL{
+    return (three as typeof MAIN_DIAGONAL).mainDiagonal;
+}
+
+export function isOtherDiagonal(three: Three): three is typeof OTHER_DIAGONAL{
+    return (three as typeof OTHER_DIAGONAL).otherDiagonal;
+}
+
 export function *getThrees(): Iterable<Three>{
     yield ROW_ONE;
     yield ROW_TWO;
