@@ -19,3 +19,7 @@ export function getInitialMeasurements(totalWidth: number, totalHeight: number):
         size
     }
 }
+
+export function getMarkLineWidth(cellSize: number): number{
+    return cellSize / 10;
+}

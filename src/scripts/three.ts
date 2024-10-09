@@ -28,7 +28,7 @@ export const MAIN_DIAGONAL = {
 } as const
 export const OTHER_DIAGONAL = {
     otherDiagonal: true,
-    positions: [6, 4, 2]
+    positions: [2, 4, 6]
 } as const
 export type ThreeInColumn = 
     | typeof COLUMN_ONE
