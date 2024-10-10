@@ -1,36 +1,40 @@
-import { Content } from "./content";
+import { ContentParent } from "./content";
 import { GameState } from "../game-state";
-import { Measurements } from "../measurements";
-import { TicTacToeFactory } from "./tictactoe-factory";
+import { Measurements, measurementsInclude } from "../measurements";
+import { ContentImpl } from "./content-impl";
 
-export class Possibility implements Content{
-    private onChangeCallback: (() => void) | undefined;
+export interface PossibilityParent extends ContentParent{
+    play(
+        possibility: Possibility,
+        gameState: GameState
+    ): void
+}
+
+export class Possibility extends ContentImpl{
+    private readonly possibilityParent: PossibilityParent
     public constructor(
-        private readonly measurements: Measurements,
+        parent: PossibilityParent,
+        public readonly measurements: Measurements,
         private readonly gameState: GameState,
-        private readonly position: number,
-        private readonly createTicTacToe: TicTacToeFactory
+        private readonly position: number
     ){
-
-    }
-
-    public onChange(callback: () => void): void {
-        this.onChangeCallback = callback;
+        super(parent);
+        this.possibilityParent = parent;
     }
 
     public draw(): void{
 
     }
 
-    public willHandleClick(): boolean {
+    public willHandleClick(x: number, y: number): boolean {
+        if(!measurementsInclude(this.measurements, x, y)){
+            return false;
+        }
         return true;
     }
 
-    public handleClick(): Content {
-        const newContent = this.createTicTacToe(this.measurements, this.gameState.playPosition(this.position));
-        if(this.onChangeCallback){
-            newContent.onChange(this.onChangeCallback)
-        }
-        return newContent;
+    public handleClick(): void {
+        const newGameState = this.gameState.playPosition(this.position);
+        this.possibilityParent.play(this, newGameState);
     }
 }

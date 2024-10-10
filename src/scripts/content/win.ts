@@ -1,13 +1,15 @@
 import { Point } from "../point";
+import { ContentParent } from "./content";
 import { ContentImpl } from "./content-impl";
 
 export class Win extends ContentImpl{
     public constructor(
+        parent: ContentParent,
         private readonly start: Point,
         private readonly end: Point,
         private readonly lineWidth: number
     ){
-        super();
+        super(parent);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {

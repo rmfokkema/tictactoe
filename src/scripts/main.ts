@@ -4,6 +4,7 @@ import { TicTacToe } from './content/tictactoe';
 import { getInitialMeasurements } from './measurements';
 import { GameState } from './game-state';
 import { defaultColor } from './colors';
+import { ContentRoot } from './content/content-root';
 
 function initialize(): void{
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -13,9 +14,10 @@ function initialize(): void{
     const infCanvas = new InfiniteCanvas(canvas, {units: Units.CSS})
     const ctx = infCanvas.getContext('2d');
 
-    const tictactoe = TicTacToe.createContent(
+    const tictactoe = ContentRoot.create((parent) => new TicTacToe(
+        parent,
         getInitialMeasurements(width, height),
-        GameState.initial)
+        GameState.initial))
     let drawRequested = false;
     draw();
     tictactoe.onChange(onChange)

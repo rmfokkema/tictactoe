@@ -1,4 +1,5 @@
 import { Measurements } from "../measurements";
+import { ContentParent } from "./content";
 import { ContentImpl } from "./content-impl";
 
 export class Grid extends ContentImpl{
@@ -11,9 +12,10 @@ export class Grid extends ContentImpl{
     private readonly horizontal2: number;
     public readonly cellSize: number;
     public constructor(
+        parent: ContentParent,
         private readonly measurements: Measurements
     ){
-        super();
+        super(parent);
         const { size, x, y } = measurements;
         const lineWidth = this.lineWidth = size / 100;
         const cellSize = this.cellSize = (size - 2 * lineWidth) / 3;
