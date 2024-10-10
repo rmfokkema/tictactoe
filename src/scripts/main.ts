@@ -16,11 +16,9 @@ function initialize(): void{
     const tictactoe = TicTacToe.createContent(
         getInitialMeasurements(width, height),
         GameState.initial)
+    let drawRequested = false;
     draw();
-    tictactoe.onChange(() => {
-        requestAnimationFrame(draw)
-
-    })
+    tictactoe.onChange(onChange)
 
     infCanvas.addEventListener('click', ({offsetX, offsetY}) => {
         if(tictactoe.willHandleClick(offsetX, offsetY)){
@@ -29,7 +27,16 @@ function initialize(): void{
         }
         console.log('click is not handled by tictactoe')
     })
-
+    function onChange(): void{
+        if(drawRequested){
+            return;
+        }
+        requestAnimationFrame(() => {
+            draw();
+            drawRequested = false;
+        })
+        drawRequested = true;
+    }
     function draw(): void{
         ctx.strokeStyle = defaultColor;
         ctx.save();
