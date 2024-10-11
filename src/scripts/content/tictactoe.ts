@@ -38,7 +38,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         let winnerStartPoint: Point | undefined;
         for(let position = 0; position < 9; position++){
             const measurements = cellMeasurements[position];
-            const isLastPlayed = position === gameState.lastPlayedPosition;
             const playerAtCell = gameState.getPlayerAtPosition(position)
             if(playerAtCell === 0){
                 if(winner){
@@ -48,8 +47,8 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
-                ? new X(this, measurements, isLastPlayed)
-                : new O(this, measurements, isLastPlayed);
+                ? new X(this, measurements)
+                : new O(this, measurements);
             
             marks.push(mark);
             

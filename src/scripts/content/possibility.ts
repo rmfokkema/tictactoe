@@ -2,7 +2,6 @@ import { ContentParent } from "./content";
 import { GameState } from "../game-state";
 import { Measurements, measurementsInclude } from "../measurements";
 import { ContentImpl } from "./content-impl";
-import { emphasisColor } from "../colors";
 
 export interface PossibilityParent extends ContentParent{
     play(
@@ -30,8 +29,7 @@ export class Possibility extends ContentImpl{
         }
         const {x, y, size} = this.measurements;
         ctx.save();
-        ctx.strokeStyle = emphasisColor
-        ctx.lineWidth = size / 50;
+        ctx.lineWidth = size / 100;
         ctx.beginPath();
         ctx.moveTo(x, y)
         ctx.lineTo(x + size, y + size);
