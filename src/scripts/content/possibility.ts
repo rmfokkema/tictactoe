@@ -2,6 +2,7 @@ import { ContentParent } from "./content";
 import { GameState } from "../game-state";
 import { Measurements, measurementsInclude } from "../measurements";
 import { ContentImpl } from "./content-impl";
+import { emphasisColor } from "../colors";
 
 export interface PossibilityParent extends ContentParent{
     play(
@@ -16,14 +17,28 @@ export class Possibility extends ContentImpl{
         parent: PossibilityParent,
         public readonly measurements: Measurements,
         private readonly gameState: GameState,
-        private readonly position: number
+        public readonly position: number,
+        public readonly isLosing: boolean
     ){
         super(parent);
         this.possibilityParent = parent;
     }
 
-    public draw(): void{
-
+    public draw(ctx: CanvasRenderingContext2D): void{
+        if(!this.isLosing){
+            return;
+        }
+        const {x, y, size} = this.measurements;
+        ctx.save();
+        ctx.strokeStyle = emphasisColor
+        ctx.lineWidth = size / 50;
+        ctx.beginPath();
+        ctx.moveTo(x, y)
+        ctx.lineTo(x + size, y + size);
+        ctx.moveTo(x, y + size)
+        ctx.lineTo(x + size, y)
+        ctx.stroke()
+        ctx.restore();
     }
 
     public willHandleClick(x: number, y: number): boolean {

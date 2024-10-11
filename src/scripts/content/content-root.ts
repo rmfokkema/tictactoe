@@ -25,6 +25,14 @@ export class ContentRoot<TContent extends Content> implements Content, ContentPa
         this.content.handleClick(x, y)
     }
 
+    public addChild(): void {
+        
+    }
+
+    public destroy(): void {
+        this.content.destroy();
+    }
+
     public onChange(callback: () => void): void{
         this.onChangeCallback = callback;
     }

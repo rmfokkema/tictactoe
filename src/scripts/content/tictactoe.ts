@@ -11,19 +11,29 @@ import { Point } from "../point";
 import { Win } from "./win";
 import { ContentImpl } from "./content-impl";
 
-export class TicTacToe extends ContentImpl implements PossibilityParent {
-    private readonly win: Win | undefined;
-    private readonly contents: Content[]
-    private readonly grid: Grid;
+export interface TicTacToeParent extends ContentParent{
+    recordWinner(): void
+    recordLoser(ticTacToe: TicTacToe): void
+}
+
+export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacToeParent {
+    private ticTacToeParent: TicTacToeParent | undefined
+    private win: Win | undefined;
+    private readonly possibilities: Possibility[]
+    private readonly marks: Content[]
+    private readonly ticTacToes: {position: number, ticTacToe: TicTacToe }[] = []
+    private grid: Grid | undefined;
     public constructor(
-        parent: ContentParent,
+        parent: TicTacToeParent,
         private readonly measurements: Measurements,
-        gameState: GameState
+        private readonly gameState: GameState
     ){
         super(parent);
+        this.ticTacToeParent = parent;
         const grid = this.grid = new Grid(this, measurements)
         const cellMeasurements = [...grid.getCellMeasurements()]
-        const contents: Content[] = this.contents = [];
+        const possibilities: Content[] = this.possibilities = [];
+        const marks: Content[] = this.marks = [];
         const winner = gameState.findWinner();
         let winnerStartPoint: Point | undefined;
         for(let position = 0; position < 9; position++){
@@ -34,14 +44,14 @@ export class TicTacToe extends ContentImpl implements PossibilityParent {
                 if(winner){
                     continue;
                 }
-                contents.push(new Possibility(this, measurements, gameState, position))
+                possibilities.push(new Possibility(this, measurements, gameState, position, false))
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
                 ? new X(this, measurements, isLastPlayed)
                 : new O(this, measurements, isLastPlayed);
             
-            contents.push(mark);
+            marks.push(mark);
             
             if(winner && position === winner.three.positions[0]){
                 winnerStartPoint = mark.getWinStart(winner.three);
@@ -52,43 +62,88 @@ export class TicTacToe extends ContentImpl implements PossibilityParent {
         }
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void{
-        this.grid.draw(ctx)
-        this.contents.forEach(c => c.draw(ctx))
-        if(this.win){
-            this.win.draw(ctx)
-        }
+    private hasOnlyLosingPossibilities(): boolean{
+        return this.ticTacToes.length === 0 && this.possibilities.length > 0 && this.possibilities.every(p => p.isLosing);
     }
 
-    public play(possibility: Possibility, gameState: GameState): void {
-        const index = this.contents.indexOf(possibility);
+    public draw(ctx: CanvasRenderingContext2D): void{
+        this.possibilities.forEach(c => c.draw(ctx))
+        this.ticTacToes.forEach(t => t.ticTacToe.draw(ctx))
+        this.marks.forEach(m => m.draw(ctx))
+        this.win?.draw(ctx)
+        this.grid?.draw(ctx)
+    }
+
+    public recordWinner(): void {
+        this.ticTacToeParent?.recordLoser(this)
+    }
+
+    public recordLoser(ticTacToe: TicTacToe): void {
+        const index = this.ticTacToes.findIndex(t => t.ticTacToe === ticTacToe);
         if(index === -1){
             return;
         }
-        this.contents.splice(index, 1);
-        const newContent = new TicTacToe(this, possibility.measurements, gameState);
-        this.contents.push(newContent);
+        const [{position}] = this.ticTacToes.splice(index, 1);
+        this.removeChild(ticTacToe);
+        const grid = this.grid;
+        if(!grid){
+            return;
+        }
+        const measurements = [...grid.getCellMeasurements()][position]
+        const possibility = new Possibility(this, measurements, this.gameState, position, true);
+        this.possibilities.push(possibility);
+        this.triggerChange();
+    }
+
+    public play(possibility: Possibility, gameState: GameState): void {
+        const index = this.possibilities.indexOf(possibility);
+        if(index === -1){
+            return;
+        }
+        this.possibilities.splice(index, 1);
+        this.removeChild(possibility)
+        
+        this.ticTacToes.push({
+            ticTacToe: new TicTacToe(this, possibility.measurements, gameState),
+            position: possibility.position
+        });
         this.triggerChange();
     }
 
     public handleClick(x: number, y: number): void{
         if(this.win){
+            this.ticTacToeParent?.recordWinner()
             return;
         }
-        const cell = this.contents.find(c => c.willHandleClick(x, y));
-        if(!cell){
+        const possibility = this.possibilities.find(c => c.willHandleClick(x, y));
+        if(possibility){
+            possibility.handleClick();
             return;
         }
-        cell.handleClick(x, y)
+        const ticTacToe = this.ticTacToes.find(t => t.ticTacToe.willHandleClick(x, y))
+        if(ticTacToe){
+            ticTacToe.ticTacToe.handleClick(x, y);
+            return;
+        }
+        if(this.hasOnlyLosingPossibilities()){
+            this.ticTacToeParent?.recordWinner()
+        }
     }
 
     public willHandleClick(x: number, y: number): boolean {
         if(!measurementsInclude(this.measurements, x, y)){
             return false;
         }
-        if(this.win){
-            return false;
+        if(this.win || this.hasOnlyLosingPossibilities()){
+            return true;
         }
-        return this.contents.some(c => c.willHandleClick(x, y))
+        return this.possibilities.some(c => c.willHandleClick(x, y)) || this.ticTacToes.some(t => t.ticTacToe.willHandleClick(x, y))
+    }
+
+    public destroy(): void {
+        super.destroy();
+        this.win = undefined;
+        this.grid = undefined;
+        this.ticTacToeParent = undefined;
     }
 }
