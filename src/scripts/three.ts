@@ -1,25 +1,25 @@
 export const ROW_ONE = {
-    rowIndex: 0,
+    isRow: true,
     positions: [0, 1, 2]
 } as const
 export const ROW_TWO = {
-    rowIndex: 1,
+    isRow: true,
     positions: [3, 4, 5]
 } as const
 export const ROW_THREE = {
-    rowIndex: 2,
+    isRow: true,
     positions: [6, 7, 8]
 } as const
 export const COLUMN_ONE = {
-    columnIndex: 0,
+    isColumn: true,
     positions: [0, 3, 6]
 } as const
 export const COLUMN_TWO = {
-    columnIndex: 1,
+    isColumn: true,
     positions: [1, 4, 7]
 } as const
 export const COLUMN_THREE = {
-    columnIndex: 2,
+    isColumn: true,
     positions: [2, 5, 8]
 } as const
 export const MAIN_DIAGONAL = {
@@ -47,11 +47,11 @@ export type Three =
     | typeof OTHER_DIAGONAL
 
 export function isInRow(three: Three): three is ThreeInRow{
-    return (three as ThreeInRow).rowIndex !== undefined;
+    return (three as ThreeInRow).isRow !== undefined;
 }
 
 export function isInColumn(three: Three): three is ThreeInColumn{
-    return (three as ThreeInColumn).columnIndex !== undefined;
+    return (three as ThreeInColumn).isColumn !== undefined;
 }
 
 export function isMainDiagonal(three: Three): three is typeof MAIN_DIAGONAL{

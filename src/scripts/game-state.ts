@@ -1,14 +1,40 @@
 import { Player } from "./player";
 import { getThrees } from "./three";
+import { getAllTransformations, Transformation } from "./transformations";
 import { Winner } from "./winner";
 
 export class GameState{
     private constructor(
         private readonly played: number,
-        public readonly lastPlayedPosition: number | undefined,
-        public readonly currentPlayer: Player
+        private readonly currentPlayer: Player
     ){
 
+    }
+
+    private transformPlayed(transformation: Transformation): number{
+        let result = 0;
+        for(let sourcePosition = 0; sourcePosition < 9; sourcePosition++){
+            const targetPosition = transformation.positions[sourcePosition];
+            const playerAtSource = this.getPlayerAtPosition(sourcePosition);
+            result |= (playerAtSource << (2 * targetPosition))
+        }
+        return result;
+    }
+
+    public *getEquivalentStates(): Iterable<GameState>{
+        const playedInEquivalentStates: Set<number> = new Set();
+        for(const transformation of getAllTransformations()){
+            const transformedPlayed = this.transformPlayed(transformation);
+            if(playedInEquivalentStates.has(transformedPlayed)){
+                continue;
+            }
+            playedInEquivalentStates.add(transformedPlayed);
+            yield new GameState(transformedPlayed, this.currentPlayer)
+        }
+    }
+
+    public equals(other: GameState): boolean{
+        return other.played === this.played && other.currentPlayer === this.currentPlayer;
     }
 
     public findWinner(): Winner | undefined{
@@ -40,8 +66,8 @@ export class GameState{
     public playPosition(position: number): GameState{
         const newPlayed = this.played | ((this.currentPlayer) << (2 * position));
         const nextPlayer = (this.currentPlayer % 2) + 1;
-        return new GameState(newPlayed, position, nextPlayer);
+        return new GameState(newPlayed, nextPlayer);
     }
 
-    public static initial: GameState = new GameState(0, undefined, Player.X)
+    public static initial: GameState = new GameState(0, Player.X)
 }

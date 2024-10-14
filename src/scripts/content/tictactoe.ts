@@ -10,6 +10,7 @@ import { Mark } from "./mark";
 import { Point } from "../point";
 import { Win } from "./win";
 import { ContentImpl } from "./content-impl";
+import { EquivalentPossibility } from "./equivalent-possibility";
 
 export interface TicTacToeParent extends ContentParent{
     recordWinner(): void
@@ -21,6 +22,7 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
     private win: Win | undefined;
     private readonly possibilities: Possibility[]
     private readonly marks: Content[]
+    private readonly equivalentPossibilities: EquivalentPossibility[] = [];
     private readonly ticTacToes: {position: number, ticTacToe: TicTacToe }[] = []
     private grid: Grid | undefined;
     public constructor(
@@ -43,7 +45,8 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
                 if(winner){
                     continue;
                 }
-                possibilities.push(new Possibility(this, measurements, gameState, position, false))
+                const newGameState = gameState.playPosition(position)
+                possibilities.push(new Possibility(this, measurements, newGameState, position, false))
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
@@ -65,8 +68,20 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         return this.ticTacToes.length === 0 && this.possibilities.length > 0 && this.possibilities.every(p => p.isLosing);
     }
 
+    private replaceEquivalentPossibility(possibility: Possibility): void{
+        const index = this.possibilities.indexOf(possibility);
+        if(index === -1){
+            return;
+        }
+        this.possibilities.splice(index, 1);
+        this.removeChild(possibility);
+        const equivalentPossibility = new EquivalentPossibility(this, possibility.measurements);
+        this.equivalentPossibilities.push(equivalentPossibility);
+    }
+
     public draw(ctx: CanvasRenderingContext2D): void{
         this.possibilities.forEach(c => c.draw(ctx))
+        this.equivalentPossibilities.forEach(p => p.draw(ctx))
         this.ticTacToes.forEach(t => t.ticTacToe.draw(ctx))
         this.marks.forEach(m => m.draw(ctx))
         this.win?.draw(ctx)
@@ -89,7 +104,8 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             return;
         }
         const measurements = [...grid.getCellMeasurements()][position]
-        const possibility = new Possibility(this, measurements, this.gameState, position, true);
+        const newGameState = this.gameState.playPosition(position)
+        const possibility = new Possibility(this, measurements, newGameState, position, true);
         this.possibilities.push(possibility);
         this.triggerChange();
     }
@@ -106,6 +122,11 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             ticTacToe: new TicTacToe(this, possibility.measurements, gameState),
             position: possibility.position
         });
+        const equivalentStates = [...possibility.gameState.getEquivalentStates()];
+        const equivalentPossibilities = this.possibilities.filter(p => equivalentStates.some(s => s.equals(p.gameState)))
+        for(const equivalentPossibility of equivalentPossibilities){
+            this.replaceEquivalentPossibility(equivalentPossibility)
+        }
         this.triggerChange();
     }
 
@@ -144,5 +165,9 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         this.win = undefined;
         this.grid = undefined;
         this.ticTacToeParent = undefined;
+        this.possibilities.splice(0)
+        this.ticTacToes.splice(0)
+        this.possibilities.splice(0)
+        this.equivalentPossibilities.splice(0)
     }
 }

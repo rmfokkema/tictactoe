@@ -12,10 +12,11 @@ export interface PossibilityParent extends ContentParent{
 
 export class Possibility extends ContentImpl{
     private readonly possibilityParent: PossibilityParent
+    
     public constructor(
         parent: PossibilityParent,
         public readonly measurements: Measurements,
-        private readonly gameState: GameState,
+        public readonly gameState: GameState,
         public readonly position: number,
         public readonly isLosing: boolean
     ){
@@ -47,7 +48,6 @@ export class Possibility extends ContentImpl{
     }
 
     public handleClick(): void {
-        const newGameState = this.gameState.playPosition(this.position);
-        this.possibilityParent.play(this, newGameState);
+        this.possibilityParent.play(this, this.gameState);
     }
 }
