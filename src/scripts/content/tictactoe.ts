@@ -11,6 +11,7 @@ import { Point } from "../point";
 import { Win } from "./win";
 import { ContentImpl } from "./content-impl";
 import { EquivalentPossibility } from "./equivalent-possibility";
+import { ClickEventAtTarget, isAccepted } from "../events/types";
 
 export interface TicTacToeParent extends ContentParent{
     recordWinner(): void
@@ -66,6 +67,25 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
 
     private hasOnlyLosingPossibilities(): boolean{
         return this.ticTacToes.length === 0 && this.possibilities.length > 0 && this.possibilities.every(p => p.isLosing);
+    }
+
+    protected handleClickOnSelf(click: ClickEventAtTarget): void {
+        if(!isAccepted(click)){
+            if(!measurementsInclude(this.measurements, click.x, click.y)){
+                click.reject();
+            }
+            if(this.win || this.hasOnlyLosingPossibilities()){
+                click.accept();
+            }
+            return;
+        }
+        if(click.type === 'cancel'){
+            console.log('click on tictactoe cancelled')
+            return;
+        }
+        if(this.win || this.hasOnlyLosingPossibilities()){
+            this.ticTacToeParent?.recordWinner()
+        }
     }
 
     private replaceEquivalentPossibility(possibility: Possibility): void{
@@ -128,36 +148,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             this.replaceEquivalentPossibility(equivalentPossibility)
         }
         this.triggerChange();
-    }
-
-    public handleClick(x: number, y: number): void{
-        if(this.win){
-            this.ticTacToeParent?.recordWinner()
-            return;
-        }
-        const possibility = this.possibilities.find(c => c.willHandleClick(x, y));
-        if(possibility){
-            possibility.handleClick();
-            return;
-        }
-        const ticTacToe = this.ticTacToes.find(t => t.ticTacToe.willHandleClick(x, y))
-        if(ticTacToe){
-            ticTacToe.ticTacToe.handleClick(x, y);
-            return;
-        }
-        if(this.hasOnlyLosingPossibilities()){
-            this.ticTacToeParent?.recordWinner()
-        }
-    }
-
-    public willHandleClick(x: number, y: number): boolean {
-        if(!measurementsInclude(this.measurements, x, y)){
-            return false;
-        }
-        if(this.win || this.hasOnlyLosingPossibilities()){
-            return true;
-        }
-        return this.possibilities.some(c => c.willHandleClick(x, y)) || this.ticTacToes.some(t => t.ticTacToe.willHandleClick(x, y))
     }
 
     public destroy(): void {

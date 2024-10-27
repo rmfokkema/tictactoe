@@ -2,6 +2,7 @@ import { ContentParent } from "./content";
 import { GameState } from "../game-state";
 import { Measurements, measurementsInclude } from "../measurements";
 import { ContentImpl } from "./content-impl";
+import { ClickEventAtTarget, isAccepted } from "../events/types";
 
 export interface PossibilityParent extends ContentParent{
     play(
@@ -24,6 +25,20 @@ export class Possibility extends ContentImpl{
         this.possibilityParent = parent;
     }
 
+    protected handleClickOnSelf(click: ClickEventAtTarget): void {
+        if(!isAccepted(click)){
+            if(measurementsInclude(this.measurements, click.x, click.y)){
+                click.accept();
+            }
+        }else{
+            if(click.type ===  'cancel'){
+                console.log('click on possibility is cancelled')
+                return;
+            }
+            this.possibilityParent.play(this, this.gameState);
+        }
+    }
+
     public draw(ctx: CanvasRenderingContext2D): void{
         if(!this.isLosing){
             return;
@@ -38,16 +53,5 @@ export class Possibility extends ContentImpl{
         ctx.lineTo(x + size, y)
         ctx.stroke()
         ctx.restore();
-    }
-
-    public willHandleClick(x: number, y: number): boolean {
-        if(!measurementsInclude(this.measurements, x, y)){
-            return false;
-        }
-        return true;
-    }
-
-    public handleClick(): void {
-        this.possibilityParent.play(this, this.gameState);
     }
 }

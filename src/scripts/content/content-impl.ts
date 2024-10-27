@@ -1,3 +1,4 @@
+import { ClickEvent, ClickEventAtTarget, isAccepted } from "../events/types";
 import { Content, ContentParent } from "./content";
 
 export class ContentImpl implements Content, ContentParent{
@@ -20,15 +21,35 @@ export class ContentImpl implements Content, ContentParent{
         child.destroy();
         this.children.splice(index, 1)
     }
+    protected handleClickOnSelf(click: ClickEventAtTarget): void{
+        if(!isAccepted(click)){
+            click.reject();
+        }
+    }
     public triggerChange(): void {
         this.parent?.triggerChange();
     }
     public draw(_: CanvasRenderingContext2D): void{}
-    public willHandleClick(_: number, __: number): boolean {
-        return false;
+    public handleClick(click: ClickEvent): void {
+        const accepted = click.maybeAccepted();
+        if(accepted){
+            this.handleClickOnSelf(accepted);
+            return;
+        }
+        const acceptable = click.atTarget(this);
+        this.handleClickOnSelf(acceptable);
+        if(acceptable.accepted || acceptable.rejected){
+            return;
+        }
+        for(const child of this.children){
+            const forChild = click.forChild();
+            child.handleClick(forChild);
+            if(forChild.accepted){
+                return;
+            }
+        }
     }
 
-    public handleClick(_: number, __: number): void{}
     public destroy(): void{
         this.parent = undefined;
         this.children.forEach(c => c.destroy())

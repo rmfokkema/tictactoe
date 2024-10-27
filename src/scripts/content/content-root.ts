@@ -1,3 +1,4 @@
+import { ClickEvent } from "../events/types";
 import { Content, ContentParent } from "./content";
 
 export class ContentRoot<TContent extends Content> implements Content, ContentParent{
@@ -13,16 +14,12 @@ export class ContentRoot<TContent extends Content> implements Content, ContentPa
         this.content.draw(ctx)
     }
 
-    public willHandleClick(x: number, y: number): boolean {
-        return this.content.willHandleClick(x, y)
-    }
-
     public triggerChange(): void {
         this.onChangeCallback?.();
     }
 
-    public handleClick(x: number, y: number): void {
-        this.content.handleClick(x, y)
+    public handleClick(click: ClickEvent): void {
+        this.content.handleClick(click);
     }
 
     public addChild(): void {
