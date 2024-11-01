@@ -1,17 +1,14 @@
 import { Point } from "../point";
 import { Theme } from "../themes";
-import { ContentParent } from "./content";
-import { ContentImpl } from "./content-impl";
 
-export class Win extends ContentImpl{
+export class Win {
     public constructor(
-        parent: ContentParent,
         private theme: Theme,
         private readonly start: Point,
         private readonly end: Point,
         private readonly lineWidth: number
     ){
-        super(parent);
+
     }
 
     public setTheme(theme: Theme): void{

@@ -1,7 +1,5 @@
 import { Measurements } from "../../measurements";
 import { Theme } from "../../themes";
-import { ContentParent } from "../content";
-import { ContentImpl } from "../content-impl";
 import { GridBorder } from "./grid-border";
 import { GridBuilder } from "./grid-builder";
 
@@ -34,7 +32,7 @@ class GridCell implements Cell {
     }
 }
 
-export class Grid extends ContentImpl{
+export class Grid {
     private readonly gridCells: GridCell[]
     private readonly leftVerticalBorder: GridBorder;
     private readonly rightVerticalBorder: GridBorder;
@@ -44,11 +42,9 @@ export class Grid extends ContentImpl{
     public readonly cellSize: number;
     public get cells(): Cell[] {return this.gridCells;}
     public constructor(
-        parent: ContentParent,
         measurements: Measurements,
         theme: Theme
     ){
-        super(parent);
         const builder = new GridBuilder(measurements);
         this.leftVerticalBorder = GridBorder.create(builder.getLeftVertical(), theme);
         this.rightVerticalBorder = GridBorder.create(builder.getRightVertical(), theme);

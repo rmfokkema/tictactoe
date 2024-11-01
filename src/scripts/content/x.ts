@@ -2,17 +2,15 @@ import { Measurements } from "../measurements";
 import { Point } from "../point";
 import { Theme } from "../themes";
 import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
-import { ContentParent } from "./content";
 import { Mark } from "./mark";
 import { MarkImpl } from "./mark-impl";
 
 export class X extends MarkImpl implements Mark{
 
     public constructor(
-        parent: ContentParent,
         measurements: Measurements,
         private theme: Theme){
-        super(parent, measurements);
+        super(measurements);
     }
 
     public setTheme(theme: Theme): void {
@@ -47,7 +45,7 @@ export class X extends MarkImpl implements Mark{
         return {x: x + size / 4, y: y + 3 * size / 4}
     }
 
-    protected drawMark(ctx: CanvasRenderingContext2D): void {
+    public draw(ctx: CanvasRenderingContext2D): void {
         const {x, y, size} = this.measurements;
         ctx.save();
         ctx.lineWidth = this.lineWidth;

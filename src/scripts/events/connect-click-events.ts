@@ -1,10 +1,5 @@
-import { AcceptableClickEventAtTarget, AcceptedClickEvent, ClickEvent, ClickEventType, ClickHandler, DownwardsClickEvent } from "./types"
+import { AcceptableClickEventAtTarget, AcceptedClickEvent, ClickEvent, ClickEventType, ClickHandler, DownwardsClickEvent, EventTargetLike, PointerEventMap } from "./types"
 
-export interface EventTargetLike<TMap>{
-    addEventListener<TType extends keyof TMap>(type: TType, handler: (ev: TMap[TType]) => void): void
-}
-
-export type PointerEventMap = Pick<GlobalEventHandlersEventMap, 'pointerdown' | 'pointerup' | 'pointermove'>
 
 abstract class BaseClickEvent implements ClickEvent{
     public abstract readonly type: ClickEventType;

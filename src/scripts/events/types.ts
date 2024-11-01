@@ -36,7 +36,21 @@ export interface AcceptableClickEventAtTarget extends ClickEventProperties{
 
 export type ClickEventAtTarget = AcceptedClickEvent | AcceptableClickEventAtTarget
 
+export type NodeClickHandler = (click: ClickEventAtTarget) => void
+
 export function isAccepted(eventAtTarget: ClickEventAtTarget): eventAtTarget is AcceptedClickEvent{
     const asAccepted = eventAtTarget as AcceptedClickEvent;
     return asAccepted.type === 'cancel' || asAccepted.type === 'up';
 }
+
+export interface ClickHandlerNode extends ClickHandler{
+    onClick(handler: NodeClickHandler): void
+    child(): ClickHandlerNode
+    destroy(): void
+}
+
+export interface EventTargetLike<TMap>{
+    addEventListener<TType extends keyof TMap>(type: TType, handler: (ev: TMap[TType]) => void): void
+}
+
+export type PointerEventMap = Pick<GlobalEventHandlersEventMap, 'pointerdown' | 'pointerup' | 'pointermove'>

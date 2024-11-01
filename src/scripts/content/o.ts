@@ -3,16 +3,14 @@ import { Point } from "../point";
 import { Mark } from "./mark";
 import { MarkImpl } from "./mark-impl";
 import { Theme } from "../themes";
-import { ContentParent } from "./content";
 import { Measurements } from "../measurements";
 
 export class O extends MarkImpl implements Mark{
 
     public constructor(
-        parent: ContentParent,
         measurements: Measurements,
         private theme: Theme){
-        super(parent, measurements);
+        super(measurements);
     }
 
     private getStraightWinDistanceFromEdge(): number{
@@ -58,7 +56,7 @@ export class O extends MarkImpl implements Mark{
         return {x: x + diagDist, y: y + size - diagDist }
     }
 
-    protected drawMark(ctx: CanvasRenderingContext2D): void{
+    public draw(ctx: CanvasRenderingContext2D): void{
         const {x, y, size} = this.measurements;
         ctx.save();
         ctx.lineWidth = this.lineWidth;

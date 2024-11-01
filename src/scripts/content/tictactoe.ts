@@ -1,4 +1,3 @@
-import { Content, ContentParent } from "./content";
 import { GameState } from "../game-state";
 import { Cell, Grid } from "./grid/grid";
 import { getMarkLineWidth, Measurements, measurementsInclude } from "../measurements";
@@ -9,17 +8,20 @@ import { X } from "./x";
 import { Mark } from "./mark";
 import { Point } from "../point";
 import { Win } from "./win";
-import { ContentImpl } from "./content-impl";
 import { EquivalentPossibility } from "./equivalent-possibility";
-import { ClickEventAtTarget, isAccepted } from "../events/types";
+import { ClickHandler, ClickHandlerNode, isAccepted } from "../events/types";
 import { Theme } from "../themes";
+import { Renderable, Renderer } from "../renderer/types";
 
-export interface TicTacToeParent extends ContentParent{
+export interface TicTacToeParent {
     notifyWinner(): void
 }
 
-export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacToeParent {
-    declare parent: TicTacToeParent
+export interface RootTicTacToe extends ClickHandler, Renderable {
+    tictactoe: TicTacToe
+}
+
+export class TicTacToe implements PossibilityParent, TicTacToeParent {
     private theme: Theme
     private win: Win | undefined;
     private readonly possibilities: Possibility[]
@@ -31,19 +33,20 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
     public isWin: boolean;
 
     public constructor(
-        parent: TicTacToeParent,
-        private readonly measurements: Measurements,
+        private readonly parent: TicTacToeParent,
+        private readonly clickHandler: ClickHandlerNode,
+        private readonly renderer: Renderer,
+        measurements: Measurements,
         theme: Theme,
         private readonly gameState: GameState,
         private readonly gridCell: Cell | undefined
     ){
-        super(parent);
         if(gridCell){
             gridCell.visible = true;
         }
-        const grid = this.grid = new Grid(this, measurements, theme)
-        const possibilities: Content[] = this.possibilities = [];
-        const marks: Content[] = this.marks = [];
+        const grid = this.grid = new Grid(measurements, theme)
+        const possibilities: Possibility[] = this.possibilities = [];
+        const marks: Mark[] = this.marks = [];
         const winner = gameState.findWinner();
         if(winner){
             this.winner = winner.player;
@@ -60,12 +63,12 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
                     continue;
                 }
                 const newGameState = gameState.playPosition(position)
-                possibilities.push(new Possibility(this, measurements, newGameState, position))
+                possibilities.push(new Possibility(clickHandler.child(), this, measurements, newGameState, position))
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
-                ? new X(this, measurements, theme)
-                : new O(this, measurements, theme);
+                ? new X(measurements, theme)
+                : new O(measurements, theme);
             
             marks.push(mark);
             
@@ -74,7 +77,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             }
             if(winnerStartPoint && winner && position === winner.three.positions[2]){
                 this.win = new Win(
-                    this,
                     theme,
                     winnerStartPoint,
                     mark.getWinEnd(winner.three),
@@ -82,14 +84,13 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
                 )
             }
         }
-    }
-
-    protected handleClickOnSelf(click: ClickEventAtTarget): void {
-        if(!isAccepted(click)){
-            if(!measurementsInclude(this.measurements, click.x, click.y)){
-                click.reject();
+        clickHandler.onClick((click) => {
+            if(!isAccepted(click)){
+                if(!measurementsInclude(measurements, click.x, click.y)){
+                    click.reject();
+                }
             }
-        }
+        })
     }
 
     private replaceEquivalentPossibility(possibility: Possibility): void{
@@ -98,8 +99,8 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             return;
         }
         this.possibilities.splice(index, 1);
-        this.removeChild(possibility);
-        const equivalentPossibility = new EquivalentPossibility(this, possibility.measurements);
+        possibility.destroy();
+        const equivalentPossibility = new EquivalentPossibility(possibility.measurements);
         this.equivalentPossibilities.push(equivalentPossibility);
     }
 
@@ -140,8 +141,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
 
     public draw(ctx: CanvasRenderingContext2D): void{
         this.grid?.draw(ctx)
-        this.possibilities.forEach(c => c.draw(ctx))
-        this.equivalentPossibilities.forEach(p => p.draw(ctx))
         this.ticTacToes.forEach(t => t.tictactoe.draw(ctx))
         this.marks.forEach(m => m.draw(ctx))
         this.win?.draw(ctx)
@@ -153,10 +152,18 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             return;
         }
         this.possibilities.splice(index, 1);
-        this.removeChild(possibility)
+        possibility.destroy();
         
         const position = possibility.position;
-        const tictactoe = new TicTacToe(this, possibility.measurements, this.theme, gameState, this.grid?.cells[position]);
+        const tictactoe = new TicTacToe(
+            this,
+            this.clickHandler.child(),
+            this.renderer,
+            possibility.measurements,
+            this.theme,
+            gameState,
+            this.grid?.cells[position]
+        );
         this.ticTacToes.push({position, tictactoe});
         const equivalentStates = [...possibility.gameState.getEquivalentStates()];
         const equivalentPossibilities = this.possibilities.filter(p => equivalentStates.some(s => s.equals(p.gameState)))
@@ -166,16 +173,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         if(tictactoe.winner){
             this.setWinner(tictactoe.winner)
         }
-        this.triggerChange();
-    }
-
-    public destroy(): void {
-        super.destroy();
-        this.win = undefined;
-        this.grid = undefined;
-        this.possibilities.splice(0)
-        this.ticTacToes.splice(0)
-        this.possibilities.splice(0)
-        this.equivalentPossibilities.splice(0)
+        this.renderer.rerender();
     }
 }
