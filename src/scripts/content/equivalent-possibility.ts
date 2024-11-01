@@ -9,12 +9,4 @@ export class EquivalentPossibility extends ContentImpl{
     ){
         super(parent)
     }
-
-    public draw(ctx: CanvasRenderingContext2D): void {
-        const {x, y, size} = this.measurements;
-        ctx.save();
-        ctx.fillStyle = '#aaa';
-        ctx.fillRect(x, y, size, size)
-        ctx.restore();
-    }
 }

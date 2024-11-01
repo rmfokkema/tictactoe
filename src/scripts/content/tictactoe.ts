@@ -1,8 +1,8 @@
 import { Content, ContentParent } from "./content";
 import { GameState } from "../game-state";
-import { Grid } from "./grid";
+import { Cell, Grid } from "./grid/grid";
 import { getMarkLineWidth, Measurements, measurementsInclude } from "../measurements";
-import { Player } from "../player";
+import { otherPlayer, Player } from "../player";
 import { Possibility, PossibilityParent } from "./possibility";
 import { O } from "./o";
 import { X } from "./x";
@@ -12,47 +12,60 @@ import { Win } from "./win";
 import { ContentImpl } from "./content-impl";
 import { EquivalentPossibility } from "./equivalent-possibility";
 import { ClickEventAtTarget, isAccepted } from "../events/types";
+import { Theme } from "../themes";
 
 export interface TicTacToeParent extends ContentParent{
-    recordWinner(): void
-    recordLoser(ticTacToe: TicTacToe): void
+    notifyWinner(): void
 }
 
 export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacToeParent {
-    private ticTacToeParent: TicTacToeParent | undefined
+    declare parent: TicTacToeParent
+    private theme: Theme
     private win: Win | undefined;
     private readonly possibilities: Possibility[]
-    private readonly marks: Content[]
+    private readonly marks: Mark[]
     private readonly equivalentPossibilities: EquivalentPossibility[] = [];
-    private readonly ticTacToes: {position: number, ticTacToe: TicTacToe }[] = []
+    private readonly ticTacToes: {position: number, tictactoe: TicTacToe}[] = []
     private grid: Grid | undefined;
+    public winner: Player | undefined;
+    public isWin: boolean;
+
     public constructor(
         parent: TicTacToeParent,
         private readonly measurements: Measurements,
-        private readonly gameState: GameState
+        theme: Theme,
+        private readonly gameState: GameState,
+        private readonly gridCell: Cell | undefined
     ){
         super(parent);
-        this.ticTacToeParent = parent;
-        const grid = this.grid = new Grid(this, measurements)
-        const cellMeasurements = [...grid.getCellMeasurements()]
+        if(gridCell){
+            gridCell.visible = true;
+        }
+        const grid = this.grid = new Grid(this, measurements, theme)
         const possibilities: Content[] = this.possibilities = [];
         const marks: Content[] = this.marks = [];
         const winner = gameState.findWinner();
+        if(winner){
+            this.winner = winner.player;
+        }
+        this.isWin = !!winner;
+        this.theme = winner ? theme.winnerTheme : theme;
         let winnerStartPoint: Point | undefined;
         for(let position = 0; position < 9; position++){
-            const measurements = cellMeasurements[position];
+            const cell = grid.cells[position]
+            const measurements = cell.measurements;
             const playerAtCell = gameState.getPlayerAtPosition(position)
             if(playerAtCell === 0){
                 if(winner){
                     continue;
                 }
                 const newGameState = gameState.playPosition(position)
-                possibilities.push(new Possibility(this, measurements, newGameState, position, false))
+                possibilities.push(new Possibility(this, measurements, newGameState, position))
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
-                ? new X(this, measurements)
-                : new O(this, measurements);
+                ? new X(this, measurements, theme)
+                : new O(this, measurements, theme);
             
             marks.push(mark);
             
@@ -60,13 +73,15 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
                 winnerStartPoint = mark.getWinStart(winner.three);
             }
             if(winnerStartPoint && winner && position === winner.three.positions[2]){
-                this.win = new Win(this, winnerStartPoint, mark.getWinEnd(winner.three), getMarkLineWidth(grid.cellSize))
+                this.win = new Win(
+                    this,
+                    theme,
+                    winnerStartPoint,
+                    mark.getWinEnd(winner.three),
+                    getMarkLineWidth(grid.cellSize)
+                )
             }
         }
-    }
-
-    private hasOnlyLosingPossibilities(): boolean{
-        return this.ticTacToes.length === 0 && this.possibilities.length > 0 && this.possibilities.every(p => p.isLosing);
     }
 
     protected handleClickOnSelf(click: ClickEventAtTarget): void {
@@ -74,17 +89,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
             if(!measurementsInclude(this.measurements, click.x, click.y)){
                 click.reject();
             }
-            if(this.win || this.hasOnlyLosingPossibilities()){
-                click.accept();
-            }
-            return;
-        }
-        if(click.type === 'cancel'){
-            console.log('click on tictactoe cancelled')
-            return;
-        }
-        if(this.win || this.hasOnlyLosingPossibilities()){
-            this.ticTacToeParent?.recordWinner()
         }
     }
 
@@ -99,35 +103,48 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         this.equivalentPossibilities.push(equivalentPossibility);
     }
 
+    private setWinner(winner: Player): void{
+        this.winner = winner;
+        this.setTheme(this.theme);
+        this.parent.notifyWinner();
+    }
+
+    public setTheme(theme: Theme): void{
+        const isLosing = this.winner === this.gameState.currentPlayer;
+        const isWinning = this.isWin || this.winner === otherPlayer(this.gameState.currentPlayer);
+        const newTheme = isWinning ? theme.winnerTheme : isLosing ? theme.loserTheme : theme;
+        this.theme = newTheme;
+        this.win?.setTheme(newTheme);
+        this.marks.forEach(m => m.setTheme(newTheme))
+        this.gridCell?.setTheme(newTheme)
+        this.grid?.setTheme(newTheme)
+        this.ticTacToes.forEach(({tictactoe}) => tictactoe.setTheme(newTheme))
+    }
+
+    public notifyWinner(): void {
+        const other = this.gameState.currentPlayer;
+        const otherHasWon = this.ticTacToes.some(t => t.tictactoe.winner === other);
+        if(otherHasWon){
+            this.setWinner(other);
+            return;
+        }
+        if(this.possibilities.length > 0){
+            return;
+        }
+        const lastPlayer = otherPlayer(this.gameState.currentPlayer);
+        if(this.ticTacToes.some(t => t.tictactoe.winner !== lastPlayer)){
+            return;
+        }
+        this.setWinner(lastPlayer);
+    }
+
     public draw(ctx: CanvasRenderingContext2D): void{
+        this.grid?.draw(ctx)
         this.possibilities.forEach(c => c.draw(ctx))
         this.equivalentPossibilities.forEach(p => p.draw(ctx))
-        this.ticTacToes.forEach(t => t.ticTacToe.draw(ctx))
+        this.ticTacToes.forEach(t => t.tictactoe.draw(ctx))
         this.marks.forEach(m => m.draw(ctx))
         this.win?.draw(ctx)
-        this.grid?.draw(ctx)
-    }
-
-    public recordWinner(): void {
-        this.ticTacToeParent?.recordLoser(this)
-    }
-
-    public recordLoser(ticTacToe: TicTacToe): void {
-        const index = this.ticTacToes.findIndex(t => t.ticTacToe === ticTacToe);
-        if(index === -1){
-            return;
-        }
-        const [{position}] = this.ticTacToes.splice(index, 1);
-        this.removeChild(ticTacToe);
-        const grid = this.grid;
-        if(!grid){
-            return;
-        }
-        const measurements = [...grid.getCellMeasurements()][position]
-        const newGameState = this.gameState.playPosition(position)
-        const possibility = new Possibility(this, measurements, newGameState, position, true);
-        this.possibilities.push(possibility);
-        this.triggerChange();
     }
 
     public play(possibility: Possibility, gameState: GameState): void {
@@ -138,14 +155,16 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         this.possibilities.splice(index, 1);
         this.removeChild(possibility)
         
-        this.ticTacToes.push({
-            ticTacToe: new TicTacToe(this, possibility.measurements, gameState),
-            position: possibility.position
-        });
+        const position = possibility.position;
+        const tictactoe = new TicTacToe(this, possibility.measurements, this.theme, gameState, this.grid?.cells[position]);
+        this.ticTacToes.push({position, tictactoe});
         const equivalentStates = [...possibility.gameState.getEquivalentStates()];
         const equivalentPossibilities = this.possibilities.filter(p => equivalentStates.some(s => s.equals(p.gameState)))
         for(const equivalentPossibility of equivalentPossibilities){
             this.replaceEquivalentPossibility(equivalentPossibility)
+        }
+        if(tictactoe.winner){
+            this.setWinner(tictactoe.winner)
         }
         this.triggerChange();
     }
@@ -154,7 +173,6 @@ export class TicTacToe extends ContentImpl implements PossibilityParent, TicTacT
         super.destroy();
         this.win = undefined;
         this.grid = undefined;
-        this.ticTacToeParent = undefined;
         this.possibilities.splice(0)
         this.ticTacToes.splice(0)
         this.possibilities.splice(0)

@@ -1,5 +1,6 @@
 import { GameState } from "../game-state";
 import { Measurements } from "../measurements";
+import { Theme } from "../themes";
 import { ContentParent } from "./content";
 import { ContentRoot } from "./content-root";
 import { TicTacToe, TicTacToeParent } from "./tictactoe";
@@ -19,14 +20,14 @@ class RootTicTacToeParent implements TicTacToeParent {
 
     }
 
-    public recordWinner(): void {
-        
-    }
-
-    public recordLoser(): void {
+    public notifyWinner(): void {
         
     }
 }
-export function createTicTacToe(measurements: Measurements, gameState: GameState): ContentRoot<TicTacToe>{
-    return ContentRoot.create((parent) => new TicTacToe(new RootTicTacToeParent(parent), measurements, gameState))
+export function createTicTacToe(
+    measurements: Measurements,
+    theme: Theme,
+    gameState: GameState
+): ContentRoot<TicTacToe>{
+    return ContentRoot.create((parent) => new TicTacToe(new RootTicTacToeParent(parent), measurements, theme, gameState, undefined))
 }

@@ -1,9 +1,23 @@
+import { Measurements } from "../measurements";
 import { Point } from "../point";
+import { Theme } from "../themes";
 import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
+import { ContentParent } from "./content";
 import { Mark } from "./mark";
 import { MarkImpl } from "./mark-impl";
 
 export class X extends MarkImpl implements Mark{
+
+    public constructor(
+        parent: ContentParent,
+        measurements: Measurements,
+        private theme: Theme){
+        super(parent, measurements);
+    }
+
+    public setTheme(theme: Theme): void {
+        this.theme = theme;
+    }
 
     public getWinStart(three: Three): Point{
         const {x, y, size} = this.measurements;
@@ -35,12 +49,15 @@ export class X extends MarkImpl implements Mark{
 
     protected drawMark(ctx: CanvasRenderingContext2D): void {
         const {x, y, size} = this.measurements;
+        ctx.save();
         ctx.lineWidth = this.lineWidth;
+        ctx.strokeStyle = this.theme.color;
         ctx.beginPath();
         ctx.moveTo(x + size / 4, y + size / 4);
         ctx.lineTo(x + 3 * size / 4, y + 3 * size / 4);
         ctx.moveTo(x + 3 * size / 4, y + size / 4);
         ctx.lineTo(x + size / 4, y + 3 * size / 4);
         ctx.stroke();
+        ctx.restore();
     }
 }

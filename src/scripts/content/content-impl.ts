@@ -3,7 +3,7 @@ import { Content, ContentParent } from "./content";
 
 export class ContentImpl implements Content, ContentParent{
     private children: Content[] = [];
-    private parent: ContentParent | undefined
+    protected parent: ContentParent | undefined
     public constructor(
         parent: ContentParent
     ){

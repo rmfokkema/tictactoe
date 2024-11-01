@@ -2,9 +2,10 @@ import '../main.css'
 import InfiniteCanvas, { Units } from 'ef-infinite-canvas'
 import { getInitialMeasurements } from './measurements';
 import { GameState } from './game-state';
-import { defaultColor } from './colors';
 import { createTicTacToe } from './content/create-tictactoe';
 import { connectClickEvents } from './events/connect-click-events';
+import { lightTheme } from './themes';
+import { palette } from './palette';
 
 function initialize(): void{
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -16,6 +17,7 @@ function initialize(): void{
 
     const tictactoe = createTicTacToe(
         getInitialMeasurements(width, height),
+        lightTheme,
         GameState.initial
     )
     let drawRequested = false;
@@ -35,9 +37,10 @@ function initialize(): void{
         drawRequested = true;
     }
     function draw(): void{
-        ctx.strokeStyle = defaultColor;
+        ctx.fillStyle = palette.light;
         ctx.save();
         ctx.clearRect(-Infinity, -Infinity, Infinity, Infinity);
+        ctx.fillRect(-Infinity, -Infinity, Infinity, Infinity);
         tictactoe.draw(ctx);
         ctx.restore();
     }

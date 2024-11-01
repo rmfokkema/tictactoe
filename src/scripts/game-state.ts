@@ -6,7 +6,7 @@ import { Winner } from "./winner";
 export class GameState{
     private constructor(
         private readonly played: number,
-        private readonly currentPlayer: Player
+        public readonly currentPlayer: Player
     ){
 
     }

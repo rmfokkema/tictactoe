@@ -18,8 +18,7 @@ export class Possibility extends ContentImpl{
         parent: PossibilityParent,
         public readonly measurements: Measurements,
         public readonly gameState: GameState,
-        public readonly position: number,
-        public readonly isLosing: boolean
+        public readonly position: number
     ){
         super(parent);
         this.possibilityParent = parent;
@@ -37,21 +36,5 @@ export class Possibility extends ContentImpl{
             }
             this.possibilityParent.play(this, this.gameState);
         }
-    }
-
-    public draw(ctx: CanvasRenderingContext2D): void{
-        if(!this.isLosing){
-            return;
-        }
-        const {x, y, size} = this.measurements;
-        ctx.save();
-        ctx.lineWidth = size / 100;
-        ctx.beginPath();
-        ctx.moveTo(x, y)
-        ctx.lineTo(x + size, y + size);
-        ctx.moveTo(x, y + size)
-        ctx.lineTo(x + size, y)
-        ctx.stroke()
-        ctx.restore();
     }
 }
