@@ -1,6 +1,7 @@
 import { GameState } from "../game-state";
-import { Measurements, measurementsInclude } from "../measurements";
+import { measurementsInclude } from "../measurements";
 import { ClickHandlerNode, isAccepted } from "../events/types";
+import { GridCellMeasurements } from "./grid/types";
 
 export interface PossibilityParent {
     play(
@@ -14,7 +15,7 @@ export class Possibility {
     public constructor(
         private readonly clickHandler: ClickHandlerNode,
         parent: PossibilityParent,
-        public readonly measurements: Measurements,
+        public readonly measurements: GridCellMeasurements,
         public readonly gameState: GameState,
         public readonly position: number
     ){

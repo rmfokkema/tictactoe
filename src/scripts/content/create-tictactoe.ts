@@ -27,7 +27,15 @@ export function createTicTacToe(
         new RootTicTacToeParent(),
         clickHandler,
         renderer,
-        measurements,
+        {
+            ...measurements,
+            background: {
+                extendLeft: 0,
+                extendRight: 0,
+                extendTop: 0,
+                extendBottom: 0
+            }
+        },
         theme,
         gameState,
         undefined

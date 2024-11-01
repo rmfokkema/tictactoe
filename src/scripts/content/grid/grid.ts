@@ -2,16 +2,17 @@ import { Measurements } from "../../measurements";
 import { Theme } from "../../themes";
 import { GridBorder } from "./grid-border";
 import { GridBuilder } from "./grid-builder";
+import { GridCellMeasurements } from "./types";
 
 export interface Cell {
-    measurements: Measurements
+    measurements: GridCellMeasurements
     setTheme(theme: Theme): void
     visible: boolean
 }
 
 class GridCell implements Cell {
     public constructor(
-        public readonly measurements: Measurements,
+        public readonly measurements: GridCellMeasurements,
         private theme: Theme,
         public visible: boolean
     ){
@@ -26,9 +27,14 @@ class GridCell implements Cell {
         if(!this.visible){
             return;
         }
-        const {x, y, size} = this.measurements;
+        const {x, y, size, background: {extendLeft, extendRight, extendTop, extendBottom }} = this.measurements;
         ctx.fillStyle = this.theme.backgroundColor;
-        ctx.fillRect(x, y, size, size)
+        ctx.fillRect(
+            x - extendLeft,
+            y - extendTop,
+            size + extendLeft + extendRight,
+            size + extendTop + extendBottom
+        );
     }
 }
 
@@ -42,7 +48,7 @@ export class Grid {
     public readonly cellSize: number;
     public get cells(): Cell[] {return this.gridCells;}
     public constructor(
-        measurements: Measurements,
+        measurements: GridCellMeasurements,
         theme: Theme
     ){
         const builder = new GridBuilder(measurements);
@@ -63,10 +69,13 @@ export class Grid {
         this.gridCells.forEach(c => c.setTheme(theme))
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void {
+    public drawCells(ctx: CanvasRenderingContext2D) {
+        this.gridCells.forEach(c => c.draw(ctx))
+    }
+
+    public drawBorders(ctx: CanvasRenderingContext2D): void {
         ctx.save();
         ctx.lineWidth = this.lineWidth;
-        this.gridCells.forEach(c => c.draw(ctx))
         this.leftVerticalBorder.draw(ctx);
         this.rightVerticalBorder.draw(ctx);
         this.topHorizontalBorder.draw(ctx);

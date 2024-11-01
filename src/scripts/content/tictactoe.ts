@@ -12,6 +12,7 @@ import { EquivalentPossibility } from "./equivalent-possibility";
 import { ClickHandler, ClickHandlerNode, isAccepted } from "../events/types";
 import { Theme } from "../themes";
 import { Renderable, Renderer } from "../renderer/types";
+import { GridCellMeasurements } from "./grid/types";
 
 export interface TicTacToeParent {
     notifyWinner(): void
@@ -36,7 +37,7 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
         private readonly parent: TicTacToeParent,
         private readonly clickHandler: ClickHandlerNode,
         private readonly renderer: Renderer,
-        measurements: Measurements,
+        measurements: GridCellMeasurements,
         theme: Theme,
         private readonly gameState: GameState,
         private readonly gridCell: Cell | undefined
@@ -140,10 +141,11 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
     }
 
     public draw(ctx: CanvasRenderingContext2D): void{
-        this.grid?.draw(ctx)
+        this.grid?.drawCells(ctx)
         this.ticTacToes.forEach(t => t.tictactoe.draw(ctx))
         this.marks.forEach(m => m.draw(ctx))
         this.win?.draw(ctx)
+        this.grid?.drawBorders(ctx);
     }
 
     public play(possibility: Possibility, gameState: GameState): void {

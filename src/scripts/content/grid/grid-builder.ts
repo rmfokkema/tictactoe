@@ -1,6 +1,5 @@
 import { Measurements } from "../../measurements";
-import { BorderDirection } from "./border-direction";
-import { LineSegmentMeasurements } from "./line-segment-measurements";
+import { BorderDirection, GridCellMeasurements, LineSegmentMeasurements } from "./types";
 
 export class GridBuilder {
     private readonly vertical1: number
@@ -10,7 +9,7 @@ export class GridBuilder {
     public readonly lineWidth: number;
     public readonly cellSize: number;
     public constructor(
-        private readonly measurements: Measurements
+        private readonly measurements: GridCellMeasurements
     ){
         const { size, x, y } = measurements;
         const lineWidth = this.lineWidth = size / 100;
@@ -22,18 +21,28 @@ export class GridBuilder {
         this.horizontal1 = y + cellSize + lineWidth / 2;
         this.horizontal2 = bottom - cellSize - lineWidth / 2;
     }
-    public *getCellMeasurements(): Iterable<Measurements>{
+    public *getCellMeasurements(): Iterable<GridCellMeasurements>{
         const {x, y, size: parentSize} = this.measurements;
         const size = (parentSize - 2 * this.lineWidth) / 3;
         const halfLineWidth = this.lineWidth / 2;
         const columnXes = [x, this.vertical1 + halfLineWidth, this.vertical2 + halfLineWidth];
         const rowYs = [y, this.horizontal1 + halfLineWidth, this.horizontal2 + halfLineWidth];
         for(let rowIndex = 0; rowIndex < 3; rowIndex++){
+            const extendTop = rowIndex === 0 ? this.measurements.background.extendTop : halfLineWidth;
+            const extendBottom = rowIndex === 2 ? this.measurements.background.extendBottom : halfLineWidth;
             for(let columnIndex = 0; columnIndex < 3; columnIndex++){
+                const extendLeft = columnIndex === 0 ? this.measurements.background.extendLeft : halfLineWidth;
+                const extendRight = columnIndex === 2 ? this.measurements.background.extendRight : halfLineWidth;
                 yield {
                     x: columnXes[columnIndex],
                     y: rowYs[rowIndex],
-                    size
+                    size,
+                    background: {
+                        extendLeft,
+                        extendRight,
+                        extendTop,
+                        extendBottom
+                    }
                 }
             }
         }

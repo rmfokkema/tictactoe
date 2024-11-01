@@ -1,7 +1,5 @@
 import { Theme } from "../../themes";
-import { BorderDirection } from "./border-direction";
-import { LineSegment } from "./line-segment";
-import { LineSegmentMeasurements } from "./line-segment-measurements";
+import { BorderDirection, LineSegment, LineSegmentMeasurements } from "./types";
 
 class VerticalLineSegment implements LineSegment {
     public constructor(

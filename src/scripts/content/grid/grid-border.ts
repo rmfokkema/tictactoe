@@ -1,7 +1,6 @@
 import { Theme } from "../../themes";
-import { LineSegment } from "./line-segment";
 import { createLineSegment } from "./line-segment-impl";
-import { LineSegmentMeasurements } from "./line-segment-measurements";
+import { LineSegment, LineSegmentMeasurements } from "./types";
 
 export class GridBorder{
     public constructor(
