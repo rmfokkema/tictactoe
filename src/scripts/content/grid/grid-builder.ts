@@ -1,5 +1,5 @@
 import { Measurements } from "../../measurements";
-import { BorderDirection, GridCellMeasurements, LineSegmentMeasurements } from "./types";
+import { BorderDirection, GridBorderMeasurements, GridCellMeasurements, LineSegmentMeasurements } from "./types";
 
 export class GridBuilder {
     private readonly vertical1: number
@@ -47,36 +47,56 @@ export class GridBuilder {
             }
         }
     }
-    public getLeftVertical(): LineSegmentMeasurements {
+    public getLeftVertical(): GridBorderMeasurements {
         return {
-            direction: BorderDirection.Vertical,
-            position: this.vertical1,
-            start: this.measurements.y,
-            end: this.measurements.y + this.measurements.size
+            lineSegment: {
+                direction: BorderDirection.Vertical,
+                position: this.vertical1,
+                start: this.measurements.y,
+                end: this.measurements.y + this.measurements.size
+            },
+            intersection1: this.horizontal1,
+            intersection2: this.horizontal2,
+            lineWidth: this.lineWidth
         }
     }
-    public getRightVertical(): LineSegmentMeasurements {
+    public getRightVertical(): GridBorderMeasurements {
         return {
-            direction: BorderDirection.Vertical,
-            position: this.vertical2,
-            start: this.measurements.y,
-            end: this.measurements.y + this.measurements.size
+            lineSegment: {
+                direction: BorderDirection.Vertical,
+                position: this.vertical2,
+                start: this.measurements.y,
+                end: this.measurements.y + this.measurements.size
+            },
+            intersection1: this.horizontal1,
+            intersection2: this.horizontal2,
+            lineWidth: this.lineWidth
         };
     }
-    public getTopHorizontal(): LineSegmentMeasurements{
+    public getTopHorizontal(): GridBorderMeasurements{
         return {
-            direction: BorderDirection.Horizontal,
-            position: this.horizontal1,
-            start: this.measurements.x,
-            end: this.measurements.x + this.measurements.size,
+            lineSegment: {
+                direction: BorderDirection.Horizontal,
+                position: this.horizontal1,
+                start: this.measurements.x,
+                end: this.measurements.x + this.measurements.size,
+            },
+            intersection1: this.vertical1,
+            intersection2: this.vertical2,
+            lineWidth: this.lineWidth
         }
     }
-    public getBottomHorizontal(): LineSegmentMeasurements{
+    public getBottomHorizontal(): GridBorderMeasurements{
         return {
-            direction: BorderDirection.Horizontal,
-            position: this.horizontal2,
-            start: this.measurements.x,
-            end: this.measurements.x + this.measurements.size
+            lineSegment:{
+                direction: BorderDirection.Horizontal,
+                position: this.horizontal2,
+                start: this.measurements.x,
+                end: this.measurements.x + this.measurements.size
+            },
+            intersection1: this.vertical1,
+            intersection2: this.vertical2,
+            lineWidth: this.lineWidth
         }
     }
 }

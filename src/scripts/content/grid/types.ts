@@ -5,7 +5,14 @@ export enum BorderDirection { Vertical, Horizontal }
 
 export interface LineSegment {
     draw(ctx: CanvasRenderingContext2D): void
-    setTheme(theme: Theme): void
+    themed(theme: Theme): LineSegment
+}
+
+export interface GridBorderMeasurements {
+    lineSegment: LineSegmentMeasurements
+    intersection1: number
+    intersection2: number
+    lineWidth: number
 }
 
 export interface LineSegmentMeasurements{

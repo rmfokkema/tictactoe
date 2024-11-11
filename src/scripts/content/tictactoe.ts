@@ -42,9 +42,6 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
         private readonly gameState: GameState,
         private readonly gridCell: Cell | undefined
     ){
-        if(gridCell){
-            gridCell.visible = true;
-        }
         const grid = this.grid = new Grid(measurements, theme)
         const possibilities: Possibility[] = this.possibilities = [];
         const marks: Mark[] = this.marks = [];
