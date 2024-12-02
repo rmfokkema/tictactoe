@@ -1,12 +1,11 @@
-import { GameState } from "../game-state";
+import { GameState } from "../state/game-state";
 import { measurementsInclude } from "../measurements";
 import { ClickHandlerNode, isAccepted } from "../events/types";
 import { GridCellMeasurements } from "./grid/types";
 
 export interface PossibilityParent {
     play(
-        possibility: Possibility,
-        gameState: GameState
+        possibility: Possibility
     ): void
 }
 
@@ -29,7 +28,7 @@ export class Possibility {
                     console.log('click on possibility is cancelled')
                     return;
                 }
-                parent.play(this, this.gameState);
+                parent.play(this);
             }
         })
     }

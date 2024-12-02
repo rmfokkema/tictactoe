@@ -1,7 +1,7 @@
 import '../main.css'
 import InfiniteCanvas, { Units } from 'ef-infinite-canvas'
 import { getInitialMeasurements } from './measurements';
-import { GameState } from './game-state';
+import { GameState } from './state/game-state';
 import { createTicTacToe } from './content/create-tictactoe';
 import { lightTheme } from './themes';
 import { palette } from './palette';
