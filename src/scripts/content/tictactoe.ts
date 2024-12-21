@@ -8,19 +8,15 @@ import { X } from "./x";
 import { Mark } from "./mark";
 import { Point } from "../point";
 import { Win } from "./win";
-import { ClickHandler, ClickHandlerNode, isAccepted } from "../events/types";
+import { ClickHandlerNode, isAccepted } from "../events/types";
 import { Theme } from "../themes";
-import { Renderable, Renderer } from "../renderer/types";
+import { Renderer } from "../renderer/types";
 import { GridCellMeasurements } from "./grid/types";
 import { Winner } from "../winner";
 import { addToRevealedPosition, RevealedPosition, splitRevealedPosition } from "../state/revealed-position";
 
 export interface TicTacToeParent {
     notifyRevealedPosition(position: RevealedPosition): void
-}
-
-export interface RootTicTacToe extends ClickHandler, Renderable {
-    tictactoe: TicTacToe
 }
 
 export class TicTacToe implements PossibilityParent, TicTacToeParent {
