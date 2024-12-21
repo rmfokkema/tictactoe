@@ -10,20 +10,14 @@ export interface Theme {
 export const lightTheme: Theme = {
     backgroundColor: palette.light,
     color: palette.dark,
-    get loserTheme(): Theme { return darkTheme; },
+    get loserTheme(): Theme { return lessLightTheme; },
     get winnerTheme(): Theme { return lightTheme; }
 }
 
-export const darkThemeWinnerTheme: Theme = {
+export const lessLightTheme: Theme = {
     backgroundColor: palette.middle,
     color: palette.dark,
-    get loserTheme(): Theme {return darkTheme; },
-    get winnerTheme(): Theme { return darkThemeWinnerTheme; }
+    get loserTheme(): Theme { return lessLightTheme; },
+    get winnerTheme(): Theme { return lightTheme; }
 }
 
-export const darkTheme: Theme = {
-    backgroundColor: palette.dark,
-    color: palette.middle,
-    get loserTheme(): Theme { return darkTheme; },
-    get winnerTheme(): Theme { return darkThemeWinnerTheme; }
-};

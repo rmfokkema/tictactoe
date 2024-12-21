@@ -6,6 +6,6 @@ export interface Palette {
 
 export const palette: Palette = {
     dark:'#151517',
-    middle: '#888',
+    middle: '#e5e5e5',
     light: '#fbfbfa'
 };
