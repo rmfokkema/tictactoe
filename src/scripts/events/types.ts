@@ -53,4 +53,7 @@ export interface EventTargetLike<TMap>{
     addEventListener<TType extends keyof TMap>(type: TType, handler: (ev: TMap[TType]) => void): void
 }
 
-export type PointerEventMap = Pick<GlobalEventHandlersEventMap, 'pointerdown' | 'pointerup' | 'pointermove'>
+export type PointerEventType = 'pointerdown' | 'pointerup' | 'pointermove'
+export type PointerEventMap = Pick<GlobalEventHandlersEventMap, PointerEventType>
+
+export type PointerEventTargetLike = EventTargetLike<PointerEventMap>

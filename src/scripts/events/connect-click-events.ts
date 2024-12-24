@@ -1,4 +1,4 @@
-import { AcceptableClickEventAtTarget, AcceptedClickEvent, ClickEvent, ClickEventType, ClickHandler, DownwardsClickEvent, EventTargetLike, PointerEventMap } from "./types"
+import { AcceptableClickEventAtTarget, AcceptedClickEvent, ClickEvent, ClickEventType, ClickHandler, DownwardsClickEvent, PointerEventTargetLike } from "./types"
 
 
 abstract class BaseClickEvent implements ClickEvent{
@@ -81,7 +81,7 @@ class AcceptedClickEventAtTarget implements AcceptedClickEvent{
 }
 
 export function connectClickEvents(
-    pointerEvents: EventTargetLike<PointerEventMap>,
+    pointerEvents: PointerEventTargetLike,
     handler: ClickHandler
 ): void{
     let theEvent: ClickEventImpl | undefined = undefined;

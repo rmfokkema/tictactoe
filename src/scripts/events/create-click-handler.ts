@@ -1,8 +1,8 @@
 import { ClickHandlerNodeImpl } from "./click-handler-node-impl";
 import { connectClickEvents } from "./connect-click-events";
-import { ClickHandlerNode, EventTargetLike, PointerEventMap } from "./types";
+import { ClickHandlerNode, PointerEventTargetLike } from "./types";
 
-export function createClickHandler(pointerEvents: EventTargetLike<PointerEventMap>): ClickHandlerNode{
+export function createClickHandler(pointerEvents: PointerEventTargetLike): ClickHandlerNode{
     const handler = ClickHandlerNodeImpl.create();
     connectClickEvents(pointerEvents, handler);
     return handler;

@@ -6,13 +6,13 @@ export interface ContextMock{
 
 function createMockObj(record: string[]): unknown{
     const methods: string[] = ['beginPath', 'moveTo', 'lineTo', 'stroke', 'save', 'restore',
-        'fillRect'
+        'fillRect', 'clearRect', 'arc'
     ];
     const setters: string[] = ['strokeStyle', 'lineWidth', 'fillStyle']
     const result: unknown = {};
     for(const methodName of methods){
         result[methodName] = (...args: unknown[]) => {
-            const params = args.map(a => JSON.stringify(a)).join(', ');
+            const params = args.map(a => stringifyValue(a)).join(', ');
             record.push(`ctx.${methodName}(${params});`)
         }
     }
@@ -20,9 +20,18 @@ function createMockObj(record: string[]): unknown{
         Object.defineProperty(result, setterName, {
             enumerable: true,
             set: (value: unknown) => {
-                record.push(`ctx.${setterName} = ${JSON.stringify(value)}`)
+                record.push(`ctx.${setterName} = ${stringifyValue(value)}`)
             }
         });
+    }
+    function stringifyValue(value: unknown): string {
+        if(value === Infinity){
+            return 'Infinity';
+        }
+        if(value === -Infinity){
+            return '-Infinity';
+        }
+        return JSON.stringify(value);
     }
     return result;
 }
