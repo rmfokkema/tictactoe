@@ -1,31 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`a tictactoe map > should draw 1`] = `
-[
-  "ctx.fillStyle = "#fbfbfa"",
-  "ctx.save();",
-  "ctx.clearRect(-Infinity, -Infinity, Infinity, Infinity);",
-  "ctx.fillRect(-Infinity, -Infinity, Infinity, Infinity);",
-  "ctx.save();",
-  "ctx.lineWidth = 1",
-  "ctx.strokeStyle = "#151517"",
-  "ctx.beginPath();",
-  "ctx.moveTo(33.166666666666664, 0);",
-  "ctx.lineTo(33.166666666666664, 100);",
-  "ctx.stroke();",
-  "ctx.beginPath();",
-  "ctx.moveTo(66.83333333333334, 0);",
-  "ctx.lineTo(66.83333333333334, 100);",
-  "ctx.stroke();",
-  "ctx.beginPath();",
-  "ctx.moveTo(0, 33.166666666666664);",
-  "ctx.lineTo(100, 33.166666666666664);",
-  "ctx.stroke();",
-  "ctx.beginPath();",
-  "ctx.moveTo(0, 66.83333333333334);",
-  "ctx.lineTo(100, 66.83333333333334);",
-  "ctx.stroke();",
-  "ctx.restore();",
-  "ctx.restore();",
-]
-`;
+exports[`a tictactoe map > should draw 1`] = `"a3521a459805bc095f278c05320368f7"`;
+
+exports[`a tictactoe map > should draw moves 1`] = `"9081510287cb0153865bfed50ae13cee"`;

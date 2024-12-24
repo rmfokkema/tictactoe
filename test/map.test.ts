@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+
 import { ContextMock, mockContext } from './mock-context';
 import { mockRenderer, RendererMock } from './mock-renderer';
 import { mockPointerEvents, PointerEventsMock } from './mock-pointer-events';
@@ -26,10 +27,10 @@ describe('a tictactoe map', () => {
             }
         );
         renderer.render();
-        expect(contextMock.record).toMatchSnapshot();
+        expect(contextMock.getRecord()).toMatchSnapshot();
     })
 
-    it.skip('should draw a move', () => {
+    it('should draw moves', () => {
         createMap(
             renderer, 
             pointerEvents,
@@ -39,12 +40,19 @@ describe('a tictactoe map', () => {
                 size: 900
             }
         )
-        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 150, offsetY: 50, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 150, offsetY: 50, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 116.6, offsetY: 50, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 116.6, offsetY: 50, pointerType: 'mouse'});
+        for(const [x, y] of [
+            [150, 150], // position 0
+            [150, 50], // 1
+            [113, 50], // 3
+            [104, 58], // 6
+            [104, 58], // 4
+            [105.2, 58.6], // 5
+            [105.61, 58.93] // 8
+        ]){
+            pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});
+            pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});
+        }
         renderer.render();
+        expect(contextMock.getRecord()).toMatchSnapshot();
     })
 })

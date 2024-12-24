@@ -1,10 +1,12 @@
+import crypto from 'crypto'
+
 export interface ContextMock{
     ctx: CanvasRenderingContext2D
-    record: string[]
+    getRecord(): string
     reset(): void
 }
 
-function createMockObj(record: string[]): unknown{
+function createMockObj(record: {text: string}): unknown{
     const methods: string[] = ['beginPath', 'moveTo', 'lineTo', 'stroke', 'save', 'restore',
         'fillRect', 'clearRect', 'arc'
     ];
@@ -13,14 +15,14 @@ function createMockObj(record: string[]): unknown{
     for(const methodName of methods){
         result[methodName] = (...args: unknown[]) => {
             const params = args.map(a => stringifyValue(a)).join(', ');
-            record.push(`ctx.${methodName}(${params});`)
+            record.text += `ctx.${methodName}(${params});`
         }
     }
     for(const setterName of setters){
         Object.defineProperty(result, setterName, {
             enumerable: true,
             set: (value: unknown) => {
-                record.push(`ctx.${setterName} = ${stringifyValue(value)}`)
+                record.text += `ctx.${setterName} = ${stringifyValue(value)};`
             }
         });
     }
@@ -37,14 +39,16 @@ function createMockObj(record: string[]): unknown{
 }
 
 export function mockContext(): ContextMock{
-    const record: string[] = [];
+    const record: {text: string} = {text: ''};
     const mockObj = createMockObj(record);
     return {
         ctx: mockObj as CanvasRenderingContext2D,
-        record,
+        getRecord(){
+            return crypto.createHash('md5').update(record.text).digest("hex")
+        },
         reset
     }
     function reset(): void{
-        record.splice(0)
+        record.text = '';
     }
 }
