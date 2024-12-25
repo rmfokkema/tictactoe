@@ -14,23 +14,6 @@ describe('a tictactoe map', () => {
         contextMock = mockContext();
         renderer = mockRenderer(contextMock.ctx);
         pointerEvents = mockPointerEvents();
-    })
-
-    it('should draw', () => {
-        createMap(
-            renderer, 
-            pointerEvents,
-            {
-                x: 0,
-                y: 0,
-                size: 100
-            }
-        );
-        renderer.render();
-        expect(contextMock.getRecord()).toMatchSnapshot();
-    })
-
-    it('should draw moves', () => {
         createMap(
             renderer, 
             pointerEvents,
@@ -40,6 +23,31 @@ describe('a tictactoe map', () => {
                 size: 900
             }
         )
+    })
+
+    it('should draw', () => {
+        renderer.render();
+        expect(contextMock.getRecord()).toMatchSnapshot();
+    })
+
+    it('should not draw in case of a second pointer', () => {
+        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 1, offsetX: 750, offsetY: 150, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 1, offsetX: 750, offsetY: 150, pointerType: 'mouse'});
+        renderer.render();
+        expect(contextMock.getRecord()).toMatchSnapshot();
+    })
+
+    it('should not draw when pointer moves', () => {
+        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointermove', pointerId: 0, offsetX: 350, offsetY: 150, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 350, offsetY: 150, pointerType: 'mouse'});
+        renderer.render();
+        expect(contextMock.getRecord()).toMatchSnapshot();
+    })
+
+    it('should draw moves', () => {
         for(const [x, y] of [
             [150, 150], // position 0
             [150, 50], // 1
