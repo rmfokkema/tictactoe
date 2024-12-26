@@ -1,3 +1,8 @@
+export interface ScreenMeasurements {
+    width: number
+    height: number
+}
+
 export interface Measurements{
     x: number
     y: number

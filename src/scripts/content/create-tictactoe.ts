@@ -15,7 +15,6 @@ class RootTicTacToeParent implements TicTacToeParent {
     }
 
     public notifyRevealedPosition({gameState, winner}: RevealedPosition): void{
-        console.log(`'position revealed: ${gameState}'`)
         if(!this.ticTacToe){
             return;
         }

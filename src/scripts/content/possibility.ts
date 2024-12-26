@@ -25,7 +25,6 @@ export class Possibility {
                 }
             }else{
                 if(click.type ===  'cancel'){
-                    console.log('click on possibility is cancelled')
                     return;
                 }
                 parent.play(this);

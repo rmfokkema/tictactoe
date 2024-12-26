@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-
 import { ContextMock, mockContext } from './mock-context';
 import { mockRenderer, RendererMock } from './mock-renderer';
 import { mockPointerEvents, PointerEventsMock } from './mock-pointer-events';
@@ -9,6 +8,7 @@ describe('a tictactoe map', () => {
     let contextMock: ContextMock;
     let renderer: RendererMock;
     let pointerEvents: PointerEventsMock;
+    const move0Position0: [number, number] = [435, 245]
 
     beforeEach(() => {
         contextMock = mockContext();
@@ -17,11 +17,7 @@ describe('a tictactoe map', () => {
         createMap(
             renderer, 
             pointerEvents,
-            {
-                x: 0,
-                y: 0,
-                size: 900
-            }
+            {width: 1295, height: 958}
         )
     })
 
@@ -31,31 +27,35 @@ describe('a tictactoe map', () => {
     })
 
     it('should not draw in case of a second pointer', () => {
-        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 1, offsetX: 750, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 1, offsetX: 750, offsetY: 150, pointerType: 'mouse'});
+        const [x, y] = move0Position0;
+        const otherPositionX = x + 300;
+        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 1, offsetX: otherPositionX, offsetY: y, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 1, offsetX: otherPositionX, offsetY: y, pointerType: 'mouse'});
         renderer.render();
         expect(contextMock.getRecord()).toMatchSnapshot();
     })
 
     it('should not draw when pointer moves', () => {
-        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: 150, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointermove', pointerId: 0, offsetX: 350, offsetY: 150, pointerType: 'mouse'});
-        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: 350, offsetY: 150, pointerType: 'mouse'});
+        const [x, y] = move0Position0;
+        const otherPositionX = x + 100;
+        pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointermove', pointerId: 0, offsetX: otherPositionX, offsetY: y, pointerType: 'mouse'});
+        pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: otherPositionX, offsetY: y, pointerType: 'mouse'});
         renderer.render();
         expect(contextMock.getRecord()).toMatchSnapshot();
     })
 
     it('should draw moves', () => {
         for(const [x, y] of [
-            [150, 150], // position 0
-            [150, 50], // 1
-            [113, 50], // 3
-            [104, 58], // 6
-            [104, 58], // 4
-            [105.2, 58.6], // 5
-            [105.61, 58.93] // 8
+            move0Position0, // position 0
+            [433, 190], // 1
+            [410, 192], // 3
+            [402, 201], // 6
+            [402, 201], // 4
+            [402.7, 201.2], // 5
+            [403.1, 201.5] // 8
         ]){
             pointerEvents.dispatchEvent({type: 'pointerdown', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});
             pointerEvents.dispatchEvent({type: 'pointerup', pointerId: 0, offsetX: x, offsetY: y, pointerType: 'mouse'});

@@ -67,8 +67,6 @@ function updateWinner(
     parent: RevealedPosition,
     children: RevealedPosition[]
 ): RevealedWinner{
-    console.log(`${stringifyRevealedWinner(winner)}. parent is ${stringifyRevealedPosition(parent)}. children are ` +
-        `${children.map(c => stringifyRevealedPosition(c)).join(' and ')}`)
     const winnerIsInChild = winner.gameState.predecessorAtIndex(-1)?.equals(parent.gameState);
     if(!winnerIsInChild){
         return winner;
