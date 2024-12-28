@@ -1,18 +1,13 @@
-import { ClickHandlerNode } from "../events/types";
 import { GameState } from "../state/game-state";
 import { Measurements } from "../measurements";
 import { Renderer } from "../renderer/types";
 import { RevealedPosition } from "../state/revealed-position";
 import { Theme } from "../themes";
 import { TicTacToe, TicTacToeParent } from "./tictactoe";
+import { CustomPointerEventTarget } from "../events/types";
 
 class RootTicTacToeParent implements TicTacToeParent {
     private ticTacToe: TicTacToe | undefined;
-    public constructor(
-        
-    ){
-
-    }
 
     public notifyRevealedPosition({gameState, winner}: RevealedPosition): void{
         if(!this.ticTacToe){
@@ -22,7 +17,7 @@ class RootTicTacToeParent implements TicTacToeParent {
     }
 
     public createTicTacToe(
-        clickHandler: ClickHandlerNode,
+        eventTarget: CustomPointerEventTarget,
         renderer: Renderer,
         measurements: Measurements,
         theme: Theme,
@@ -30,7 +25,7 @@ class RootTicTacToeParent implements TicTacToeParent {
     ): TicTacToe {
         const ticTacToe = new TicTacToe(
             this,
-            clickHandler,
+            eventTarget,
             renderer,
             {
                 ...measurements,
@@ -51,7 +46,7 @@ class RootTicTacToeParent implements TicTacToeParent {
     }
 }
 export function createTicTacToe(
-    clickHandler: ClickHandlerNode,
+    eventTarget: CustomPointerEventTarget,
     renderer: Renderer,
     measurements: Measurements,
     theme: Theme,
@@ -59,7 +54,7 @@ export function createTicTacToe(
 ): TicTacToe{
     const parent = new RootTicTacToeParent();
     return parent.createTicTacToe(
-        clickHandler,
+        eventTarget,
         renderer,
         measurements,
         theme,

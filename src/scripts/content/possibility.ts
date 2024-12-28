@@ -1,7 +1,6 @@
 import { GameState } from "../state/game-state";
-import { measurementsInclude } from "../measurements";
-import { ClickHandlerNode, isAccepted } from "../events/types";
 import { GridCellMeasurements } from "./grid/types";
+import { CustomPointerEventTarget } from "../events/types";
 
 export interface PossibilityParent {
     play(
@@ -12,27 +11,20 @@ export interface PossibilityParent {
 export class Possibility {
     
     public constructor(
-        private readonly clickHandler: ClickHandlerNode,
+        private readonly eventTarget: CustomPointerEventTarget,
         parent: PossibilityParent,
         public readonly measurements: GridCellMeasurements,
         public readonly gameState: GameState,
         public readonly position: number
     ){
-        clickHandler.onClick((click) => {
-            if(!isAccepted(click)){
-                if(measurementsInclude(measurements, click.x, click.y)){
-                    click.accept();
-                }
-            }else{
-                if(click.type ===  'cancel'){
-                    return;
-                }
-                parent.play(this);
-            }
+        eventTarget.addEventListener('pointerdown', ev => {
+            console.log(`possibility with game state ${gameState} allowing cancel`)
+            ev.allowCancel()
         })
+        eventTarget.addEventListener('pointerup', () => parent.play(this));
     }
 
     public destroy(){
-        this.clickHandler.destroy();
+        this.eventTarget.destroy();
     }
 }

@@ -1,6 +1,6 @@
 import { GameState } from "../state/game-state";
 import { Cell, Grid } from "./grid/grid";
-import { getMarkLineWidth, measurementsInclude } from "../measurements";
+import { getMarkLineWidth } from "../measurements";
 import { otherPlayer, Player } from "../player";
 import { Possibility, PossibilityParent } from "./possibility";
 import { O } from "./o";
@@ -8,12 +8,12 @@ import { X } from "./x";
 import { Mark } from "./mark";
 import { Point } from "../point";
 import { Win } from "./win";
-import { ClickHandlerNode, isAccepted } from "../events/types";
 import { Theme } from "../themes";
 import { Renderer } from "../renderer/types";
 import { GridCellMeasurements } from "./grid/types";
 import { Winner } from "../winner";
 import { addToRevealedPosition, RevealedPosition, splitRevealedPosition } from "../state/revealed-position";
+import { CustomPointerEventTarget } from "../events/types";
 
 export interface TicTacToeParent {
     notifyRevealedPosition(position: RevealedPosition): void
@@ -31,7 +31,7 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
 
     public constructor(
         private readonly parent: TicTacToeParent,
-        private readonly clickHandler: ClickHandlerNode,
+        private readonly eventTarget: CustomPointerEventTarget,
         private readonly renderer: Renderer,
         measurements: GridCellMeasurements,
         theme: Theme,
@@ -61,7 +61,7 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
                     continue;
                 }
                 const newGameState = gameState.playPosition(position)
-                possibilities.push(new Possibility(clickHandler.child(), this, measurements, newGameState, position))
+                possibilities.push(new Possibility(eventTarget.addChildForArea(measurements), this, measurements, newGameState, position))
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
@@ -82,13 +82,6 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
                 )
             }
         }
-        clickHandler.onClick((click) => {
-            if(!isAccepted(click)){
-                if(!measurementsInclude(measurements, click.x, click.y)){
-                    click.reject();
-                }
-            }
-        })
     }
 
     private setWinner(winner: Player): void{
@@ -105,7 +98,7 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
         const winner = possibility.gameState.findWinner();
         const tictactoe = new TicTacToe(
             this,
-            this.clickHandler.child(),
+            this.eventTarget.addChildForArea(possibility.measurements),
             this.renderer,
             possibility.measurements,
             this.theme,

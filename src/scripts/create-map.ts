@@ -1,7 +1,7 @@
 import { createTicTacToe } from "./content/create-tictactoe";
-import { createClickHandler } from "./events/create-click-handler";
 import { PointerEventTargetLike } from "./events/types";
-import { getInitialMeasurements, Measurements, ScreenMeasurements } from "./measurements";
+import { getInitialMeasurements, ScreenMeasurements } from "./measurements";
+import { createPointerEvents } from "./events/create-pointer-events";
 import { palette } from "./palette";
 import { Renderer } from "./renderer/types";
 import { GameState } from "./state/game-state";
@@ -12,10 +12,10 @@ export function createMap(
     pointerEvents: PointerEventTargetLike,
     screenMeasurements: ScreenMeasurements
 ): void {
-    const clickHandler = createClickHandler(pointerEvents);
+    const eventTarget = createPointerEvents(pointerEvents);
     const measurements = getInitialMeasurements(screenMeasurements.width, screenMeasurements.height);
     const tictactoe = createTicTacToe(
-        clickHandler,
+        eventTarget,
         renderer,
         measurements,
         lightTheme,
