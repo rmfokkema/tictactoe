@@ -3,8 +3,26 @@ import { mockPointerEvents, PointerEventsMock } from './mock-pointer-events';
 import { CustomPointerEventTarget } from '../src/scripts/events/types';
 import { createPointerEvents } from '../src/scripts/events/create-pointer-events';
 
-function hasAllowCancel(ev: unknown): ev is {allowCancel(): void}{
-    return (ev as {allowCancel(): void}).allowCancel !== undefined;
+vi.useFakeTimers();
+
+function hasAllowCancelClick(ev: unknown): ev is {allowCancelClick(): void}{
+    return (ev as {allowCancelClick(): void}).allowCancelClick !== undefined;
+}
+
+function hasAllowCancelDoubleClick(ev: unknown): ev is {allowCancelDoubleClick(): void}{
+    return (ev as {allowCancelDoubleClick(): void}).allowCancelDoubleClick !== undefined;
+}
+
+function allowCancelClickIfPossible(event: unknown): void {
+    if(hasAllowCancelClick(event)){
+        event.allowCancelClick();
+    }
+}
+
+function allowCancelDoubleClickIfPossible(event: unknown): void {
+    if(hasAllowCancelDoubleClick(event)){
+        event.allowCancelDoubleClick();
+    }
 }
 
 describe('pointer events', () => {
@@ -15,13 +33,9 @@ describe('pointer events', () => {
     beforeAll(() => {
         pointerEvents = mockPointerEvents();
         rootEventTarget = createPointerEvents(pointerEvents);
-        rootEventListenerMock = vi.fn().mockImplementation((v) => {
-            if(hasAllowCancel(v)){
-                v.allowCancel();
-            }
-        });
+        rootEventListenerMock = vi.fn().mockImplementation(allowCancelClickIfPossible);
         rootEventTarget.addEventListener('pointerdown', rootEventListenerMock);
-        rootEventTarget.addEventListener('pointercancel', rootEventListenerMock)
+        rootEventTarget.addEventListener('clickcancel', rootEventListenerMock)
     })
 
     afterEach(() => {
@@ -38,7 +52,8 @@ describe('pointer events', () => {
         })
         expect(rootEventListenerMock).toHaveBeenCalledWith({
             type: 'pointerdown',
-            allowCancel: expect.anything()
+            allowCancelClick: expect.anything(),
+            allowCancelDoubleClick: expect.anything()
         })
     })
 
@@ -51,7 +66,7 @@ describe('pointer events', () => {
             pointerType: 'mouse'
         })
         expect(rootEventListenerMock).toHaveBeenCalledWith({
-            type: 'pointercancel'
+            type: 'clickcancel'
         })
     })
 
@@ -76,18 +91,16 @@ describe('pointer events', () => {
 
         beforeAll(() => {
             area1EventTarget = rootEventTarget.addChildForArea({x: 0, y: 0, size: 10});
-            area1EventListenerMock = vi.fn().mockImplementation((v) => {
-                if(hasAllowCancel(v)){
-                    v.allowCancel();
-                }
-            });
+            area1EventListenerMock = vi.fn().mockImplementation(allowCancelClickIfPossible);
             area1EventTarget.addEventListener('pointerdown', area1EventListenerMock)
-            area1EventTarget.addEventListener('pointercancel', area1EventListenerMock)
+            area1EventTarget.addEventListener('clickcancel', area1EventListenerMock)
 
             area1Child1EventTarget = area1EventTarget.addChildForArea({x: 2, y: 4, size: 2});
-            area1Child1EventListenerMock = vi.fn();
+            area1Child1EventListenerMock = vi.fn().mockImplementation(allowCancelDoubleClickIfPossible);
             area1Child1EventTarget.addEventListener('pointerdown', area1Child1EventListenerMock);
-            area1Child1EventTarget.addEventListener('pointerup', area1Child1EventListenerMock);
+            area1Child1EventTarget.addEventListener('click', area1Child1EventListenerMock);
+            area1Child1EventTarget.addEventListener('dblclick', area1Child1EventListenerMock)
+            area1Child1EventTarget.addEventListener('dblclickcancel', area1Child1EventListenerMock)
 
             area1Child2EventTarget = area1EventTarget.addChildForArea({x: 6, y: 4, size: 2});
             area1Child2EventListenerMock = vi.fn();
@@ -107,7 +120,7 @@ describe('pointer events', () => {
             area2Child2EventTarget = area2EventTarget.addChildForArea({x: 18, y: 4, size: 2});
             area2Child2EventListenerMock = vi.fn();
             area2Child2EventTarget.addEventListener('pointerdown', area2Child2EventListenerMock);
-            area2Child2EventTarget.addEventListener('pointerup', area2Child2EventListenerMock);
+            area2Child2EventTarget.addEventListener('click', area2Child2EventListenerMock);
         })
 
         it('should call listener on child', () => {
@@ -120,7 +133,8 @@ describe('pointer events', () => {
             })
             expect(area1Child1EventListenerMock).toHaveBeenCalledWith({
                 type: 'pointerdown',
-                allowCancel: expect.anything()
+                allowCancelClick: expect.anything(),
+                allowCancelDoubleClick: expect.anything()
             })
 
             pointerEvents.dispatchEvent({
@@ -131,7 +145,7 @@ describe('pointer events', () => {
                 pointerType: 'mouse'
             })
             expect(area1Child1EventListenerMock).toHaveBeenCalledWith({
-                type: 'pointerup'
+                type: 'click'
             })
 
             pointerEvents.dispatchEvent({
@@ -143,7 +157,8 @@ describe('pointer events', () => {
             })
             expect(area2Child2EventListenerMock).toHaveBeenCalledWith({
                 type: 'pointerdown',
-                allowCancel: expect.anything()
+                allowCancelClick: expect.anything(),
+                allowCancelDoubleClick: expect.anything()
             })
 
             pointerEvents.dispatchEvent({
@@ -154,7 +169,7 @@ describe('pointer events', () => {
                 pointerType: 'mouse'
             })
             expect(area2Child2EventListenerMock).toHaveBeenCalledWith({
-                type: 'pointerup'
+                type: 'click'
             })
 
 
@@ -167,7 +182,8 @@ describe('pointer events', () => {
             })
             expect(area1EventListenerMock).toHaveBeenCalledWith({
                 type: 'pointerdown',
-                allowCancel: expect.anything()
+                allowCancelClick: expect.anything(),
+                allowCancelDoubleClick: expect.anything()
             })
         })
 
@@ -180,7 +196,117 @@ describe('pointer events', () => {
                 pointerType: 'mouse'
             })
             expect(area1EventListenerMock).toHaveBeenCalledWith({
-                type: 'pointercancel'
+                type: 'clickcancel'
+            })
+        })
+
+        it('should dispatch two clicks', () => {
+            pointerEvents.dispatchEvent({
+                type: 'pointerdown',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            pointerEvents.dispatchEvent({
+                type: 'pointerup',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            expect(area1Child1EventListenerMock).toHaveBeenCalledWith({
+                type: 'click'
+            })
+            vi.advanceTimersByTime(1000);
+            area1Child1EventListenerMock.mockClear();
+            pointerEvents.dispatchEvent({
+                type: 'pointerdown',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            pointerEvents.dispatchEvent({
+                type: 'pointerup',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            expect(area1Child1EventListenerMock).toHaveBeenCalledWith({
+                type: 'click'
+            })
+        })
+
+        it('should dispatch dblclick', () => {
+            vi.advanceTimersByTime(1000);
+            pointerEvents.dispatchEvent({
+                type: 'pointerdown',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            pointerEvents.dispatchEvent({
+                type: 'pointerup',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            vi.advanceTimersByTime(300);
+            pointerEvents.dispatchEvent({
+                type: 'pointerdown',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            pointerEvents.dispatchEvent({
+                type: 'pointerup',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            expect(area1Child1EventListenerMock).toHaveBeenCalledWith({
+                type: 'dblclick'
+            })
+        })
+
+        it('should cancel dblclick', () => {
+            pointerEvents.dispatchEvent({
+                type: 'pointerdown',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            pointerEvents.dispatchEvent({
+                type: 'pointerup',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            vi.advanceTimersByTime(300);
+            pointerEvents.dispatchEvent({
+                type: 'pointerdown',
+                offsetX: 3,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            pointerEvents.dispatchEvent({
+                type: 'pointermove',
+                offsetX: 30,
+                offsetY: 5,
+                pointerId: 0,
+                pointerType: 'mouse'
+            })
+            expect(area1Child1EventListenerMock).toHaveBeenCalledWith({
+                type: 'dblclickcancel'
             })
         })
 
@@ -200,7 +326,8 @@ describe('pointer events', () => {
                 })
                 expect(area1EventListenerMock).toHaveBeenCalledWith({
                     type: 'pointerdown',
-                    allowCancel: expect.anything()
+                    allowCancelClick: expect.anything(),
+                    allowCancelDoubleClick: expect.anything()
                 })
             })
         })

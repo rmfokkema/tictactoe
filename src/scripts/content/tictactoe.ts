@@ -82,6 +82,12 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
                 )
             }
         }
+        eventTarget.addEventListener('dblclick', () => {
+            console.log(`double click on tictactoe with state ${gameState}`)
+        })
+        eventTarget.addEventListener('pointerdown', ev => {
+            ev.allowCancelDoubleClick();
+        })
     }
 
     private setWinner(winner: Player): void{

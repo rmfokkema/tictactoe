@@ -18,10 +18,9 @@ export class Possibility {
         public readonly position: number
     ){
         eventTarget.addEventListener('pointerdown', ev => {
-            console.log(`possibility with game state ${gameState} allowing cancel`)
-            ev.allowCancel()
+            ev.allowCancelClick()
         })
-        eventTarget.addEventListener('pointerup', () => parent.play(this));
+        eventTarget.addEventListener('click', () => parent.play(this));
     }
 
     public destroy(){
