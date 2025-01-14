@@ -14,8 +14,7 @@ export class Possibility {
         private readonly eventTarget: CustomPointerEventTarget,
         parent: PossibilityParent,
         public readonly measurements: GridCellMeasurements,
-        public readonly gameState: GameState,
-        public readonly position: number
+        public readonly gameState: GameState
     ){
         eventTarget.addEventListener('pointerdown', ev => {
             ev.allowCancelClick()

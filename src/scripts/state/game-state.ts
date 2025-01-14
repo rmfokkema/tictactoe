@@ -1,7 +1,7 @@
 import { Player } from "../player";
 import { PositionStream } from "./position-stream";
 import { getThrees } from "../three";
-import { allTransformations, Transformation } from "../transformations";
+import { Transformation } from "../transformations";
 import { Winner } from "../winner";
 import { PositionSet } from "./position-set";
 
@@ -132,6 +132,14 @@ export class GameState {
 
     public getPlayersAtPositions(): Iterable<Player | 0>{
         return this.getPositionSet().getPlayersAtPositions();
+    }
+
+    public getLastPlayedPosition(): number | undefined {
+        const positions = [...PositionStream.readAll(this.positions)];
+        if(positions.length === 0){
+            return undefined;
+        }
+        return positions[positions.length - 1];
     }
 
     public playPosition(position: number): GameState{

@@ -66,4 +66,6 @@ export class O extends MarkImpl implements Mark{
         ctx.stroke();
         ctx.restore();
     }
+
+    public destroy(): void {}
 }

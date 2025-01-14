@@ -9,11 +9,24 @@ import { CustomPointerEventTarget } from "../events/types";
 class RootTicTacToeParent implements TicTacToeParent {
     private ticTacToe: TicTacToe | undefined;
 
+    public constructor(
+        private readonly renderer: Renderer
+    ){}
+
     public notifyRevealedPosition({gameState, winner}: RevealedPosition): void{
         if(!this.ticTacToe){
             return;
         }
         this.ticTacToe.showPosition({gameState, winner})
+        this.renderer.rerender();
+    }
+
+    public notifyHiddenState(state: GameState): void {
+        if(!this.ticTacToe){
+            return;
+        }
+        this.ticTacToe.hideState(state)
+        this.renderer.rerender();
     }
 
     public createTicTacToe(
@@ -26,7 +39,6 @@ class RootTicTacToeParent implements TicTacToeParent {
         const ticTacToe = new TicTacToe(
             this,
             eventTarget,
-            renderer,
             {
                 ...measurements,
                 background: {
@@ -52,7 +64,7 @@ export function createTicTacToe(
     theme: Theme,
     gameState: GameState
 ): TicTacToe{
-    const parent = new RootTicTacToeParent();
+    const parent = new RootTicTacToeParent(renderer);
     return parent.createTicTacToe(
         eventTarget,
         renderer,

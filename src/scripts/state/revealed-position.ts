@@ -36,12 +36,12 @@ function findSplitTransformation(fromState: GameState, nextOne: GameState, candi
     return undefined;
 }
 
-export function *splitRevealedPosition(position: RevealedPosition, fromState: GameState): Iterable<RevealedPosition>{
-    const indexOfState = position.gameState.indexOfPredecessor(fromState);
+export function *splitGameState(state: GameState, fromState: GameState): Iterable<{state: GameState, transformation: Transformation}> {
+    const indexOfState = state.indexOfPredecessor(fromState);
     if(indexOfState === -1){
         return;
     }
-    const nextOne = position.gameState.predecessorAtIndex(indexOfState + 1);
+    const nextOne = state.predecessorAtIndex(indexOfState + 1);
     if(!nextOne){
         return;
     }
@@ -50,7 +50,22 @@ export function *splitRevealedPosition(position: RevealedPosition, fromState: Ga
         if(!transformation){
             continue;
         }
-        yield partialTransformRevealedPosition(position, fromState, transformation);
+        yield {
+            state: state.partialTransform(fromState, transformation),
+            transformation
+        }
+    }
+}
+
+export function *splitRevealedPosition(position: RevealedPosition, fromState: GameState): Iterable<RevealedPosition>{
+    for(const {state, transformation} of splitGameState(position.gameState, fromState)){
+        yield {
+            gameState: state,
+            winner: position.winner ? {
+                gameState: position.winner.gameState.partialTransform(fromState, transformation),
+                player: position.winner.player
+            } : undefined
+        }
     }
 }
 

@@ -1,16 +1,25 @@
+import { CustomPointerEventTarget } from "../events/types";
 import { Measurements } from "../measurements";
 import { Point } from "../point";
 import { Theme } from "../themes";
 import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
-import { Mark } from "./mark";
+import { Mark, MarkParent } from "./mark";
 import { MarkImpl } from "./mark-impl";
 
 export class X extends MarkImpl implements Mark{
 
     public constructor(
+        markParent: MarkParent,
+        private readonly eventTarget: CustomPointerEventTarget,
         measurements: Measurements,
         private theme: Theme){
-        super(measurements);
+            super(measurements);
+            eventTarget.addEventListener('dblclick', () => {
+                markParent.notifyXDoubleClicked();
+            })
+            eventTarget.addEventListener('pointerdown', ev => {
+                ev.allowCancelDoubleClick();
+            })
     }
 
     public setTheme(theme: Theme): void {
@@ -57,5 +66,9 @@ export class X extends MarkImpl implements Mark{
         ctx.lineTo(x + size / 4, y + 3 * size / 4);
         ctx.stroke();
         ctx.restore();
+    }
+
+    public destroy(): void {
+        this.eventTarget.destroy();
     }
 }

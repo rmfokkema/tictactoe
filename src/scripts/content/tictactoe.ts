@@ -5,21 +5,21 @@ import { otherPlayer, Player } from "../player";
 import { Possibility, PossibilityParent } from "./possibility";
 import { O } from "./o";
 import { X } from "./x";
-import { Mark } from "./mark";
+import { Mark, MarkParent } from "./mark";
 import { Point } from "../point";
 import { Win } from "./win";
 import { Theme } from "../themes";
-import { Renderer } from "../renderer/types";
 import { GridCellMeasurements } from "./grid/types";
 import { Winner } from "../winner";
-import { addToRevealedPosition, RevealedPosition, splitRevealedPosition } from "../state/revealed-position";
+import { addToRevealedPosition, RevealedPosition, splitGameState, splitRevealedPosition } from "../state/revealed-position";
 import { CustomPointerEventTarget } from "../events/types";
 
 export interface TicTacToeParent {
     notifyRevealedPosition(position: RevealedPosition): void
+    notifyHiddenState(state: GameState): void
 }
 
-export class TicTacToe implements PossibilityParent, TicTacToeParent {
+export class TicTacToe implements PossibilityParent, TicTacToeParent, MarkParent {
     private theme: Theme
     private win: Win | undefined;
     private readonly possibilities: Possibility[]
@@ -32,8 +32,7 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
     public constructor(
         private readonly parent: TicTacToeParent,
         private readonly eventTarget: CustomPointerEventTarget,
-        private readonly renderer: Renderer,
-        measurements: GridCellMeasurements,
+        private readonly measurements: GridCellMeasurements,
         theme: Theme,
         public readonly gameState: GameState,
         winner: Winner | undefined,
@@ -61,11 +60,15 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
                     continue;
                 }
                 const newGameState = gameState.playPosition(position)
-                possibilities.push(new Possibility(eventTarget.addChildForArea(measurements), this, measurements, newGameState, position))
+                possibilities.push(new Possibility(eventTarget.addChildForArea(measurements), this, measurements, newGameState))
                 continue;
             }
             const mark: Mark = playerAtCell === Player.X
-                ? new X(measurements, actualTheme)
+                ? new X(
+                    this,
+                    eventTarget.addChildForArea(measurements),
+                    measurements, actualTheme
+                )
                 : new O(measurements, actualTheme);
             
             marks.push(mark);
@@ -82,12 +85,6 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
                 )
             }
         }
-        eventTarget.addEventListener('dblclick', () => {
-            console.log(`double click on tictactoe with state ${gameState}`)
-        })
-        eventTarget.addEventListener('pointerdown', ev => {
-            ev.allowCancelDoubleClick();
-        })
     }
 
     private setWinner(winner: Player): void{
@@ -100,12 +97,11 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
         this.possibilities.splice(index, 1);
         possibility.destroy();
 
-        const position = possibility.position;
+        const position = possibility.gameState.getLastPlayedPosition()!;
         const winner = possibility.gameState.findWinner();
         const tictactoe = new TicTacToe(
             this,
             this.eventTarget.addChildForArea(possibility.measurements),
-            this.renderer,
             possibility.measurements,
             this.theme,
             possibility.gameState,
@@ -113,6 +109,20 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
             this.grid?.cells[position]
         );
         return { tictactoe, winner }
+    }
+
+    private removeTicTacToe(tictactoe: TicTacToe): void {
+        const index = this.ticTacToes.indexOf(tictactoe);
+        this.ticTacToes.splice(index, 1);
+        tictactoe.destroy();
+        tictactoe.gridCell?.setTheme(this.theme);
+        const possibility = new Possibility(
+            this.eventTarget.addChildForArea(tictactoe.measurements),
+            this,
+            tictactoe.measurements,
+            tictactoe.gameState
+        )
+        this.possibilities.push(possibility);
     }
 
     private getRevealedPosition(): RevealedPosition{
@@ -138,13 +148,26 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
         this.ticTacToes.forEach((tictactoe) => tictactoe.setTheme(newTheme))
     }
 
-    
-
     public notifyRevealedPosition(position: RevealedPosition): void{
         const revealedTicTacToePositions = this.ticTacToes.map(t => t.getRevealedPosition())
         const ownRevealedPosition = this.getRevealedPosition();
         const combined = addToRevealedPosition(position, ownRevealedPosition, revealedTicTacToePositions);
         this.parent.notifyRevealedPosition(combined);
+    }
+
+    public hideState(state: GameState): void {
+        const split = [...splitGameState(state, this.gameState)];
+        for(const tictactoe of this.ticTacToes.slice()){
+            const hasSplitGameState = split.some(s => s.state.equals(tictactoe.gameState));
+            if(hasSplitGameState){
+                this.removeTicTacToe(tictactoe);
+                continue;
+            }
+            const descendant = split.find(s => s.state.indexOfPredecessor(tictactoe.gameState) > -1);
+            if(descendant){
+                tictactoe.hideState(descendant.state)
+            }
+        }
     }
 
     public showPosition(position: RevealedPosition): void{
@@ -180,6 +203,14 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
         this.grid?.drawBorders(ctx);
     }
 
+    public notifyXDoubleClicked(): void {
+        this.parent.notifyHiddenState(this.gameState);
+    }
+
+    public notifyHiddenState(state: GameState): void {
+        this.parent.notifyHiddenState(state);
+    }
+
     public play(possibility: Possibility): void {
         const { tictactoe, winner } = this.showPossibility(possibility);
         this.ticTacToes.push(tictactoe);
@@ -193,6 +224,12 @@ export class TicTacToe implements PossibilityParent, TicTacToeParent {
                 gameState: this.gameState
             } : undefined
         })
-        this.renderer.rerender();
+    }
+
+    public destroy(): void {
+        this.eventTarget.destroy();
+        this.ticTacToes.forEach(t => t.destroy());
+        this.marks.forEach(m => m.destroy());
+        this.possibilities.forEach(p => p.destroy())
     }
 }
