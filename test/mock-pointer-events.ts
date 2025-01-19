@@ -18,6 +18,7 @@ export function mockPointerEvents(): PointerEventsMock {
         addEventListener(type, listener){
             listeners[type].push(listener);
         },
+        removeEventListener(){},
         dispatchEvent
     };
 

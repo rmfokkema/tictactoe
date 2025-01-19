@@ -1,74 +1,29 @@
-import { CustomPointerEventTarget } from "../events/types";
-import { Measurements } from "../measurements";
-import { Point } from "../point";
-import { Theme } from "../themes";
-import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
-import { Mark, MarkParent } from "./mark";
-import { MarkImpl } from "./mark-impl";
+import { CustomPointerEventMap } from "../events/types"
+import { GridCell } from "../ui/grid"
 
-export class X extends MarkImpl implements Mark{
+export interface XParent {
+    notifyXDoubleClicked(): void
+}
+
+export class X {
+    private readonly pointerDownListener: (ev: CustomPointerEventMap['pointerdown']) => void
+    private readonly doubleClickListener: (ev: CustomPointerEventMap['dblclick']) => void
 
     public constructor(
-        markParent: MarkParent,
-        private readonly eventTarget: CustomPointerEventTarget,
-        measurements: Measurements,
-        private theme: Theme){
-            super(measurements);
-            eventTarget.addEventListener('dblclick', () => {
-                markParent.notifyXDoubleClicked();
-            })
-            eventTarget.addEventListener('pointerdown', ev => {
-                ev.allowCancelDoubleClick();
-            })
-    }
-
-    public setTheme(theme: Theme): void {
-        this.theme = theme;
-    }
-
-    public getWinStart(three: Three): Point{
-        const {x, y, size} = this.measurements;
-        if(isInRow(three)){
-            return {x: x + size * (1 - 1 / Math.sqrt(2)) / 2, y: y + size / 2}
+        private readonly cell: GridCell,
+        parent: XParent
+    ){
+        cell.displayX();
+        this.pointerDownListener = (ev) => {
+            ev.allowCancelDoubleClick();
         }
-        if(isInColumn(three)){
-            return {x: x + size / 2, y: y + size * (1 - 1 / Math.sqrt(2)) / 2}
-        }
-        if(isMainDiagonal(three)){
-            return {x: x + size / 4, y: y + size / 4}
-        }
-        return {x: x + 3 * size / 4, y: y + size / 4}
-    }
-
-    public getWinEnd(three: Three): Point{
-        const {x, y, size} = this.measurements;
-        if(isInRow(three)){
-            return {x: x + size * (1 + 1 / Math.sqrt(2)) / 2, y: y + size / 2}
-        }
-        if(isInColumn(three)){
-            return {x: x + size / 2, y: y + size * (1 + 1 / Math.sqrt(2)) / 2}
-        }
-        if(isMainDiagonal(three)){
-            return {x: x + 3 * size / 4, y: y + 3 * size / 4}
-        }
-        return {x: x + size / 4, y: y + 3 * size / 4}
-    }
-
-    public draw(ctx: CanvasRenderingContext2D): void {
-        const {x, y, size} = this.measurements;
-        ctx.save();
-        ctx.lineWidth = this.lineWidth;
-        ctx.strokeStyle = this.theme.color;
-        ctx.beginPath();
-        ctx.moveTo(x + size / 4, y + size / 4);
-        ctx.lineTo(x + 3 * size / 4, y + 3 * size / 4);
-        ctx.moveTo(x + 3 * size / 4, y + size / 4);
-        ctx.lineTo(x + size / 4, y + 3 * size / 4);
-        ctx.stroke();
-        ctx.restore();
+        cell.addEventListener('pointerdown', this.pointerDownListener);
+        this.doubleClickListener = () => parent.notifyXDoubleClicked();
+        cell.addEventListener('dblclick', this.doubleClickListener);
     }
 
     public destroy(): void {
-        this.eventTarget.destroy();
+        this.cell.removeEventListener('pointerdown', this.pointerDownListener);
+        this.cell.removeEventListener('dblclick', this.doubleClickListener);
     }
 }

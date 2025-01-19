@@ -1,16 +1,16 @@
-import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
+import { getMarkLineWidth, Measurements } from "../measurements";
 import { Point } from "../point";
-import { Mark } from "./mark";
-import { MarkImpl } from "./mark-impl";
 import { Theme } from "../themes";
-import { Measurements } from "../measurements";
+import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
+import { Mark } from "./mark";
 
-export class O extends MarkImpl implements Mark{
-
+export class O implements Mark {
+    private readonly lineWidth: number;
     public constructor(
-        measurements: Measurements,
-        private theme: Theme){
-        super(measurements);
+        private readonly measurements: Measurements,
+        private theme: Theme
+    ){
+        this.lineWidth = getMarkLineWidth(measurements.size);
     }
 
     private getStraightWinDistanceFromEdge(): number{
@@ -24,6 +24,17 @@ export class O extends MarkImpl implements Mark{
 
     public setTheme(theme: Theme): void {
         this.theme = theme;
+    }
+
+    public draw(ctx: CanvasRenderingContext2D): void{
+        const {x, y, size} = this.measurements;
+        ctx.save();
+        ctx.lineWidth = this.lineWidth;
+        ctx.strokeStyle = this.theme.color;
+        ctx.beginPath();
+        ctx.arc(x + size / 2, y + size / 2, size / 4, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
     }
 
     public getWinStart(three: Three): Point{
@@ -55,17 +66,4 @@ export class O extends MarkImpl implements Mark{
         }
         return {x: x + diagDist, y: y + size - diagDist }
     }
-
-    public draw(ctx: CanvasRenderingContext2D): void{
-        const {x, y, size} = this.measurements;
-        ctx.save();
-        ctx.lineWidth = this.lineWidth;
-        ctx.strokeStyle = this.theme.color;
-        ctx.beginPath();
-        ctx.arc(x + size / 2, y + size / 2, size / 4, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    public destroy(): void {}
 }

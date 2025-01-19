@@ -1,5 +1,4 @@
-import { Measurements } from "../../measurements";
-import { BorderDirection, GridBorderMeasurements, GridCellMeasurements, LineSegmentMeasurements } from "./types";
+import { BorderDirection, GridBorderMeasurements, GridCellMeasurements } from "./types";
 
 export class GridBuilder {
     private readonly vertical1: number

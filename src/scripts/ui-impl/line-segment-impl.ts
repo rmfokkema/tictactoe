@@ -1,5 +1,5 @@
-import { Point } from "../../point";
-import { Theme } from "../../themes";
+import { Point } from "../point";
+import { Theme } from "../themes";
 import { BorderDirection, LineSegment, LineSegmentMeasurements } from "./types";
 
 function getStartAndEnd({

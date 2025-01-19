@@ -1,6 +1,6 @@
+import { CustomPointerEventMap } from "../events/types";
 import { GameState } from "../state/game-state";
-import { GridCellMeasurements } from "./grid/types";
-import { CustomPointerEventTarget } from "../events/types";
+import { GridCell } from "../ui/grid";
 
 export interface PossibilityParent {
     play(
@@ -9,20 +9,23 @@ export interface PossibilityParent {
 }
 
 export class Possibility {
-    
+    private readonly pointerDownEventListener: (ev: CustomPointerEventMap['pointerdown']) => void;
+    private readonly clickEventListener: (ev: CustomPointerEventMap['click']) => void;
     public constructor(
-        private readonly eventTarget: CustomPointerEventTarget,
+        public readonly cell: GridCell,
         parent: PossibilityParent,
-        public readonly measurements: GridCellMeasurements,
         public readonly gameState: GameState
     ){
-        eventTarget.addEventListener('pointerdown', ev => {
+        this.pointerDownEventListener = (ev) => {
             ev.allowCancelClick()
-        })
-        eventTarget.addEventListener('click', () => parent.play(this));
+        };
+        cell.addEventListener('pointerdown', this.pointerDownEventListener);
+        this.clickEventListener = () => parent.play(this)
+        cell.addEventListener('click', this.clickEventListener);
     }
 
-    public destroy(){
-        this.eventTarget.destroy();
+    public destroy(): void {
+        this.cell.removeEventListener('pointerdown', this.pointerDownEventListener);
+        this.cell.removeEventListener('click', this.clickEventListener);
     }
 }

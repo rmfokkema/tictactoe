@@ -1,11 +1,11 @@
-import { createTicTacToe } from "./content/create-tictactoe";
+import { createPointerEvents } from "./events/create-pointer-events";
 import { PointerEventTargetLike } from "./events/types";
 import { getInitialMeasurements, ScreenMeasurements } from "./measurements";
-import { createPointerEvents } from "./events/create-pointer-events";
+import { createTicTacToeRoot } from "./content/tictactoe-root";
 import { palette } from "./palette";
 import { Renderer } from "./renderer/types";
-import { GameState } from "./state/game-state";
 import { lightTheme } from "./themes";
+import { GridImpl } from "./ui-impl/grid-impl";
 
 export function createMap(
     renderer: Renderer,
@@ -14,13 +14,26 @@ export function createMap(
 ): void {
     const eventTarget = createPointerEvents(pointerEvents);
     const measurements = getInitialMeasurements(screenMeasurements.width, screenMeasurements.height);
-    const tictactoe = createTicTacToe(
+    const grid = new GridImpl(
+        {
+            ...measurements,
+            background: {
+                extendLeft: 0,
+                extendRight: 0,
+                extendTop: 0,
+                extendBottom: 0
+            }
+        },
         eventTarget,
-        renderer,
-        measurements,
         lightTheme,
-        GameState.initial
+        undefined
     )
+    const ticTacToeRoot = createTicTacToeRoot(
+        grid,
+        lightTheme
+    )
+    ticTacToeRoot.addEventListener('positionrevealed', () => renderer.rerender());
+    ticTacToeRoot.addEventListener('statehidden', () => renderer.rerender())
 
     renderer.setRenderable({
         draw(ctx): void{
@@ -28,10 +41,10 @@ export function createMap(
             ctx.save();
             ctx.clearRect(-Infinity, -Infinity, Infinity, Infinity);
             ctx.fillRect(-Infinity, -Infinity, Infinity, Infinity);
-            tictactoe.draw(ctx);
+            grid.draw(ctx);
             ctx.restore();
         }
-    })
+    });
 
     renderer.rerender();
 }

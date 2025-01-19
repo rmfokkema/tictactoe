@@ -1,9 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`a tictactoe map > should draw 1`] = `"4dda2e915c60f2546e51d338150bf407"`;
-
-exports[`a tictactoe map > should draw moves 1`] = `"38126ea54e900485c2643970c97c20f4"`;
-
-exports[`a tictactoe map > should not draw in case of a second pointer 1`] = `"4dda2e915c60f2546e51d338150bf407"`;
-
-exports[`a tictactoe map > should not draw when pointer moves 1`] = `"4dda2e915c60f2546e51d338150bf407"`;

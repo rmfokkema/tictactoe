@@ -70,6 +70,16 @@ export class EventTargetImpl implements CustomPointerEventDispatcher {
         listener: (ev: CustomPointerEventMap[TType]) => void): void {
             this.listeners[type].push(listener);
     }
+    public removeEventListener<TType extends keyof CustomPointerEventMap>(
+        type: TType,
+        listener: (ev: CustomPointerEventMap[TType]) => void): void {
+            const listeners = this.listeners[type];
+            const index = listeners.indexOf(listener);
+            if(index === -1){
+                return;
+            }
+            listeners.splice(index, 1);
+    }
     public addChildForArea(area: Measurements): CustomPointerEventTarget{
         const child = new EventTargetImpl(area, this);
         this.children.push(child);
