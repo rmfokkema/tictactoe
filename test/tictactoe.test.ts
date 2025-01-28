@@ -173,7 +173,7 @@ describe('a tictactoe', () => {
         })
     })
 
-    it.skip('should reveal position', () => {
+    it('should reveal position', () => {
         const state0138 = GameState.initial
             .playPosition(0)
             .playPosition(1)
@@ -187,7 +187,7 @@ describe('a tictactoe', () => {
                 player: Player.X
             }
         });
-        const grid8750 = player.grid.findByPosition([8]).grid;
-        console.log(grid8750.toString())
+        const grid8750 = player.grid.findByPosition([8, 7, 5, 0]).grid;
+        expect(grid8750.toString()).toMatchSnapshot();
     })
 })

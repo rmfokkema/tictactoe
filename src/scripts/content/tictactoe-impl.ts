@@ -150,6 +150,9 @@ export class TicTacToeImpl implements TicTacToe, PossibilityParent, TicTacToePar
         if(winner && this.gameState.indexOfPredecessor(winner.gameState) > -1){
             this.setWinner(winner.player);
         }
+        if(position.gameState.equals(this.gameState)){
+            return;
+        }
         const split = [...splitRevealedPosition(position, this.gameState)];
         const newTicTacToes: TicTacToeImpl[] = [];
         for(const possibility of this.possibilities.slice()){
@@ -158,7 +161,8 @@ export class TicTacToeImpl implements TicTacToe, PossibilityParent, TicTacToePar
                 continue;
             }
             const {tictactoe} = this.showPossibility(possibility);
-            newTicTacToes.push(tictactoe)
+            newTicTacToes.push(tictactoe);
+            tictactoe.revealPosition(positionForPossibility);
         }
         for(const tictactoe of this.ticTacToes){
             const positionForTicTacToe = split.find(p => p.gameState.indexOfPredecessor(tictactoe.gameState) > -1);
