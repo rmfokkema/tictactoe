@@ -1,20 +1,23 @@
-import { createPointerEvents } from "./events/create-pointer-events";
-import { PointerEventTargetLike } from "./events/types";
+import { createPointerEvents } from "./pointer-events/create-pointer-events";
+import { PointerEventTargetLike } from "./pointer-events/types";
 import { getInitialMeasurements, ScreenMeasurements } from "./measurements";
 import { createTicTacToeRoot } from "./content/tictactoe-root";
 import { palette } from "./palette";
 import { Renderer } from "./renderer/types";
 import { lightTheme } from "./themes";
 import { GridImpl } from "./ui-impl/grid-impl";
+import { RootTicTacToeStore } from "./store/create-store";
 
 export function createMap(
     renderer: Renderer,
     pointerEvents: PointerEventTargetLike,
-    screenMeasurements: ScreenMeasurements
+    screenMeasurements: ScreenMeasurements,
+    store: RootTicTacToeStore
 ): void {
     const eventTarget = createPointerEvents(pointerEvents);
     const measurements = getInitialMeasurements(screenMeasurements.width, screenMeasurements.height);
     const grid = new GridImpl(
+        renderer,
         {
             ...measurements,
             background: {
@@ -28,12 +31,8 @@ export function createMap(
         lightTheme,
         undefined
     )
-    const ticTacToeRoot = createTicTacToeRoot(
-        grid,
-        lightTheme
-    )
-    ticTacToeRoot.addEventListener('positionrevealed', () => renderer.rerender());
-    ticTacToeRoot.addEventListener('statehidden', () => renderer.rerender())
+    const ticTacToeRoot = createTicTacToeRoot(grid, lightTheme);
+    store.connectStore(ticTacToeRoot);
 
     renderer.setRenderable({
         draw(ctx): void{
