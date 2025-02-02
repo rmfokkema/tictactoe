@@ -12,6 +12,23 @@ class TicTacToeStoreImpl implements TicTacToeStore {
         positionrevealed: []
     });
 
+    private connectStoreEvents<
+        TType extends keyof TicTacToeEventMap,
+        TStore extends {addEventListener(type: TType, listener: (ev: TicTacToeEventMap[TType]) => void): void}
+    >(
+        type: TType,
+        store: TStore,
+        storeAction: (store: TStore, ev: TicTacToeEventMap[TType]) => void
+    ): void{
+        const storeListener = (ev: TicTacToeEventMap[TType]): void => storeAction(store, ev);
+        this.eventDispatcher.addEventListener(type, storeListener);
+        store.addEventListener(type, (e) => {
+            this.eventDispatcher.removeEventListener(type, storeListener);
+            this.eventDispatcher.dispatchEvent(type, e);
+            this.eventDispatcher.addEventListener(type, storeListener);
+        });
+    }
+
     public hideState(state: GameState): void {
         this.eventDispatcher.dispatchEvent('statehidden', state);
     }
@@ -27,10 +44,8 @@ class TicTacToeStoreImpl implements TicTacToeStore {
     }
 
     public connectStore(other: TicTacToeStore): void {
-        this.addEventListener('positionrevealed', (p) => other.revealPosition(p));
-        this.addEventListener('statehidden', (s) => other.hideState(s));
-        other.addEventListener('positionrevealed', p => this.revealPosition(p));
-        other.addEventListener('statehidden', s => this.hideState(s));
+        this.connectStoreEvents('positionrevealed', other, (s, e) => s.revealPosition(e));
+        this.connectStoreEvents('statehidden', other, (s, e) => s.hideState(e));
     }
 }
 
