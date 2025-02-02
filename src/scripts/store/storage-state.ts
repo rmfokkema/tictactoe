@@ -1,6 +1,6 @@
 import { Player } from "../player";
 import { GameState } from "../state/game-state";
-import { RevealedPosition } from "../state/revealed-position";
+import { RevealedPosition, splitGameState } from "../state/revealed-position";
 import { TicTacToeStoreMutations } from "./tictactoe-store";
 
 type StorageStateJson = {
@@ -45,19 +45,23 @@ export class StorageState implements TicTacToeStoreMutations {
     }
 
     public hideState(state: GameState): void{
-        const next = this.getNextStateAndPosition(state);
-        if(!next){
-            return;
+        const split = [...splitGameState(state, this.gameState)];
+        const splitStates = split.map(s => s.state);
+        for(let i = 0; i < 9; i++){
+            const storageStateForPosition = this.positions[i];
+            if(!storageStateForPosition){
+                continue;
+            }
+            const hasSplitGameState = split.some(s => s.state.equals(storageStateForPosition.gameState));
+            if(hasSplitGameState){
+                this.positions[i] = undefined;
+                continue;
+            }
+            const descendant = split.find(s => s.state.indexOfPredecessor(storageStateForPosition.gameState) > -1);
+            if(descendant){
+                storageStateForPosition.hideState(descendant.state)
+            }
         }
-        if(next.state.equals(state)){
-            this.positions[next.position] = undefined;
-            return;
-        }
-        const storageStateForNextState = this.positions[next.position];
-        if(!storageStateForNextState){
-            return;
-        }
-        storageStateForNextState.hideState(state);
     }
 
     public *getRevealedPositions(): Iterable<RevealedPosition> {

@@ -70,4 +70,27 @@ describe('a storage state', () => {
             expect(stringifyRevealedPositions(revealed)).toMatchSnapshot();
         })
     })
+
+    describe('that has revealed positions', () => {
+        let state: StorageState;
+
+        beforeEach(() => {
+            state = StorageState.create();
+            state.revealPosition({
+                gameState: GameState.initial.playPosition(0).playPosition(1),
+                winner: undefined
+            })
+        })
+
+        it('should remove equivalent position', () => {
+            state.hideState(GameState.initial.playPosition(6).playPosition(7));
+            const content = [...state.getRevealedPositions()];
+            expect(content).toEqual([
+                {
+                    gameState: GameState.initial.playPosition(0)
+                }
+            ])
+        })
+
+    })
 })
