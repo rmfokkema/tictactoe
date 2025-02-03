@@ -93,4 +93,29 @@ describe('a storage state', () => {
         })
 
     })
+
+    describe('that adds revealed positions', () => {
+        let state: StorageState;
+
+        beforeEach(() => {
+            state = StorageState.create();
+            state.revealPosition({
+                gameState: GameState.initial.playPosition(8),
+                winner: undefined
+            });
+            state.revealPosition({
+                gameState: GameState.initial.playPosition(8).playPosition(5),
+                winner: undefined
+            })
+        });
+
+        it('should have recorded the equivalents with low-index positions', () => {
+            const content = [...state.getRevealedPositions()];
+            expect(content).toEqual([
+                {
+                    gameState: GameState.initial.playPosition(0).playPosition(1)
+                }
+            ])
+        })
+    })
 })
