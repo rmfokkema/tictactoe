@@ -20,19 +20,6 @@ export interface ClonedRevealedPosition {
     } | undefined
 }
 
-function partialTransformRevealedPosition(
-    position: RevealedPosition,
-    fromState: GameState,
-    transformation: Transformation): RevealedPosition{
-        return {
-            gameState: position.gameState.partialTransform(fromState, transformation),
-            winner: position.winner ? {
-                gameState: position.winner.gameState.partialTransform(fromState, transformation),
-                player: position.winner.player
-            } : undefined
-        }
-}
-
 function findSplitTransformation(fromState: GameState, nextOne: GameState, candidate: GameState): Transformation | undefined{
     const fromStatePositionSet = fromState.getPositionSet();
     for(const transformation of candidate.getTransformationsFrom(nextOne)){

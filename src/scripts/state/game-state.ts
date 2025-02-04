@@ -44,10 +44,6 @@ export class GameState {
         return -1;
     }
 
-    public transform(transformation: Transformation): GameState{
-        return new GameState(this.transformPositions(transformation))
-    }
-
     public partialTransform(fromPredecessor: GameState, transformation: Transformation): GameState{
         const result = new PositionStream(0);
         let positionIsTransformed = false;
