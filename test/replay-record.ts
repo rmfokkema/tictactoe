@@ -1,5 +1,5 @@
 import { RevealedPosition } from "../src/scripts/state/revealed-position"
-import { TicTacToeStoreMutations } from "../src/scripts/store/tictactoe-store"
+import { MapStoreMutations } from "../src/scripts/store/map-store"
 import { gameStateWithPositions } from "./game-state-with-positions"
 
 interface RevealedRecordEntry {
@@ -41,7 +41,7 @@ function createRevealedPosition(entry: RevealedRecordEntry): RevealedPosition {
     }
 }
 
-export function replayRecord(store: TicTacToeStoreMutations, record: RecordEntry[]): void {
+export function replayRecord(store: MapStoreMutations, record: RecordEntry[]): void {
     for(const entry of record){
         if(isReveal(entry)){
             store.revealPosition(createRevealedPosition(entry));

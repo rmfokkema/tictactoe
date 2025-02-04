@@ -5,6 +5,10 @@ import { Transformation } from "../transformations";
 import { Winner } from "../winner";
 import { PositionSet } from "./position-set";
 
+export interface ClonedGameState {
+    positions: number
+}
+
 export class GameState {
     private constructor(private readonly positions: number){}
 
@@ -166,6 +170,10 @@ export class GameState {
         `${symbols[playersAtPositions[3]]}|${symbols[playersAtPositions[4]]}|${symbols[playersAtPositions[5]]}\r\n` +
         `-+-+-\r\n` +
         `${symbols[playersAtPositions[6]]}|${symbols[playersAtPositions[7]]}|${symbols[playersAtPositions[8]]}`
+    }
+
+    public static reviveCloned(cloned: ClonedGameState): GameState {
+        return new GameState(cloned.positions);
     }
 
     public static initial: GameState = new GameState(0)

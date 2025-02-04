@@ -4,9 +4,9 @@ import { Theme } from "../themes";
 import { Grid } from "../ui/grid";
 import { TicTacToeImpl, TicTacToeParent } from "./tictactoe-impl";
 import { EventDispatcher } from "../events/event-dispatcher";
-import { TicTacToeEventMap, TicTacToeStore } from "../store/tictactoe-store";
+import { MapEventMap, MapStore } from "../store/map-store";
 
-export interface TicTacToeRoot extends TicTacToeStore {
+export interface TicTacToeRoot extends MapStore {
 
 }
 
@@ -14,7 +14,7 @@ export function createTicTacToeRoot(
     grid: Grid,
     theme: Theme
 ): TicTacToeRoot {
-    const eventDispatcher: EventDispatcher<TicTacToeEventMap> = new EventDispatcher({
+    const eventDispatcher: EventDispatcher<MapEventMap> = new EventDispatcher({
         statehidden: [],
         positionrevealed: []
     });
@@ -43,10 +43,10 @@ export function createTicTacToeRoot(
         revealPosition(position: RevealedPosition): void {
             impl.revealPosition(position);
         },
-        addEventListener<TType extends keyof TicTacToeEventMap>(type: TType, listener: (ev: TicTacToeEventMap[TType]) => void): void {
+        addEventListener<TType extends keyof MapEventMap>(type: TType, listener: (ev: MapEventMap[TType]) => void): void {
             eventDispatcher.addEventListener(type, listener);
         },
-        removeEventListener<TType extends keyof TicTacToeEventMap>(type: TType, listener: (ev: TicTacToeEventMap[TType]) => void): void {
+        removeEventListener<TType extends keyof MapEventMap>(type: TType, listener: (ev: MapEventMap[TType]) => void): void {
             eventDispatcher.removeEventListener(type, listener);
         }
     };

@@ -1,18 +1,18 @@
 import { Player } from "../player";
 import { GameState } from "../state/game-state";
 import { RevealedPosition, splitGameState, splitRevealedPosition } from "../state/revealed-position";
-import { TicTacToeStoreMutations } from "./tictactoe-store";
+import { MapStoreMutations } from "./map-store";
 
 type StorageStateJson = {
     [position: number]: StorageStateJson
     w?: Player
 }
 
-export class StorageState implements TicTacToeStoreMutations {
+export class MapStorageState implements MapStoreMutations {
     private readonly playersAtPositions: (Player | 0)[];
     private constructor(
         private readonly gameState: GameState,
-        private readonly positions: (StorageState | undefined)[] = [],
+        private readonly positions: (MapStorageState | undefined)[] = [],
         private winner?: Player | undefined
     ){
         this.playersAtPositions = [...gameState.getPlayersAtPositions()];
@@ -35,7 +35,7 @@ export class StorageState implements TicTacToeStoreMutations {
             if(!revealedPositionAtPosition){
                 continue;
             }
-            const storageStateForPosition = this.positions[i] || new StorageState(stateAtPosition);
+            const storageStateForPosition = this.positions[i] || new MapStorageState(stateAtPosition);
             storageStateForPosition.revealPosition(revealedPositionAtPosition);
             this.positions[i] = storageStateForPosition;
             break;
@@ -109,7 +109,7 @@ export class StorageState implements TicTacToeStoreMutations {
 
     public toJSON(){
         const result: {
-            [index: number]: StorageState,
+            [index: number]: MapStorageState,
             w?: Player
         } = {};
         for(let i = 0; i < 9; i++){
@@ -124,10 +124,10 @@ export class StorageState implements TicTacToeStoreMutations {
         return result;
     }
 
-    public static fromJSON(json: StorageStateJson, gameState?: GameState): StorageState {
+    public static fromJSON(json: StorageStateJson, gameState?: GameState): MapStorageState {
         const state = gameState || GameState.initial;
         const winner = json.w;
-        const positions: StorageState[] = [];
+        const positions: MapStorageState[] = [];
         for(let i = 0; i < 9; i++){
             const jsonAtIndex = json[i];
             if(!jsonAtIndex){
@@ -136,10 +136,10 @@ export class StorageState implements TicTacToeStoreMutations {
             const gameStateAtIndex = state.playPosition(i);
             positions[i] = this.fromJSON(jsonAtIndex, gameStateAtIndex);
         }
-        return new StorageState(state, positions, winner);
+        return new MapStorageState(state, positions, winner);
     }
 
-    public static create(): StorageState {
-        return new StorageState(GameState.initial);
+    public static create(): MapStorageState {
+        return new MapStorageState(GameState.initial);
     }
 }

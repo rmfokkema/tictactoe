@@ -32,7 +32,7 @@ export function createMap(
         undefined
     )
     const ticTacToeRoot = createTicTacToeRoot(grid, lightTheme);
-    store.connectStore(ticTacToeRoot);
+    store.connectMapStore(ticTacToeRoot);
 
     renderer.setRenderable({
         draw(ctx): void{

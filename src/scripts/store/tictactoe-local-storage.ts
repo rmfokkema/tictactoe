@@ -1,37 +1,37 @@
 import { EventDispatcher } from "../events/event-dispatcher";
 import { GameState } from "../state/game-state";
 import { RevealedPosition } from "../state/revealed-position";
-import { StorageState } from "./storage-state";
-import { TicTacToeEventMap, TicTacToeStore } from "./tictactoe-store";
+import { MapStorageState } from "./map-storage-state";
+import { MapEventMap, MapStore } from "./map-store";
 
 const POSITIONS = 'positions';
 
-export class TicTacToeLocalStorage implements TicTacToeStore {
-    private state: StorageState = StorageState.create();
-    private eventDispatcher: EventDispatcher<TicTacToeEventMap> = new EventDispatcher({
+export class TicTacToeLocalStorage implements MapStore {
+    private mapState: MapStorageState = MapStorageState.create();
+    private eventDispatcher: EventDispatcher<MapEventMap> = new EventDispatcher({
         statehidden: [],
         positionrevealed: []
     })
 
     private persist(): void {
-        const serialized = JSON.stringify(this.state);
+        const serialized = JSON.stringify(this.mapState);
         window.localStorage.setItem(POSITIONS, serialized);
     }
 
-    public addEventListener<TType extends keyof TicTacToeEventMap>(type: TType, listener: (ev: TicTacToeEventMap[TType]) => void): void {
+    public addEventListener<TType extends keyof MapEventMap>(type: TType, listener: (ev: MapEventMap[TType]) => void): void {
         this.eventDispatcher.addEventListener(type, listener);
     }
 
-    public removeEventListener<TType extends keyof TicTacToeEventMap>(type: TType, listener: (ev: TicTacToeEventMap[TType]) => void): void {
+    public removeEventListener<TType extends keyof MapEventMap>(type: TType, listener: (ev: MapEventMap[TType]) => void): void {
         this.eventDispatcher.removeEventListener(type, listener);
     }
 
     public hideState(state: GameState): void {
-        this.state.hideState(state);
+        this.mapState.hideState(state);
         this.persist();
     }
     public revealPosition(position: RevealedPosition): void {
-        this.state.revealPosition(position);
+        this.mapState.revealPosition(position);
         this.persist();
     }
 
@@ -40,10 +40,10 @@ export class TicTacToeLocalStorage implements TicTacToeStore {
         if(storedValue === null){
             return;
         }
-        const loadedState = StorageState.fromJSON(JSON.parse(storedValue));
+        const loadedState = MapStorageState.fromJSON(JSON.parse(storedValue));
         for(const revealed of loadedState.getRevealedPositions()){
             this.eventDispatcher.dispatchEvent('positionrevealed', revealed);
         }
-        this.state = loadedState;
+        this.mapState = loadedState;
     }
 }

@@ -1,4 +1,4 @@
-import { GameState } from "./game-state";
+import { ClonedGameState, GameState } from "./game-state";
 import { otherPlayer, Player } from "../player";
 import { Transformation } from "../transformations";
 
@@ -10,6 +10,14 @@ export interface RevealedWinner {
 export interface RevealedPosition{
     gameState: GameState
     winner: RevealedWinner | undefined
+}
+
+export interface ClonedRevealedPosition {
+    gameState: ClonedGameState,
+    winner: {
+        player: Player,
+        gameState: ClonedGameState
+    } | undefined
 }
 
 function partialTransformRevealedPosition(
@@ -66,6 +74,22 @@ export function *splitRevealedPosition(position: RevealedPosition, fromState: Ga
                 player: position.winner.player
             } : undefined
         }
+    }
+}
+
+export function reviveClonedRevealedPosition(cloned: ClonedRevealedPosition): RevealedPosition {
+    if(cloned.winner){
+        return {
+            gameState: GameState.reviveCloned(cloned.gameState),
+            winner: {
+                player: cloned.winner.player,
+                gameState: GameState.reviveCloned(cloned.winner.gameState)
+            }
+        }
+    }
+    return {
+        gameState: GameState.reviveCloned(cloned.gameState),
+        winner: undefined
     }
 }
 

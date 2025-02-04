@@ -1,18 +1,18 @@
 import { describe, beforeEach, it, expect } from 'vitest'
-import { StorageState } from '../src/scripts/store/storage-state';
+import { MapStorageState } from '../src/scripts/store/map-storage-state';
 import winner01 from './fixtures/winner-0-1.json'
 import manyLosers from './fixtures/many-losers.json'
 import { replayRecord } from './replay-record';
 import { GameState } from '../src/scripts/state/game-state';
 import { RevealedPosition } from '../src/scripts/state/revealed-position';
 
-function serializeAndDeserialize(state: StorageState): StorageState {
+function serializeAndDeserialize(state: MapStorageState): MapStorageState {
     const serialized = JSON.stringify(state);
-    const deserialized = StorageState.fromJSON(JSON.parse(serialized));
+    const deserialized = MapStorageState.fromJSON(JSON.parse(serialized));
     return deserialized;
 }
 
-function restoreRevealedPositions(state: StorageState): RevealedPosition[] {
+function restoreRevealedPositions(state: MapStorageState): RevealedPosition[] {
     const cloned = serializeAndDeserialize(state);
     return [...cloned.getRevealedPositions()];
 }
@@ -25,10 +25,10 @@ function stringifyRevealedPositions(positions: RevealedPosition[]): string {
 describe('a storage state', () => {
 
     describe('that is built up', () => {
-        let initialState: StorageState;
+        let initialState: MapStorageState;
 
         beforeEach(() => {
-            initialState = StorageState.create();
+            initialState = MapStorageState.create();
             replayRecord(initialState, winner01)
         })
 
@@ -45,10 +45,10 @@ describe('a storage state', () => {
     });
 
     describe('based on the many losers scenario', () => {
-        let initialState: StorageState;
+        let initialState: MapStorageState;
 
         beforeEach(() => {
-            initialState = StorageState.create();
+            initialState = MapStorageState.create();
             replayRecord(initialState, manyLosers)
         })
 
@@ -59,10 +59,10 @@ describe('a storage state', () => {
     })
 
     describe('that is empty', () => {
-        let state: StorageState;
+        let state: MapStorageState;
 
         beforeEach(() => {
-            state = StorageState.create();
+            state = MapStorageState.create();
         })
 
         it('should serialize and deserialize correctly', () => {
@@ -72,10 +72,10 @@ describe('a storage state', () => {
     })
 
     describe('that has revealed positions', () => {
-        let state: StorageState;
+        let state: MapStorageState;
 
         beforeEach(() => {
-            state = StorageState.create();
+            state = MapStorageState.create();
             state.revealPosition({
                 gameState: GameState.initial.playPosition(0).playPosition(1),
                 winner: undefined
@@ -95,10 +95,10 @@ describe('a storage state', () => {
     })
 
     describe('that adds revealed positions', () => {
-        let state: StorageState;
+        let state: MapStorageState;
 
         beforeEach(() => {
-            state = StorageState.create();
+            state = MapStorageState.create();
             state.revealPosition({
                 gameState: GameState.initial.playPosition(8),
                 winner: undefined

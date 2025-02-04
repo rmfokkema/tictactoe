@@ -1,7 +1,7 @@
 import { otherPlayer, Player } from "../player"
 import { GameState } from "../state/game-state"
 import { addToRevealedPosition, RevealedPosition, splitGameState, splitRevealedPosition } from "../state/revealed-position"
-import { TicTacToeStoreMutations } from "../store/tictactoe-store"
+import { MapStoreMutations } from "../store/map-store"
 import { Theme } from "../themes"
 import { Grid, GridCell } from "../ui/grid"
 import { Winner } from "../winner"
@@ -13,7 +13,7 @@ export interface TicTacToeParent {
     notifyHiddenState(state: GameState): void
 }
 
-export class TicTacToeImpl implements TicTacToeStoreMutations, PossibilityParent, TicTacToeParent, XParent {
+export class TicTacToeImpl implements MapStoreMutations, PossibilityParent, TicTacToeParent, XParent {
     private theme: Theme
     private readonly possibilities: Possibility[]
     private readonly xes: X[];

@@ -4,6 +4,7 @@ import { createRenderer } from './renderer/create-renderer';
 import { createMap } from './create-map';
 import { createStore } from './store/create-store';
 import { TicTacToeLocalStorage } from './store/tictactoe-local-storage';
+import { createBroadcastChannelMapStore } from './store/broadcast-channel-map-store';
 
 function initialize(): void{
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -14,7 +15,7 @@ function initialize(): void{
     const renderer = createRenderer(infCanvas.getContext('2d'));
     const store = createStore();
     const ticTacToeLocalStorage = new TicTacToeLocalStorage();
-    store.connectStore(ticTacToeLocalStorage);
+    store.connectMapStore(ticTacToeLocalStorage, {receiveOrigins: ['samePage']});
     createMap(
         renderer,
         infCanvas,
@@ -22,6 +23,7 @@ function initialize(): void{
         store
     )
     ticTacToeLocalStorage.load();
+    store.connectMapStore(createBroadcastChannelMapStore(), {sendOrigin: 'otherPage'})
 }
 
 initialize();

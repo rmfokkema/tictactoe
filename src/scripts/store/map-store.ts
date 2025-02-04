@@ -2,16 +2,16 @@ import { EventTargetLike } from "../events/types"
 import { GameState } from "../state/game-state"
 import { RevealedPosition } from "../state/revealed-position"
 
-export interface TicTacToeEventMap {
+export interface MapEventMap {
     statehidden: GameState
     positionrevealed: RevealedPosition
 }
 
-export interface TicTacToeStoreMutations {
+export interface MapStoreMutations {
     hideState(state: GameState): void
     revealPosition(position: RevealedPosition): void
 }
 
-export interface TicTacToeStore extends TicTacToeStoreMutations, EventTargetLike<TicTacToeEventMap> {
+export interface MapStore extends MapStoreMutations, EventTargetLike<MapEventMap> {
     
 }
