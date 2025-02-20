@@ -1,53 +1,45 @@
+import { EventDispatcher } from "../events/event-dispatcher";
+import { MapRenderer, MapRendererEventMap } from "../map/map-renderer";
 import { GameState } from "../state/game-state";
-import { RevealedPosition } from "../state/revealed-position";
+import { GameStateTree } from "../state/game-state-tree";
 import { Theme } from "../themes";
 import { Grid } from "../ui/grid";
-import { TicTacToeImpl, TicTacToeParent } from "./tictactoe-impl";
-import { EventDispatcher } from "../events/event-dispatcher";
-import { MapEventMap, MapStore } from "../store/map-store";
-
-export interface TicTacToeRoot extends MapStore {
-
-}
+import { TicTacToeImpl } from "./tictactoe-impl";
+import { TicTacToeParent } from "./tictactoe-parent";
 
 export function createTicTacToeRoot(
     grid: Grid,
-    theme: Theme
-): TicTacToeRoot {
-    const eventDispatcher: EventDispatcher<MapEventMap> = new EventDispatcher({
+    theme: Theme,
+    tree: GameStateTree
+): MapRenderer {
+    const eventDispatcher: EventDispatcher<MapRendererEventMap> = new EventDispatcher({
         statehidden: [],
-        positionrevealed: []
+        staterevealed: []
     });
     const parent: TicTacToeParent = {
-        notifyRevealedPosition(position: RevealedPosition): void {
-            impl.revealPosition(position);
-            eventDispatcher.dispatchEvent('positionrevealed', position);
+        notifyRevealedState(state: GameState): void {
+            eventDispatcher.dispatchEvent('staterevealed', state);
         },
         notifyHiddenState(state: GameState): void {
-            impl.hideState(state);
             eventDispatcher.dispatchEvent('statehidden', state);
         }
     };
     const impl = new TicTacToeImpl(
         parent,
-        GameState.initial,
-        undefined,
-        theme,
+        tree,
         grid,
-        undefined
+        undefined,
+        theme
     );
     return {
-        hideState(state: GameState): void {
-            impl.hideState(state);
-        },
-        revealPosition(position: RevealedPosition): void {
-            impl.revealPosition(position);
-        },
-        addEventListener<TType extends keyof MapEventMap>(type: TType, listener: (ev: MapEventMap[TType]) => void): void {
+        addEventListener<TType extends keyof MapRendererEventMap>(type: TType, listener: (ev: MapRendererEventMap[TType]) => void): void {
             eventDispatcher.addEventListener(type, listener);
         },
-        removeEventListener<TType extends keyof MapEventMap>(type: TType, listener: (ev: MapEventMap[TType]) => void): void {
+        removeEventListener<TType extends keyof MapRendererEventMap>(type: TType, listener: (ev: MapRendererEventMap[TType]) => void): void {
             eventDispatcher.removeEventListener(type, listener);
+        },
+        setTree(tree: GameStateTree): void{
+            impl.setTree(tree)
         }
-    };
+    }
 }

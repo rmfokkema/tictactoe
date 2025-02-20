@@ -5,6 +5,7 @@ export interface Theme {
     readonly color: string
     readonly loserTheme: Theme
     readonly winnerTheme: Theme
+    equals(other: Theme | undefined): boolean
 }
 
 class EverDarkerTheme implements Theme {
@@ -17,6 +18,9 @@ class EverDarkerTheme implements Theme {
     }
     public get loserTheme(): Theme {
         return this.cachedLoser = this.cachedLoser || this.createLoserTheme();
+    }
+    public equals(other: Theme | undefined): boolean {
+        return other === this;
     }
     public constructor(
         private readonly lightness: number

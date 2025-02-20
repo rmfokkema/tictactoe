@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { GameState } from '../src/scripts/state/game-state'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { ClonedGameState, GameState } from '../src/scripts/state/game-state'
 import { Player } from '../src/scripts/player';
 import { MAIN_DIAGONAL } from '../src/scripts/three';
-import { Identity, RotateLeft, TurnUpsideDown, RotateRight, FlipHorizontal, FlipOtherDiagonal, FlipVertical, FlipMainDiagonal, Transformation } from '../src/scripts/transformations';
+import { gameStateWithPositions } from './game-state-with-positions';
 
 describe('a game state', () => {
 
@@ -25,47 +25,61 @@ describe('a game state', () => {
         expect(playersAtPositions[2]).toBe(0)
     })
 
-    it('should have successors', () => {
-        const state = GameState.initial
-            .playPosition(0)
-            .playPosition(1)
-            .playPosition(3)
-            .playPosition(6)
-            .playPosition(4)
-        
-        const successors = [...state.getSuccessors()];
-
-        expect(successors).toEqual([
-            state.playPosition(2),
-            state.playPosition(5),
-            state.playPosition(7),
-            state.playPosition(8)
-        ])
-    })
-
-    it('should return index of other state', () => {
-        const state1 = GameState.initial.playPosition(0).playPosition(1).playPosition(3);
-        const state2 = GameState.initial.playPosition(0).playPosition(1);
-        const state3 = GameState.initial.playPosition(0);
-        const state4 = GameState.initial.playPosition(0).playPosition(2);
-
-        expect(state1.indexOfPredecessor(state2)).toEqual(2)
-        expect(state1.indexOfPredecessor(state3)).toEqual(1)
-        expect(state1.indexOfPredecessor(state4)).toEqual(-1)
-    })
-
-    it('should return predecessor at index', () => {
-        const state = GameState.initial.playPosition(0).playPosition(1).playPosition(3);
-
-        expect(state.predecessorAtIndex(0)).toEqual(GameState.initial)
-        expect(state.predecessorAtIndex(1)).toEqual(GameState.initial.playPosition(0))
-        expect(state.predecessorAtIndex(2)).toEqual(GameState.initial.playPosition(0).playPosition(1))
-        expect(state.predecessorAtIndex(3)).toEqual(GameState.initial.playPosition(0).playPosition(1).playPosition(3))
-        expect(state.predecessorAtIndex(4)).toEqual(undefined)
-        expect(state.predecessorAtIndex(-1)).toEqual(GameState.initial.playPosition(0).playPosition(1))
-        expect(state.predecessorAtIndex(-2)).toEqual(GameState.initial.playPosition(0))
-        expect(state.predecessorAtIndex(-3)).toEqual(GameState.initial)
-        expect(state.predecessorAtIndex(-4)).toEqual(undefined)
+    it.each<[GameState, GameState[]]>([
+        [
+            GameState.initial,
+            [
+                GameState.initial.playPosition(0),
+                GameState.initial.playPosition(1),
+                GameState.initial.playPosition(4)
+            ]
+        ],
+        [
+            gameStateWithPositions([0, 5, 2, 1, 4, 3]),
+            [
+                gameStateWithPositions([0, 5, 2, 1, 4, 3, 6]),
+                gameStateWithPositions([0, 5, 2, 1, 4, 3, 7])
+            ]
+        ],
+        [
+            gameStateWithPositions([0, 4]),
+            [
+                gameStateWithPositions([0, 4, 1]),
+                gameStateWithPositions([0, 4, 2]),
+                gameStateWithPositions([0, 4, 5]),
+                gameStateWithPositions([0, 4, 8]),
+            ]
+        ],
+        [
+            gameStateWithPositions([0, 4, 8]),
+            [
+                gameStateWithPositions([0, 4, 8, 1]),
+                gameStateWithPositions([0, 4, 8, 2]),
+            ]
+        ],
+        [
+            gameStateWithPositions([0, 1]),
+            [
+                gameStateWithPositions([0, 1, 2]),
+                gameStateWithPositions([0, 1, 3]),
+                gameStateWithPositions([0, 1, 4]),
+                gameStateWithPositions([0, 1, 5]),
+                gameStateWithPositions([0, 1, 6]),
+                gameStateWithPositions([0, 1, 7]),
+                gameStateWithPositions([0, 1, 8]),
+            ]
+        ],
+        [
+            gameStateWithPositions([0, 4, 2]),
+            [
+                gameStateWithPositions([0, 4, 2, 1]),
+                gameStateWithPositions([0, 4, 2, 3]),
+                gameStateWithPositions([0, 4, 2, 6]),
+                gameStateWithPositions([0, 4, 2, 7]),
+            ]
+        ]
+    ])('%j should have nonequivalent successors', (state, expectedNonequivalentSuccessors) => {
+        expect(state.getNonequivalentSuccessors()).toEqual(expectedNonequivalentSuccessors)
     })
 
     it('should return players at positions', () => {
@@ -123,48 +137,94 @@ describe('a game state', () => {
         expect(winner.three).toBe(MAIN_DIAGONAL)
     })
 
-    it('should transform partially', () => {
-        const state1 = GameState.initial.playPosition(0).playPosition(1);
-        const state2 = state1.playPosition(4).playPosition(3)
-        
-        const state3 = state2.playPosition(2).playPosition(5);
-        const state4 = state2.playPosition(6).playPosition(7);
-
-        expect(state3.partialTransform(state2, FlipOtherDiagonal)).toEqual(state4);
-        expect(state4.partialTransform(state2, FlipOtherDiagonal)).toEqual(state3);
-        expect(state1.partialTransform(state2, FlipOtherDiagonal)).toEqual(state1);
+    it.each<[GameState, GameState, GameState | undefined]>([
+        [
+            gameStateWithPositions([0]),
+            gameStateWithPositions([0]),
+            gameStateWithPositions([0])
+        ],
+        [
+            gameStateWithPositions([0]),
+            gameStateWithPositions([2]),
+            gameStateWithPositions([2])
+        ],
+        [
+            gameStateWithPositions([0]),
+            gameStateWithPositions([8]),
+            gameStateWithPositions([8])
+        ],
+        [
+            gameStateWithPositions([0]),
+            gameStateWithPositions([6]),
+            gameStateWithPositions([6])
+        ],
+        [
+            gameStateWithPositions([0, 1, 4, 3, 2, 5]),
+            gameStateWithPositions([0, 1, 4, 3, 6, 7]),
+            gameStateWithPositions([0, 1, 4, 3, 6, 7])
+        ],
+        [
+            gameStateWithPositions([0, 4, 2]),
+            gameStateWithPositions([0, 4, 6]),
+            gameStateWithPositions([0, 4, 6])
+        ],
+        [
+            gameStateWithPositions([0, 1, 4, 3, 2, 5, 8]),
+            gameStateWithPositions([0, 1, 4, 3, 6, 7, 8]),
+            gameStateWithPositions([0, 1, 4, 3, 6, 7, 8])
+        ],
+        [
+            gameStateWithPositions([0, 1, 3]),
+            gameStateWithPositions([2, 1, 5, 8]),
+            gameStateWithPositions([2, 1, 5]),
+        ]
+    ])('state %j with same lineage as %j should be %j', (state, otherState, expectedEquivalent) => {
+        expect(state.getEquivalentWithSameLineage(otherState)).toEqual(expectedEquivalent)
     })
 
-    it.each<[GameState, Transformation | undefined]>([
-        [GameState.initial.playPosition(2), RotateRight],
-        [GameState.initial.playPosition(8), TurnUpsideDown],
-        [GameState.initial.playPosition(6), RotateLeft],
-        [GameState.initial.playPosition(0), Identity]
-    ])('should return equivalence transformation', (otherState, transformation) => {
-        const state = GameState.initial.playPosition(0);
+    describe('state [0, 4, 2, 6, 8, 3, 5]', () => {
+        let state: GameState;
 
-        expect([...otherState.getTransformationsFrom(state)]).toContainEqual(transformation)
-        expect(otherState.hasEquivalentPosition(state)).toBe(true)
+        beforeEach(() => {
+            state = gameStateWithPositions([0, 4, 2, 6, 8, 3, 5])
+        })
+
+        it.each<[GameState, GameState | undefined]>([
+            [
+                gameStateWithPositions([0, 4, 2, 6, 8, 3, 5]),
+                gameStateWithPositions([0, 4, 2, 6, 8, 3, 5])
+            ],
+            [
+                gameStateWithPositions([4]),
+                undefined
+            ],
+            [
+                gameStateWithPositions([2]),
+                gameStateWithPositions([2, 4, 8, 0, 6, 1, 7])
+            ],
+            [
+                gameStateWithPositions([2, 4, 0]),
+                gameStateWithPositions([2, 4, 0, 8, 6, 5, 3])
+            ],
+            [
+                gameStateWithPositions([2, 4, 0, 6]),
+                gameStateWithPositions([2, 4, 0, 6, 8, 3, 5])
+            ],
+            [
+                gameStateWithPositions([2, 4, 0, 5]),
+                undefined
+            ]
+        ])('with same lineage as %j should be %j', (predecessor, expectedEquivalent) => {
+            expect(state.getEquivalentWithSameLineage(predecessor)).toEqual(expectedEquivalent)
+        })
     })
 
-    it('should not have equivalent position', () => {
-        expect(GameState.initial.playPosition(0).hasEquivalentPosition(GameState.initial.playPosition(1))).toBe(false)
-    })
-
-    it.each<[GameState, Transformation | undefined]>([
-        [GameState.initial.playPosition(0).playPosition(1), Identity],
-        [GameState.initial.playPosition(0).playPosition(3), FlipOtherDiagonal],
-        [GameState.initial.playPosition(2).playPosition(1), FlipHorizontal],
-        [GameState.initial.playPosition(2).playPosition(5), RotateRight],
-
-        [GameState.initial.playPosition(8).playPosition(5), FlipMainDiagonal],
-        [GameState.initial.playPosition(8).playPosition(7), TurnUpsideDown],
-        [GameState.initial.playPosition(6).playPosition(7), FlipVertical],
-        [GameState.initial.playPosition(6).playPosition(3), RotateLeft]
-    ])('should return equivalence transformation 2', (otherState, transformation) => {
-        const state = GameState.initial.playPosition(0).playPosition(1);
-
-        expect([...otherState.getTransformationsFrom(state)]).toContainEqual(transformation)
-        expect(otherState.hasEquivalentPosition(state)).toBe(true)
+    it.each<[number, GameState]>([
+        [10, GameState.initial.playPosition(8)],
+        [170, GameState.initial.playPosition(8).playPosition(7)]
+    ])('%d should be rivivable to game state %j', (positions, expectedState) => {
+        const impossible: ClonedGameState = {positions};
+        const revived = GameState.reviveCloned(impossible);
+        expect(revived).toEqual(expectedState);
     })
 })

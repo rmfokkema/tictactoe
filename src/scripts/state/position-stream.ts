@@ -26,7 +26,7 @@ export class PositionStream {
             return undefined;
         }
         const masked = (this.positions >> (this.section.cumulativeShift)) & ((1 << this.section.shift) - 1);
-        return masked === 0 ? undefined : masked - 1;
+        return masked === 0 ? undefined : Math.min(masked - 1, this.vacantPositions.length - 1);
     }
     private advance(positionIndex: number): void{
         if(this.sectionIndex === 8){
@@ -53,7 +53,7 @@ export class PositionStream {
         this.positions |= (positionIndex + 1) << (this.section.cumulativeShift);
         this.advance(positionIndex);
     }
-    public *readAll(): Iterable<number>{
+    public *readAll(): Generator<number>{
         let position: number | undefined = undefined;
         while((position = this.read()) !== undefined){
             yield position;
@@ -62,7 +62,7 @@ export class PositionStream {
     public moveToEnd(): void{
         for(const _ of this.readAll()){}
     }
-    public static readAll(positions: number): Iterable<number>{
+    public static readAll(positions: number): Generator<number>{
         return new PositionStream(positions).readAll();
     }
 }

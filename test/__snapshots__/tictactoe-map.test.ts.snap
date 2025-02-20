@@ -1,16 +1,36 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`a tictactoe > should reveal position 1`] = `
+exports[`a tictactoe map > when a state is revealed remotely > and then a state is hidden remotely > should look like this 1`] = `
 "
-1: -   2: -+   
-O| |2  O| |X!  
--+-+-  -+-+--  
- | |X   | |X!  
--+-+-  -+-+--  
- |O|X   |O|X!  "
+1:     2:     3: -   
+X|O|   X|O|3  X|O|O  
+-+-+-  -+-+-  -+-+-  
+2| |   X| |   X| |   
+-+-+-  -+-+-  -+-+-  
+ | |    | |    | |   "
 `;
 
-exports[`a tictactoe > when it is told to reveal positions > should look like this 1`] = `
+exports[`a tictactoe map > when a state is revealed remotely > should look like this 1`] = `
+"
+1:     2:     3: -   4: -+   
+X|O|   X|O|3  X|O|O  X!|O|O  
+-+-+-  -+-+-  -+-+-  --+-+-  
+2| |   X| |   X| |   X!| |   
+-+-+-  -+-+-  -+-+-  --+-+-  
+ | |    | |   4| |   X!| |   "
+`;
+
+exports[`a tictactoe map > when an impossible value is sent along the message channel > should look like this 1`] = `
+"
+1:     2:     3:     4:     5:     
+2| |3  X| |    | |X   | |    | |   
+-+-+-  -+-+-  -+-+-  -+-+-  -+-+-  
+ | |    | |    | |    | |    | |   
+-+-+-  -+-+-  -+-+-  -+-+-  -+-+-  
+4| |5   | |    | |   X| |    | |X  "
+`;
+
+exports[`a tictactoe map > when it loads from this local storage state > should look like this 1`] = `
 "
 1: --     2: ---  3: ---  4: ----  5: -----  6: ---  7: ----  
 X|X|O     X|X|O   X|X|O   X|X|O    X|X|O     X|X|O   X|X|O    
@@ -27,7 +47,7 @@ X| |O
 O|O|X                                                              "
 `;
 
-exports[`a tictactoe > when it is told to reveal positions > should look like this 2`] = `
+exports[`a tictactoe map > when it loads from this local storage state > should look like this 2`] = `
 "
 1: --     2: ---  3: ---  4: ----  5: -----  6: ---  7: ----  
 O| |      O|3|    O|O|4   O|O|X    O|O|X     O| |7   O|8|X    
@@ -44,7 +64,7 @@ X| |O
 X|X|O                                                              "
 `;
 
-exports[`a tictactoe > when it is told to reveal positions 2 > should look like this 1`] = `
+exports[`a tictactoe map > when it loads from this local storage state 2 > should look like this 1`] = `
 "
 1: -       2: -+       3: -+-     4: -+-+     5: -+-      6: -+-+    7: -+-      
 X|O|       X|O |3      X|O|O      X!|O|O      X|O|        X!|O|      X|O|        
@@ -75,7 +95,7 @@ X!| |
 X!| |O                                                                                "
 `;
 
-exports[`a tictactoe > when it is told to reveal positions 3 > should look like this 1`] = `
+exports[`a tictactoe map > when it loads from this local storage state 3 > should look like this 1`] = `
 "
 1: -----  2: -----+  
 X|X|O     X!|X |O    
@@ -85,7 +105,17 @@ X|2|O     X |X!|O
 O|O|X     O |O |X!   "
 `;
 
-exports[`a tictactoe > when playing 0, 1, 3, 6 and 4 > and 7 and 8 > and winner 01 is revealed > should delete states by double clicking 1`] = `
+exports[`a tictactoe map > when playing 0 > and then removing 0 > should look like this 1`] = `
+"
+1:     
+ | |   
+-+-+-  
+ | |   
+-+-+-  
+ | |   "
+`;
+
+exports[`a tictactoe map > when playing 0, 1, 3, 6 and 4 > and 7 and 8 > and winner 01 is revealed > should delete states by double clicking 1`] = `
 "
 1:      2:     3: -   4: -     5:     6: -   7: -   
 2| |5   X|3|   X|O|   X| |      |6|X   |O|X   | |X  
@@ -102,7 +132,7 @@ exports[`a tictactoe > when playing 0, 1, 3, 6 and 4 > and 7 and 8 > and winner 
 X|10|   X| |   X|O|    |13|X    | |X   |O|X         "
 `;
 
-exports[`a tictactoe > when playing 0, 1, 3, 6 and 4 > and 7 and 8 > should show winner even higher up 1`] = `
+exports[`a tictactoe map > when playing 0, 1, 3, 6 and 4 > and 7 and 8 > should show winner even higher up 1`] = `
 "
 1: -       2: -+       3: -+-     4: -+-+     5: -+-      6: -+-+    7: -+-      
 X|O|       X|O |3      X|O|O      X!|O|O      X|O|        X!|O|      X|O|        
@@ -133,7 +163,7 @@ X!| |
 X!| |O                                                                                "
 `;
 
-exports[`a tictactoe > when playing 0, 1, 3, 6 and 4 > should show winner higher up 1`] = `
+exports[`a tictactoe map > when playing 0, 1, 3, 6 and 4 > should show winner higher up 1`] = `
 "
 1: -      2: -+   3: -+-    4: -+-+   5: -+-  6: -+-+   7: -+-  
 X|O|      X|O|3   X|O|O     X |O |O   X|O|    X!|O |    X|O|    
@@ -150,7 +180,7 @@ X |X!|    X|X|10  X!|X!|X!
 O |O |X!  O| |O   O |  |O                                          "
 `;
 
-exports[`a tictactoe > when playing 0, 1, 3, 6, 4 and 5 > should show winner and loser 1`] = `
+exports[`a tictactoe map > when playing 0, 1, 3, 6, 4 and 5 > should show winner and loser 1`] = `
 "
 1: -   2: -+     
 X|O|   X!|O |    
@@ -160,7 +190,7 @@ X|X|O  X |X!|O
 O| |2  O |  |X!  "
 `;
 
-exports[`a tictactoe > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > and then winner 02164 is revealed > and then winner 02163584 is revealed > and then winner 021635874 is revealed > should look like this 1`] = `
+exports[`a tictactoe map > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > and then winner 02164 is revealed > and then winner 02163584 is revealed > and then winner 021635874 is revealed > should look like this 1`] = `
 "
 1: -----  2: -----+  
 X|X|O     X!|X |O    
@@ -170,7 +200,7 @@ X|2|O     X |X!|O
 O|O|X     O |O |X!   "
 `;
 
-exports[`a tictactoe > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > and then winner 02164 is revealed > and then winner 02163584 is revealed > should look like this 1`] = `
+exports[`a tictactoe map > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > and then winner 02164 is revealed > and then winner 02163584 is revealed > should look like this 1`] = `
 "
 1: ----  2: ----+  
 X|X|O    X |X |O!  
@@ -180,7 +210,7 @@ X|2|O    X |O!|O
 O| |X    O!|  |X   "
 `;
 
-exports[`a tictactoe > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > and then winner 02164 is revealed > should look like this 1`] = `
+exports[`a tictactoe map > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > and then winner 02164 is revealed > should look like this 1`] = `
 "
 1: ---  2: ---+  
 X|X|O   X|X|O    
@@ -190,7 +220,7 @@ X| |    X| |
 O| |2   O| |O    "
 `;
 
-exports[`a tictactoe > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > should look like this 1`] = `
+exports[`a tictactoe map > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > and then winner 023 is revealed > should look like this 1`] = `
 "
 1: --  2: --+  
 X|X|O  X|X|O   
@@ -200,7 +230,7 @@ X| |   X| |
 O| |2  O| |O   "
 `;
 
-exports[`a tictactoe > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > should look like this 1`] = `
+exports[`a tictactoe map > when playing 0, 2, 1, 6, 3 and 8 and revealing the winner > should look like this 1`] = `
 "
 1: -   2: -+  
 X|X|O  X|X|O  
@@ -210,7 +240,7 @@ X| |   X| |
 O| |2  O| |O  "
 `;
 
-exports[`a tictactoe > when playing 0, 5, 2, 1, 4 and 3 > should reveal and display two winners when playing 6 1`] = `
+exports[`a tictactoe map > when playing 0, 5, 2, 1, 4 and 3 > should reveal and display two winners when playing 6 1`] = `
 "
 1: -   2: -+     3: -+     
 X|O|X  X |O |X!  X!|O |X   
@@ -220,7 +250,7 @@ O|X|O  O |X!|O   O |X!|O
 2| |3  X!|  |      |  |X!  "
 `;
 
-exports[`a tictactoe > when playing 0, 5, 2, 1, 4 and 3 > should reveal and display two winners when playing 8 1`] = `
+exports[`a tictactoe map > when playing 0, 5, 2, 1, 4 and 3 > should reveal and display two winners when playing 8 1`] = `
 "
 1: -   2: -+     3: -+     
 X|O|X  X |O |X!  X!|O |X   
@@ -228,4 +258,24 @@ X|O|X  X |O |X!  X!|O |X
 O|X|O  O |X!|O   O |X!|O   
 -+-+-  --+--+--  --+--+--  
 2| |3  X!|  |      |  |X!  "
+`;
+
+exports[`a tictactoe map > when playing 36450872 > should look like this 1`] = `
+"
+1: -   2: -+   
+X| |2  X| |O!  
+-+-+-  -+-+--  
+X|X|O  X|X|O!  
+-+-+-  -+-+--  
+O|X|O  O|X|O!  "
+`;
+
+exports[`a tictactoe map > when playing 364517802 > should look like this 1`] = `
+"
+1:     2:     
+O|X|2  O|X|X  
+-+-+-  -+-+-  
+X|X|O  X|X|O  
+-+-+-  -+-+-  
+O|O|X  O|O|X  "
 `;

@@ -1,0 +1,879 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`a local storage > based on the many losers scenario > should serialize and deserialize correctly 1`] = `
+"{
+  "states": [
+    [
+      0,
+      2,
+      1,
+      6,
+      3,
+      5,
+      8,
+      4
+    ],
+    [
+      0,
+      2,
+      1,
+      6,
+      3,
+      5,
+      8,
+      7,
+      4
+    ],
+    [
+      0,
+      2,
+      1,
+      6,
+      3,
+      8
+    ],
+    [
+      0,
+      2,
+      1,
+      6,
+      4,
+      3,
+      8
+    ],
+    [
+      0,
+      2,
+      1,
+      6,
+      4,
+      5,
+      8
+    ],
+    [
+      0,
+      2,
+      1,
+      6,
+      4,
+      7,
+      8
+    ],
+    [
+      0,
+      2,
+      1,
+      6,
+      4,
+      8,
+      7
+    ],
+    [
+      0,
+      2,
+      3,
+      1,
+      6
+    ],
+    [
+      0,
+      2,
+      3,
+      4,
+      6
+    ],
+    [
+      0,
+      2,
+      3,
+      5,
+      6
+    ],
+    [
+      0,
+      2,
+      3,
+      6,
+      4,
+      1,
+      5
+    ],
+    [
+      0,
+      2,
+      3,
+      6,
+      4,
+      5,
+      8
+    ],
+    [
+      0,
+      2,
+      3,
+      6,
+      4,
+      7,
+      8
+    ],
+    [
+      0,
+      2,
+      3,
+      6,
+      4,
+      8,
+      5
+    ],
+    [
+      0,
+      2,
+      3,
+      7,
+      6
+    ],
+    [
+      0,
+      2,
+      3,
+      8,
+      6
+    ]
+  ],
+  "winners": [
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        3,
+        5,
+        8,
+        4
+      ],
+      "player": 2
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        3,
+        5,
+        8,
+        7,
+        4
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        3,
+        5,
+        8,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        3,
+        5,
+        8
+      ],
+      "player": 2
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        3,
+        8
+      ],
+      "player": 2
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        3
+      ],
+      "player": 2
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        3,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        3
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        5,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        7,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        8,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6,
+        4
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        1,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        1,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        4,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        5,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        1,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        1
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        5,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        7,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        8,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6,
+        4
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        7,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        8,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2,
+        3
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        2
+      ],
+      "player": 1
+    }
+  ]
+}"
+`;
+
+exports[`a local storage > that is built up > should hide state 1`] = `
+"{
+  "states": [
+    [
+      0,
+      1
+    ]
+  ],
+  "winners": [
+    {
+      "gameState": [
+        0,
+        1
+      ],
+      "player": 1
+    }
+  ]
+}"
+`;
+
+exports[`a local storage > that is built up > should serialize and deserialize correctly 1`] = `
+"{
+  "states": [
+    [
+      0,
+      1,
+      3,
+      2,
+      6
+    ],
+    [
+      0,
+      1,
+      3,
+      4,
+      6
+    ],
+    [
+      0,
+      1,
+      3,
+      5,
+      6
+    ],
+    [
+      0,
+      1,
+      3,
+      6,
+      4,
+      2,
+      5
+    ],
+    [
+      0,
+      1,
+      3,
+      6,
+      4,
+      5,
+      8
+    ],
+    [
+      0,
+      1,
+      3,
+      6,
+      4,
+      7,
+      5
+    ],
+    [
+      0,
+      1,
+      3,
+      6,
+      4,
+      8,
+      5
+    ],
+    [
+      0,
+      1,
+      3,
+      7,
+      6
+    ],
+    [
+      0,
+      1,
+      3,
+      8,
+      6
+    ]
+  ],
+  "winners": [
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        2,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        4,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        5,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        2,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        2
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        5,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        7,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        8,
+        5
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6,
+        4
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        7,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        7
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        8,
+        6
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3,
+        8
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1,
+        3
+      ],
+      "player": 1
+    },
+    {
+      "gameState": [
+        0,
+        1
+      ],
+      "player": 1
+    }
+  ]
+}"
+`;
+
+exports[`a local storage > that is empty > should serialize and deserialize correctly 1`] = `
+"{
+  "states": [],
+  "winners": []
+}"
+`;

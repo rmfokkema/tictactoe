@@ -19,6 +19,14 @@ export class PositionSet{
         return new PositionSet(positions);
     }
 
+    public *getOwnTransformations(): Iterable<Transformation> {
+        for(const transformation of allTransformations){
+            if(this.transform(transformation).equals(this)){
+                yield transformation;
+            }
+        }
+    }
+
     public *getTransformationsFrom(other: PositionSet): Iterable<Transformation>{
         if(!other){
             return;
@@ -28,6 +36,10 @@ export class PositionSet{
                 yield transformation;
             }
         }
+    }
+
+    public withPlayerAtPosition(player: Player, position: number): PositionSet {
+        return new PositionSet(this.positions | (player << (2 * position)))
     }
 
     public isEquivalentTo(other: PositionSet): boolean{

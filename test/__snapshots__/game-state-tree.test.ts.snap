@@ -1,0 +1,200 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`a game state tree > that adds 0521436 > should look like this 1`] = `
+"{
+  "6": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 2`] = `
+"{
+  "2": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 3`] = `
+"{
+  "0": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 4`] = `
+"{
+  "0": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 5`] = `
+"{
+  "2": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 6`] = `
+"{
+  "2": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 7`] = `
+"{
+  "8": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 0521436 > should look like this 8`] = `
+"{
+  "8": {
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds 364517802 > should look like this 1`] = `
+"{
+  "2": {}
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > should have children 1`] = `
+"{
+  "0": {}
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that adds 013 and then all winners > should look like this 1`] = `
+"{
+  "3": {
+    "2": {
+      "w": 1
+    },
+    "4": {
+      "w": 1
+    },
+    "5": {
+      "w": 1
+    },
+    "6": {
+      "w": 1
+    },
+    "7": {
+      "w": 1
+    },
+    "8": {
+      "w": 1
+    },
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that adds state 013645 > should look like this 1`] = `
+"{
+  "0": {
+    "1": {
+      "3": {
+        "6": {
+          "4": {
+            "5": {}
+          }
+        }
+      }
+    }
+  }
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that adds state 013645 > that adds 0136458 > should look like this 1`] = `
+"{
+  "0": {
+    "1": {
+      "3": {
+        "6": {
+          "4": {
+            "5": {
+              "8": {
+                "w": 1
+              },
+              "w": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that adds state 013645 > that adds 0136458 > that adds the winner of 01364 > and then removes 01364 > should look like this 1`] = `
+"{
+  "0": {
+    "1": {
+      "3": {
+        "6": {
+          "w": 1
+        }
+      }
+    }
+  }
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that adds state 013645 > that adds 0136458 > that adds the winner of 01364 > and then removes a winner in 01364 > should look like this 1`] = `
+"{
+  "4": {
+    "2": {
+      "8": {
+        "w": 1
+      },
+      "w": 1
+    },
+    "5": {
+      "8": {
+        "w": 1
+      },
+      "w": 1
+    },
+    "8": {
+      "5": {
+        "w": 1
+      },
+      "w": 1
+    },
+    "w": 1
+  },
+  "w": 1
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that adds state 013645 > that adds winner 013645 > should look like this 1`] = `
+"{
+  "5": {
+    "w": 1
+  }
+}"
+`;
+
+exports[`a game state tree > that adds state 0 > that then removes the state > should no longer have the child 1`] = `"{}"`;

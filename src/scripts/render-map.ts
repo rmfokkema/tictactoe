@@ -1,18 +1,17 @@
 import { createPointerEvents } from "./pointer-events/create-pointer-events";
 import { PointerEventTargetLike } from "./pointer-events/types";
 import { getInitialMeasurements, ScreenMeasurements } from "./measurements";
-import { createTicTacToeRoot } from "./content/tictactoe-root";
 import { palette } from "./palette";
 import { Renderer } from "./renderer/types";
 import { lightTheme } from "./themes";
 import { GridImpl } from "./ui-impl/grid-impl";
-import { RootTicTacToeStore } from "./store/create-store";
+import { TicTacToeMap } from "./map/tictactoemap";
 
-export function createMap(
+export function renderMap(
     renderer: Renderer,
     pointerEvents: PointerEventTargetLike,
     screenMeasurements: ScreenMeasurements,
-    store: RootTicTacToeStore
+    map: TicTacToeMap
 ): void {
     const eventTarget = createPointerEvents(pointerEvents);
     const measurements = getInitialMeasurements(screenMeasurements.width, screenMeasurements.height);
@@ -31,8 +30,10 @@ export function createMap(
         lightTheme,
         undefined
     )
-    const ticTacToeRoot = createTicTacToeRoot(grid, lightTheme);
-    store.connectMapStore(ticTacToeRoot);
+    map.renderOnGrid(grid, lightTheme);
+    //const ticTacToeRoot = createTicTacToeRoot(grid, lightTheme);
+
+    //store.connectNewMapStore(ticTacToeRoot);
 
     renderer.setRenderable({
         draw(ctx): void{

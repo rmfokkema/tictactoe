@@ -1,44 +1,55 @@
-import { otherPlayer, Player } from "../player"
-import { GameState } from "../state/game-state"
-import { addToRevealedPosition, RevealedPosition, splitGameState, splitRevealedPosition } from "../state/revealed-position"
-import { MapStoreMutations } from "../store/map-store"
-import { Theme } from "../themes"
-import { Grid, GridCell } from "../ui/grid"
-import { Winner } from "../winner"
-import { Possibility, PossibilityParent } from "./possibility"
-import { X, XParent } from "./x"
+import { otherPlayer, Player } from "../player";
+import { GameState } from "../state/game-state";
+import { GameStateTree } from "../state/game-state-tree";
+import { Theme } from "../themes";
+import { Grid, GridCell } from "../ui/grid";
+import { Possibility, PossibilityParent } from "./possibility";
+import { TicTacToeParent } from "./tictactoe-parent";
+import { X, XParent } from "./x";
 
-export interface TicTacToeParent {
-    notifyRevealedPosition(position: RevealedPosition): void
-    notifyHiddenState(state: GameState): void
+function calculateAdjustedTheme(tree: GameStateTree, theme: Theme): Theme {
+    const currentPlayer = tree.state.getCurrentPlayer();
+    const isLosing = tree.winner === currentPlayer;
+    const isWinning = tree.winner === otherPlayer(currentPlayer);
+    return isWinning ? theme.winnerTheme : isLosing ? theme.loserTheme : theme;
 }
 
-export class TicTacToeImpl implements MapStoreMutations, PossibilityParent, TicTacToeParent, XParent {
+export class TicTacToeImpl {
+    private readonly isWinner: boolean;
+    private readonly playersAtPositions: (0 | Player)[];
     private theme: Theme
+    private readonly possibilityParent: PossibilityParent;
     private readonly possibilities: Possibility[]
     private readonly xes: X[];
-    private readonly ticTacToes: TicTacToeImpl[] = [];
-    public winner: Player | undefined;
-    public isWin: boolean;
-
+    private readonly ticTacToes: TicTacToeImpl[];
+    public readonly state: GameState;
     public constructor(
         private readonly parent: TicTacToeParent,
-        public readonly gameState: GameState,
-        winner: Winner | undefined,
-        theme: Theme,
+        private tree: GameStateTree,
         private readonly grid: Grid,
-        private readonly gridCell: GridCell | undefined
+        private readonly gridCell: GridCell | undefined,
+        theme: Theme,
     ){
-        const actualTheme = winner ? theme.winnerTheme : theme;
-        this.theme = actualTheme;
-        grid.setTheme(actualTheme);
+        this.possibilityParent = {
+            play(possibility) {
+                parent.notifyRevealedState(possibility.gameState);
+            },
+        };
+        const xParent: XParent = {
+            notifyXDoubleClicked(): void {
+                parent.notifyHiddenState(tree.state);
+            }
+        };
+        this.state = tree.state;
+        const adjustedTheme = calculateAdjustedTheme(tree, theme);
+        this.theme = adjustedTheme;
+        grid.setTheme(adjustedTheme);
         const possibilities: Possibility[] = this.possibilities = [];
         const xes: X[] = this.xes = [];
-        const playersAtPositions = [...gameState.getPlayersAtPositions()];
-        if(winner){
-            this.winner = winner.player;
-        }
-        this.isWin = !!winner;
+        const ticTacToes: TicTacToeImpl[] = this.ticTacToes = [];
+        const playersAtPositions = this.playersAtPositions = [...tree.state.getPlayersAtPositions()];
+        const winner = tree.state.findWinner();
+        this.isWinner = !!winner;
         for(let position = 0; position < 9; position++){
             const cell = grid.cells[position];
             const playerAtCell = playersAtPositions[position];
@@ -46,15 +57,27 @@ export class TicTacToeImpl implements MapStoreMutations, PossibilityParent, TicT
                 if(winner){
                     continue;
                 }
-                possibilities.push(new Possibility(
-                    cell,
-                    this,
-                    gameState.playPosition(position)
-                ));
+                const stateForCell = tree.state.playPosition(position);
+                const treeForCell = tree.getForState(stateForCell);
+                if(treeForCell){
+                    ticTacToes.push(new TicTacToeImpl(
+                        parent,
+                        treeForCell,
+                        cell.displayGrid(),
+                        cell,
+                        adjustedTheme
+                    ))
+                }else{
+                    possibilities.push(new Possibility(
+                        cell,
+                        this.possibilityParent,
+                        stateForCell
+                    ));
+                }
                 continue;
             }
             if(playerAtCell === Player.X){
-                xes.push(new X(cell, this));
+                xes.push(new X(cell, xParent));
                 continue;
             }
             cell.displayO();
@@ -64,31 +87,6 @@ export class TicTacToeImpl implements MapStoreMutations, PossibilityParent, TicT
         }
     }
 
-    private setWinner(winner: Player): void{
-        if(winner === this.winner){
-            return;
-        }
-        this.winner = winner;
-        this.setTheme(this.theme);
-    }
-
-    private showPossibility(possibility: Possibility): {tictactoe: TicTacToeImpl, winner: Winner | undefined}{
-        const index = this.possibilities.indexOf(possibility);
-        this.possibilities.splice(index, 1);
-        possibility.destroy();
-
-        const winner = possibility.gameState.findWinner();
-        const tictactoe = new TicTacToeImpl(
-            this,
-            possibility.gameState,
-            winner,
-            this.theme,
-            possibility.cell.displayGrid(),
-            possibility.cell
-        );
-        return { tictactoe, winner };
-    }
-
     private removeTicTacToe(tictactoe: TicTacToeImpl): void {
         const index = this.ticTacToes.indexOf(tictactoe);
         this.ticTacToes.splice(index, 1);
@@ -96,105 +94,64 @@ export class TicTacToeImpl implements MapStoreMutations, PossibilityParent, TicT
         const cell = tictactoe.gridCell!;
         const possibility = new Possibility(
             cell,
-            this,
-            tictactoe.gameState
+            this.possibilityParent,
+            tictactoe.state
         )
         this.possibilities.push(possibility);
     }
 
-    private getRevealedPosition(): RevealedPosition{
-        return {
-            gameState: this.gameState,
-            winner: this.winner ? {
-                player: this.winner,
-                gameState: this.gameState
-            } : undefined
-        }
+    private revealPossibility(possibility: Possibility, tree: GameStateTree, theme: Theme): void {
+        const index = this.possibilities.indexOf(possibility);
+        this.possibilities.splice(index, 1);
+        possibility.destroy();
+        const cell = possibility.cell;
+        const ticTacToe = new TicTacToeImpl(
+            this.parent,
+            tree,
+            cell.displayGrid(),
+            cell,
+            theme
+        );
+        this.ticTacToes.push(ticTacToe);
     }
 
-
-    public setTheme(theme: Theme): void {
-        const currentPlayer = this.gameState.getCurrentPlayer();
-        const isLosing = this.winner === currentPlayer;
-        const isWinning = this.isWin || this.winner === otherPlayer(currentPlayer);
-        const newTheme = isWinning ? theme.winnerTheme : isLosing ? theme.loserTheme : theme;
-        this.theme = newTheme;
-        this.grid?.setTheme(newTheme)
-        this.ticTacToes.forEach((tictactoe) => tictactoe.setTheme(newTheme))
-    }
-
-    public notifyRevealedPosition(position: RevealedPosition): void{
-        const revealedTicTacToePositions = this.ticTacToes.map(t => t.getRevealedPosition())
-        const ownRevealedPosition = this.getRevealedPosition();
-        const combined = addToRevealedPosition(position, ownRevealedPosition, revealedTicTacToePositions);
-        this.parent.notifyRevealedPosition(combined);
-    }
-
-    public hideState(state: GameState): void {
-        const split = [...splitGameState(state, this.gameState)];
-        for(const tictactoe of this.ticTacToes.slice()){
-            const hasSplitGameState = split.some(s => s.state.equals(tictactoe.gameState));
-            if(hasSplitGameState){
-                this.removeTicTacToe(tictactoe);
-                continue;
-            }
-            const descendant = split.find(s => s.state.indexOfPredecessor(tictactoe.gameState) > -1);
-            if(descendant){
-                tictactoe.hideState(descendant.state)
-            }
-        }
-    }
-
-    public revealPosition(position: RevealedPosition): void{
-        const winner = position.winner;
-        if(winner && this.gameState.indexOfPredecessor(winner.gameState) > -1){
-            this.setWinner(winner.player);
-        }
-        if(position.gameState.equals(this.gameState)){
+    public setTree(tree: GameStateTree): void {
+        if(tree.equals(this.tree) || this.isWinner){
             return;
         }
-        const split = [...splitRevealedPosition(position, this.gameState)];
-        const newTicTacToes: TicTacToeImpl[] = [];
-        for(const possibility of this.possibilities.slice()){
-            const positionForPossibility = split.find(p => p.gameState.indexOfPredecessor(possibility.gameState) > -1);
-            if(!positionForPossibility){
+        const adjustedTheme = this.tree.winner === tree.winner ? this.theme : calculateAdjustedTheme(tree, this.theme);
+        this.theme = adjustedTheme;
+        this.grid?.setTheme(adjustedTheme)
+        for(let position = 0; position < 9; position++){
+            const playerAtCell = this.playersAtPositions[position];
+            if(playerAtCell !== 0){
                 continue;
             }
-            const {tictactoe} = this.showPossibility(possibility);
-            newTicTacToes.push(tictactoe);
-            tictactoe.revealPosition(positionForPossibility);
-        }
-        for(const tictactoe of this.ticTacToes){
-            const positionForTicTacToe = split.find(p => p.gameState.indexOfPredecessor(tictactoe.gameState) > -1);
-            if(!positionForTicTacToe){
-                continue;
+            const stateForCell = tree.state.playPosition(position);
+            const currentTicTacToeForCell = this.ticTacToes.find(t => t.state.equals(stateForCell));
+            const currentPossibilityForCell = this.possibilities.find(p => p.gameState.equals(stateForCell));
+            const treeForCell = tree.getForState(stateForCell);
+            if(treeForCell){
+                if(currentTicTacToeForCell){
+                    currentTicTacToeForCell.setTheme(adjustedTheme);
+                    currentTicTacToeForCell.setTree(treeForCell);
+                }else if(currentPossibilityForCell){
+                    this.revealPossibility(currentPossibilityForCell, treeForCell, adjustedTheme);
+                }
+            }else{
+                if(currentTicTacToeForCell){
+                    this.removeTicTacToe(currentTicTacToeForCell);
+                }
             }
-            tictactoe.revealPosition(positionForTicTacToe);
         }
-        this.ticTacToes.push(...newTicTacToes);
+        this.tree = tree;
     }
 
-    public notifyXDoubleClicked(): void {
-        this.parent.notifyHiddenState(this.gameState);
-    }
-
-    public notifyHiddenState(state: GameState): void {
-        this.parent.notifyHiddenState(state);
-    }
-
-    public play(possibility: Possibility): void {
-        const { tictactoe, winner } = this.showPossibility(possibility);
-        this.ticTacToes.push(tictactoe);
-        if(winner){
-            this.setWinner(winner.player);
-        }
-        this.parent.notifyRevealedPosition({
-            gameState: possibility.gameState,
-            winner: winner ? {
-                player: winner.player,
-                gameState: this.gameState
-            } : undefined
-        })
+    public setTheme(theme: Theme): void {
+        const adjustedTheme = calculateAdjustedTheme(this.tree, theme);
+        this.theme = adjustedTheme;
+        this.grid?.setTheme(adjustedTheme)
+        this.ticTacToes.forEach((tictactoe) => tictactoe.setTheme(adjustedTheme))
     }
 
     public destroy(): void {

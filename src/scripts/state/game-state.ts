@@ -1,7 +1,7 @@
-import { Player } from "../player";
+import { otherPlayer, Player } from "../player";
 import { PositionStream } from "./position-stream";
 import { getThrees } from "../three";
-import { Transformation } from "../transformations";
+import { Identity, Transformation, combine } from "../transformations";
 import { Winner } from "../winner";
 import { PositionSet } from "./position-set";
 
@@ -10,15 +10,9 @@ export interface ClonedGameState {
 }
 
 export class GameState {
+    public get id(): number {return this.positions; }
     private constructor(private readonly positions: number){}
 
-    private transformPositions(transformation: Transformation): number{
-        const result = new PositionStream(0);
-        for(const position of PositionStream.readAll(this.positions)){
-            result.write(transformation.positions[position])
-        }
-        return result.positions;
-    }
 
     private *getPredecessors(): Iterable<GameState>{
         const stream = new PositionStream(0);
@@ -29,78 +23,86 @@ export class GameState {
         }
     }
 
+    private getPositions(): Generator<number> {
+        return PositionStream.readAll(this.positions);
+    }
+
     public getPositionSet(): PositionSet{
         return PositionSet.fromPlayedPositions(PositionStream.readAll(this.positions));
     }
 
-    public indexOfPredecessor(other: GameState): number{
-        let index = 0;
-        for(const predecessor of this.getPredecessors()){
-            if(predecessor.equals(other)){
-                return index;
-            }
-            index++;
-        }
-        return -1;
-    }
-
-    public partialTransform(fromPredecessor: GameState, transformation: Transformation): GameState{
-        const result = new PositionStream(0);
-        let positionIsTransformed = false;
-        for(const position of PositionStream.readAll(this.positions)){
-            if(!positionIsTransformed && fromPredecessor.positions === result.positions){
-                positionIsTransformed = true;
-            }
-            if(positionIsTransformed){
-                result.write(transformation.positions[position])
-            }else{
-                result.write(position);
-            }
-        }
-        return new GameState(result.positions);
-    }
-
-    public predecessorAtIndex(predecessorIndex: number): GameState | undefined{
-        if(predecessorIndex < 0){
-            const predecessors: GameState[] = new Array(1 - predecessorIndex);
-            for(const predecessor of this.getPredecessors()){
-                predecessors.pop();
-                predecessors.unshift(predecessor)
-            }
-            return predecessors[-predecessorIndex];
-        }
-        let index = 0;
-        for(const predecessor of this.getPredecessors()){
-            if(index === predecessorIndex){
-                return predecessor;
-            }
-            index++;
-        }
-        return undefined;
-    }
-
-    public *getSuccessors(): Iterable<GameState>{
-        const playersAtPositions = [...this.getPlayersAtPositions()];
+    public getNonequivalentSuccessors(): GameState[] {
+        const positionSet = this.getPositionSet();
+        const playersAtPositions = [...positionSet.getPlayersAtPositions()];
+        const currentPlayer = this.getCurrentPlayer();
+        const result: GameState[] = [];
         for(let position = 0; position < 9; position++){
             if(playersAtPositions[position] !== 0){
                 continue;
             }
-            yield this.playPosition(position);
+            const newPositionSet = positionSet.withPlayerAtPosition(currentPlayer, position);
+            const isEquivalent = result.some(s => s.getPositionSet().isEquivalentTo(newPositionSet));
+            if(isEquivalent){
+                continue;
+            }
+            result.push(this.playPosition(position));
         }
+        return result;
     }
 
-    public getTransformationsFrom(other: GameState): Iterable<Transformation>{
-        if(!other){
-            return []
+    public getEquivalentWithSameLineage(predecessor: GameState): GameState | undefined {
+        const thisPositions = this.getPositions();
+        const predecessorPositions = predecessor.getPositions();
+        const resultStream = new PositionStream(0);
+        let currentPositionSet = new PositionSet(0);
+        let currentTransformation = Identity;
+        let player = Player.X;
+        let thisPositionIteratorResult: IteratorResult<number> | undefined;
+        let predecessorPositionIteratorResult: IteratorResult<number> | undefined;
+        while(
+            !thisPositionIteratorResult ||
+            !thisPositionIteratorResult.done ||
+            !predecessorPositionIteratorResult ||
+            !predecessorPositionIteratorResult.done
+        ){
+            thisPositionIteratorResult = thisPositions.next();
+            predecessorPositionIteratorResult = predecessorPositions.next();
+            if(thisPositionIteratorResult.done){
+                break;
+            }
+            
+            let equivalentPosition: number = currentTransformation.positions[thisPositionIteratorResult.value];
+            if(!predecessorPositionIteratorResult.done){
+                const predecessorPosition = predecessorPositionIteratorResult.value;
+                if(predecessorPosition !== equivalentPosition){
+                    let additionalTransformation: Transformation | undefined;
+                    for(const currentPositionSetOwnTransformation of currentPositionSet.getOwnTransformations()){
+                        if(currentPositionSetOwnTransformation.positions[equivalentPosition] === predecessorPosition){
+                            additionalTransformation = currentPositionSetOwnTransformation;
+                            break;
+                        }
+                    }
+                    if(!additionalTransformation){
+                        return undefined;
+                    }
+                    currentTransformation = combine(currentTransformation, additionalTransformation);
+                    equivalentPosition = predecessorPosition;
+                }
+            }
+            resultStream.write(equivalentPosition);
+            currentPositionSet = currentPositionSet.withPlayerAtPosition(player, equivalentPosition);
+            player = otherPlayer(player);
+
         }
-        return this.getPositionSet().getTransformationsFrom(other.getPositionSet())
+        return new GameState(resultStream.positions);
     }
 
-    public hasEquivalentPosition(other: GameState): boolean{
-        if(!other){
-            return false;
+    public getLastPlayedPosition(): number | undefined {
+        const positions = [...PositionStream.readAll(this.positions)];
+        if(positions.length === 0){
+            return undefined;
         }
-        return this.getPositionSet().isEquivalentTo(other.getPositionSet());
+        return positions[positions.length - 1];
     }
 
     public equals(other: GameState): boolean{
@@ -134,14 +136,6 @@ export class GameState {
         return this.getPositionSet().getPlayersAtPositions();
     }
 
-    public getLastPlayedPosition(): number | undefined {
-        const positions = [...PositionStream.readAll(this.positions)];
-        if(positions.length === 0){
-            return undefined;
-        }
-        return positions[positions.length - 1];
-    }
-
     public playPosition(position: number): GameState{
         const stream = new PositionStream(this.positions);
         stream.moveToEnd();
@@ -154,22 +148,17 @@ export class GameState {
         return positions.length % 2 === 0 ? Player.X : Player.O;
     }
 
-    public toJSON(){
-        return [...PositionStream.readAll(this.positions)]
-    }
-
-    public toString(): string{
-        const playersAtPositions = [...this.getPlayersAtPositions()];
-        const symbols = [' ', 'X', 'O'];
-        return `\n${symbols[playersAtPositions[0]]}|${symbols[playersAtPositions[1]]}|${symbols[playersAtPositions[2]]}\r\n` +
-        `-+-+-\r\n` +
-        `${symbols[playersAtPositions[3]]}|${symbols[playersAtPositions[4]]}|${symbols[playersAtPositions[5]]}\r\n` +
-        `-+-+-\r\n` +
-        `${symbols[playersAtPositions[6]]}|${symbols[playersAtPositions[7]]}|${symbols[playersAtPositions[8]]}`
+    public toJSON(): number[] {
+        return [...this.getPositions()];
     }
 
     public static reviveCloned(cloned: ClonedGameState): GameState {
-        return new GameState(cloned.positions);
+        const positions = PositionStream.readAll(cloned.positions);
+        const resultStream = new PositionStream(0);
+        for(const position of positions){
+            resultStream.write(position);
+        }
+        return new GameState(resultStream.positions);
     }
 
     public static initial: GameState = new GameState(0)

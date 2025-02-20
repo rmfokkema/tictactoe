@@ -1,10 +1,9 @@
 import '../main.css'
 import InfiniteCanvas, { Units } from 'ef-infinite-canvas'
 import { createRenderer } from './renderer/create-renderer';
-import { createMap } from './create-map';
-import { createStore } from './store/create-store';
-import { TicTacToeLocalStorage } from './store/tictactoe-local-storage';
-import { createBroadcastChannelMapStore } from './store/broadcast-channel-map-store';
+import { renderMap } from './render-map';
+import { LocalStorageMapPersister } from './store/local-storage-map-persister';
+import { createTicTacToeMap } from './content/map';
 
 function initialize(): void{
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -13,17 +12,16 @@ function initialize(): void{
     canvas.height = height * devicePixelRatio;
     const infCanvas = new InfiniteCanvas(canvas, {units: Units.CSS, greedyGestureHandling: true});
     const renderer = createRenderer(infCanvas.getContext('2d'));
-    const store = createStore();
-    const ticTacToeLocalStorage = new TicTacToeLocalStorage();
-    store.connectMapStore(ticTacToeLocalStorage, {receiveOrigins: ['samePage']});
-    createMap(
+    const channel = new BroadcastChannel('tictactoemap');
+    const map = createTicTacToeMap(new LocalStorageMapPersister(), channel);
+    
+    renderMap(
         renderer,
         infCanvas,
         { width, height },
-        store
+        map
     )
-    ticTacToeLocalStorage.load();
-    store.connectMapStore(createBroadcastChannelMapStore(), {sendOrigin: 'otherPage'})
+    map.load();
 }
 
 initialize();

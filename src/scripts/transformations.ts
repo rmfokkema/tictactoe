@@ -8,7 +8,7 @@ export interface Transformation{
     ]
 }
 
-function combine({positions: one}: Transformation, {positions: other}: Transformation): Transformation{
+export function combine({positions: one}: Transformation, {positions: other}: Transformation): Transformation{
     return {
         positions: [
             other[one[0]], other[one[1]], other[one[2]],
