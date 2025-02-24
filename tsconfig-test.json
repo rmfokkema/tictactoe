@@ -3,6 +3,11 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "target": "ESNext",
+        "composite": true,
+        "emitDeclarationOnly": true,
+        "outDir": "dist-types/test",
+        "skipLibCheck": true,
+        "rootDir": "test"
     },
     "references": [
         {"path": "tsconfig-app.json"}

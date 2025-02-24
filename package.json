@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite dev",
     "test": "vitest run",
-    "check-types": "tsc --project tsconfig-app.json"
+    "check-types": "tsc --build"
   },
   "keywords": [
     "tic",
