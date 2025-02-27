@@ -1,10 +1,10 @@
-import { Theme } from "../themes"
+import { Theme } from "../ui/theme"
 import { Grid } from "../ui/grid"
+import { RenderedMap } from "./rendered-map"
 
-export interface TicTacToeMap {
+export interface TicTacToeMap<TTheme extends Theme> {
     renderOnGrid(
-        grid: Grid,
-        theme: Theme
-    ): void
+        grid: Grid<TTheme>
+    ): RenderedMap<TTheme>
     load(): void
 }

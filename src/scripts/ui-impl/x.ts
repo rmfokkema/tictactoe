@@ -1,6 +1,6 @@
 import { getMarkLineWidth, Measurements } from "../measurements";
 import { Point } from "../point";
-import { Theme } from "../themes";
+import { Theme } from "../themes/themes";
 import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
 import { Mark } from "./mark";
 
@@ -25,6 +25,8 @@ export class X implements Mark {
         ctx.beginPath();
         ctx.moveTo(x + size / 4, y + size / 4);
         ctx.lineTo(x + 3 * size / 4, y + 3 * size / 4);
+        ctx.stroke();
+        ctx.beginPath();
         ctx.moveTo(x + 3 * size / 4, y + size / 4);
         ctx.lineTo(x + size / 4, y + 3 * size / 4);
         ctx.stroke();

@@ -1,7 +1,7 @@
+import { InfiniteCanvasRenderingContext2D } from "ef-infinite-canvas";
 import { CustomPointerEventMap, CustomPointerEventTarget } from "../pointer-events/types";
 import { getMarkLineWidth } from "../measurements";
-import { Theme } from "../themes";
-import { Drawable } from "../ui/drawable";
+import { Theme } from "../themes/themes";
 import { Grid, GridCell } from "../ui/grid";
 import { Winner } from "../winner";
 import { GridBorder } from "./grid-border";
@@ -13,11 +13,12 @@ import { O } from "./o";
 import { GridCellMeasurements } from "./types";
 import { Win } from "./win";
 import { X } from "./x";
-import { Renderer } from "../renderer/types";
+import { Renderable, Renderer } from "../renderer/types";
+import { Drawable } from "./drawable";
 
-class GridCellImpl implements GridCell {
+class GridCellImpl implements GridCell<Theme> {
     private theme: Theme;
-    public content: Drawable | undefined;
+    public content: Renderable | undefined;
     private eventTarget: CustomPointerEventTarget | undefined;
     public constructor(
         private readonly renderer: Renderer,
@@ -48,6 +49,13 @@ class GridCellImpl implements GridCell {
         this.theme = theme;
         this.borders.forEach(b => b.setTheme(theme));
         this.renderer.rerender();
+        const content = this.content;
+        if(!content){
+            return;
+        }
+        if(isMark(content)){
+            content.setTheme(theme)
+        }
     }
     public setGridTheme(theme: Theme){
         this.gridTheme = theme;
@@ -67,7 +75,7 @@ class GridCellImpl implements GridCell {
         this.content = new O(this.measurements, this.theme);
         this.renderer.rerender();
     }
-    public displayGrid(): Grid {
+    public displayGrid(): Grid<Theme> {
         const newGrid = new GridImpl(
             this.renderer,
             this.measurements,
@@ -91,12 +99,12 @@ class GridCellImpl implements GridCell {
     public destroy(): void {
         this.eventTarget?.destroy();
     }
-    public draw(ctx: CanvasRenderingContext2D): void {
+    public draw(ctx: InfiniteCanvasRenderingContext2D): void {
         this.drawBackground(ctx);
         this.content?.draw(ctx);
     }
 }
-export class GridImpl implements Grid, Drawable {
+export class GridImpl implements Grid<Theme>, Renderable {
     private overlayContent: Drawable | undefined;
     private readonly cellImpls: [GridCellImpl, GridCellImpl, GridCellImpl, GridCellImpl, GridCellImpl, GridCellImpl, GridCellImpl, GridCellImpl, GridCellImpl];
     private readonly leftVerticalBorder: GridBorder;
@@ -112,7 +120,7 @@ export class GridImpl implements Grid, Drawable {
         private readonly renderer: Renderer,
         measurements: GridCellMeasurements,
         eventTarget: CustomPointerEventTarget,
-        private theme: Theme,
+        public theme: Theme,
         private readonly cell: GridCellImpl | undefined
     ){
         const builder = new GridBuilder(measurements);
@@ -234,7 +242,7 @@ export class GridImpl implements Grid, Drawable {
         ctx.restore();
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void {
+    public draw(ctx: InfiniteCanvasRenderingContext2D): void {
         this.cellImpls.forEach(c => c.draw(ctx));
         this.overlayContent?.draw(ctx);
         this.drawBorders(ctx);
@@ -249,6 +257,7 @@ export class GridImpl implements Grid, Drawable {
         this.cellImpls.forEach(c => c.setGridTheme(theme))
         this.cellImpls.forEach(c => c.setTheme(theme))
         this.cell?.setTheme(theme);
+        this.overlayContent?.setTheme(theme)
     }
 
     public destroy(): void {

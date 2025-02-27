@@ -1,3 +1,5 @@
 node_modules
 *.tsbuildinfo
 dist-types
+dist
+dist-inline-head-script

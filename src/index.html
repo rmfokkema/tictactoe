@@ -2,6 +2,22 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>
+            body {
+                background-color: hsl(57 5% 95%);
+            }
+            @media(prefers-color-scheme: dark){
+                body{
+                    background-color: hsl(0 0 10%);
+                }
+            }
+            html.dark body {
+                background-color: hsl(0 0 10%);
+            }
+            html.light body {
+                background-color: hsl(57 5% 95%);
+            }
+        </style>
     </head>
     <body>
         <canvas id="canvas"></canvas>

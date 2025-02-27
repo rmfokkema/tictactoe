@@ -1,6 +1,6 @@
 import { getMarkLineWidth, Measurements } from "../measurements";
 import { Point } from "../point";
-import { Theme } from "../themes";
+import { Theme } from "../themes/themes";
 import { isInColumn, isInRow, isMainDiagonal, Three } from "../three";
 import { Mark } from "./mark";
 

@@ -8,34 +8,7 @@ import { MockTheme } from './mock-theme';
 import { gameStateWithPositions } from './game-state-with-positions';
 import { SerializedTree } from '../src/scripts/state/serialization';
 import { GameState } from '../src/scripts/state/game-state';
-
-class MockBroadcastChannel implements BroadcastChannel {
-    public name: string = 'test'
-    public messageHandler: (e: MessageEvent) => void = () => {};
-    public messageMock = vi.fn();
-    public set onmessage(value: (e: MessageEvent) => void){
-        this.messageHandler = value;
-    }
-    public get onmessage(): (e: MessageEvent) => void {
-        return this.messageHandler;
-    }
-    public onmessageerror = () => {}
-    public close(){}
-    public addEventListener(type, listener): void {
-        if(type === 'message'){
-            this.messageHandler = listener;
-        }
-    }
-    public removeEventListener(): void {
-        
-    }
-    public postMessage(message: any): void {
-        this.messageMock(message);
-    }
-    public dispatchEvent(): boolean {
-        return false;
-    }
-}
+import { MockBroadcastChannel } from './mock-broadcast-channel';
 
 describe('a tictactoe map', () => {
     const channel = new MockBroadcastChannel();
@@ -49,7 +22,7 @@ describe('a tictactoe map', () => {
     };
     let player: TestPlayer;
     let serialized: SerializedTree;
-    let ticTacToeMap: TicTacToeMap;
+    let ticTacToeMap: TicTacToeMap<MockTheme>;
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -60,8 +33,7 @@ describe('a tictactoe map', () => {
             channel
         );
         ticTacToeMap.renderOnGrid(
-            player.grid,
-            new MockTheme()
+            player.grid
         )
     });
 

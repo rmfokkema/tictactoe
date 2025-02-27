@@ -1,5 +1,5 @@
 import { Point } from "../point";
-import { Theme } from "../themes";
+import { Theme } from "../themes/themes";
 import { BorderDirection, LineSegment, LineSegmentMeasurements } from "./types";
 
 function getStartAndEnd({
@@ -35,6 +35,7 @@ function getStartAndEnd({
 class ThemedLineSegment implements LineSegment{
     public constructor(
         private readonly lineSegment: LineSegment,
+        private readonly lineWidth: number,
         private readonly theme: Theme){}
     
     public draw(ctx: CanvasRenderingContext2D): void{
@@ -52,7 +53,7 @@ export class LineSegmentImpl implements LineSegment{
     private readonly start: Point;
     private readonly end: Point
     public constructor(
-        measurements: LineSegmentMeasurements
+        private readonly measurements: LineSegmentMeasurements
     ){
         const {start, end} = getStartAndEnd(measurements)
         this.start = start;
@@ -60,7 +61,7 @@ export class LineSegmentImpl implements LineSegment{
     }
 
     public themed(theme: Theme): LineSegment {
-        return new ThemedLineSegment(this, theme);
+        return new ThemedLineSegment(this, this.measurements.lineWidth, theme);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void{

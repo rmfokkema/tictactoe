@@ -1,5 +1,5 @@
 import { Measurements } from "../measurements";
-import { Theme } from "../themes"
+import { Theme } from "../themes/themes"
 
 export enum BorderDirection { Vertical, Horizontal }
 
@@ -20,6 +20,7 @@ export interface LineSegmentMeasurements{
     position: number;
     start: number;
     end: number;
+    lineWidth: number;
 }
 
 export interface GridCellBackgroundMeasurements {

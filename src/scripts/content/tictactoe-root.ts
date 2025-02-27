@@ -2,16 +2,20 @@ import { EventDispatcher } from "../events/event-dispatcher";
 import { MapRenderer, MapRendererEventMap } from "../map/map-renderer";
 import { GameState } from "../state/game-state";
 import { GameStateTree } from "../state/game-state-tree";
-import { Theme } from "../themes";
+import { Theme } from "../ui/theme";
 import { Grid } from "../ui/grid";
 import { TicTacToeImpl } from "./tictactoe-impl";
 import { TicTacToeParent } from "./tictactoe-parent";
+import { RenderedMap } from "../map/rendered-map";
 
-export function createTicTacToeRoot(
-    grid: Grid,
-    theme: Theme,
+export interface TicTacToeRoot<TTheme> extends MapRenderer, RenderedMap<TTheme> {
+
+}
+
+export function createTicTacToeRoot<TTheme extends Theme>(
+    grid: Grid<TTheme>,
     tree: GameStateTree
-): MapRenderer {
+): TicTacToeRoot<TTheme> {
     const eventDispatcher: EventDispatcher<MapRendererEventMap> = new EventDispatcher({
         statehidden: [],
         staterevealed: []
@@ -29,7 +33,7 @@ export function createTicTacToeRoot(
         tree,
         grid,
         undefined,
-        theme
+        grid.theme
     );
     return {
         addEventListener<TType extends keyof MapRendererEventMap>(type: TType, listener: (ev: MapRendererEventMap[TType]) => void): void {
@@ -40,6 +44,9 @@ export function createTicTacToeRoot(
         },
         setTree(tree: GameStateTree): void{
             impl.setTree(tree)
+        },
+        setTheme(theme: TTheme): void {
+            impl.setTheme(theme);
         }
     }
 }

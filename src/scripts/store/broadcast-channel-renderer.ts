@@ -33,8 +33,7 @@ export function createBroadcastChannelRenderer(
         staterevealed: []
     })
 
-    
-    channel.onmessage = (e) => {
+    channel.addEventListener('message', (e) => {
         const data = e.data;
         if(!data || !isBroadcastChannelMessage(data)){
             return;
@@ -46,7 +45,7 @@ export function createBroadcastChannelRenderer(
         if(data.type === 'staterevealed'){
             eventDispatcher.dispatchEvent('staterevealed', GameState.reviveCloned(data.data))
         }
-    }
+    })
 
     return {
         addEventListener(type, listener){

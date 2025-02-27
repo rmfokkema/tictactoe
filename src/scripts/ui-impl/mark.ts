@@ -1,8 +1,9 @@
 import { Point } from "../point"
+import { Renderable } from "../renderer/types";
 import { Three } from "../three"
-import { Drawable } from "../ui/drawable"
+import { Drawable } from "./drawable";
 
-export function isMark(content: Drawable): content is Mark {
+export function isMark(content: Renderable): content is Mark {
     return (content as Mark).getWinStart !== undefined;
 }
 export interface Mark extends Drawable {
