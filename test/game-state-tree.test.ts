@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { GameStateTreeImpl } from '../src/scripts/state/game-state-tree-impl'
+import { GameStateTreeImpl } from '@shared/state/game-state-tree-impl'
 import { gameStateWithPositions } from './game-state-with-positions'
-import { Player } from '../src/scripts/player';
-import { GameStateTree } from '../src/scripts/state/game-state-tree';
+import { Player } from '@shared/player';
+import type { GameStateTree } from '@shared/state/game-state-tree';
+import type { SerializedTree } from '@shared/state/serialization';
 
 
-function stringifyTree(tree: GameStateTree): string {
+function stringifyTree(tree: GameStateTree | undefined): string {
     return JSON.stringify(tree, null, 2);
 }
 describe('a game state tree', () => {
@@ -43,18 +44,8 @@ describe('a game state tree', () => {
                 .addState(gameStateWithPositions([3, 6, 4, 5, 0, 8, 7, 2]))
         })
 
-        it('should have these winners', () => {
-            const winners = [...treeA.getWinnersInState(gameStateWithPositions([3, 6, 4, 5, 0, 8, 7, 2]))]
-            expect(winners).toEqual([
-                {
-                    state: gameStateWithPositions([3, 6, 4, 5, 0, 8, 7, 2]),
-                    winner: Player.O
-                },
-                {
-                    state: gameStateWithPositions([3, 6, 4, 5, 0, 8, 7]),
-                    winner: Player.O
-                }
-            ])
+        it('should look like this', () => {
+            expect(stringifyTree(treeA)).toMatchSnapshot();
         })
     })
 
@@ -84,18 +75,18 @@ describe('a game state tree', () => {
                 const state7 = gameStateWithPositions([7]);
                 const state1 = gameStateWithPositions([1])
                 const tree01_1winner01 = tree01_1.addWinner(state01, Player.X);
-                expect(tree01_1winner01.getForState(state01).equals(tree01_1.getForState(state01))).toBe(false);
-                expect(tree01_1winner01.getForState(state01).equals(tree01_1.getForState(state01))).toBe(false);
-                expect(tree01_1winner01.getForState(state85).equals(tree01_1.getForState(state85))).toBe(false);
-                expect(tree01_1winner01.getForState(state85).equals(tree01_1winner01.getForState(state85))).toBe(true);
-                expect(tree01_1.getForState(state7).equals(tree01_1winner01.getForState(state7))).toBe(true);
-                expect(tree01_1winner01.getForState(state7).equals(tree01_1winner01.getForState(state1))).toBe(false);
+                expect(tree01_1winner01.getForState(state01)!.equals(tree01_1.getForState(state01))).toBe(false);
+                expect(tree01_1winner01.getForState(state01)!.equals(tree01_1.getForState(state01))).toBe(false);
+                expect(tree01_1winner01.getForState(state85)!.equals(tree01_1.getForState(state85))).toBe(false);
+                expect(tree01_1winner01.getForState(state85)!.equals(tree01_1winner01.getForState(state85))).toBe(true);
+                expect(tree01_1.getForState(state7)!.equals(tree01_1winner01.getForState(state7))).toBe(true);
+                expect(tree01_1winner01.getForState(state7)!.equals(tree01_1winner01.getForState(state1))).toBe(false);
             })
 
             it('should contain the same tree for state 5', () => {
                 const forState5a = tree0_1.getForState(gameStateWithPositions([5]));
                 const forState5b = tree01_1.getForState(gameStateWithPositions([5]));
-                expect(forState5a.equals(forState5b)).toBe(true);
+                expect(forState5a!.equals(forState5b)).toBe(true);
             })
         })
 
@@ -115,7 +106,7 @@ describe('a game state tree', () => {
             let treeA: GameStateTree;
 
             beforeEach(() => {
-                treeA = tree0.removeState(gameStateWithPositions([0]));
+                treeA = tree0.removeState(gameStateWithPositions([0]))!;
             })
 
             it('should no longer have the child', () => {
@@ -181,20 +172,6 @@ describe('a game state tree', () => {
                     expect(stringifyTree(tree0136458)).toMatchSnapshot();
                 })
 
-                it('should return winners', () => {
-                    const winners = [...tree0136458.getWinnersInState(gameStateWithPositions([0, 1, 3, 6, 4, 5, 8]))];
-                    expect(winners).toEqual([
-                        {
-                            winner: Player.X,
-                            state: gameStateWithPositions([0, 1, 3, 6, 4, 5, 8])
-                        },
-                        {
-                            winner: Player.X,
-                            state: gameStateWithPositions([0, 1, 3, 6, 4, 5])
-                        }
-                    ])
-                })
-
                 describe('that adds the winner of 01364', () => {
                     let tree01364: GameStateTree;
 
@@ -209,7 +186,7 @@ describe('a game state tree', () => {
                         let tree01364a: GameStateTree;
 
                         beforeEach(() => {
-                            tree01364a = tree01364.removeState(gameStateWithPositions([0, 1, 3, 6, 4, 7]))
+                            tree01364a = tree01364.removeState(gameStateWithPositions([0, 1, 3, 6, 4, 7]))!
                         })
 
                         it('should look like this', () => {
@@ -221,21 +198,11 @@ describe('a game state tree', () => {
                         let tree0136: GameStateTree;
 
                         beforeEach(() => {
-                            tree0136 = tree01364.removeState(gameStateWithPositions([0, 1, 3, 6, 4]));
+                            tree0136 = tree01364.removeState(gameStateWithPositions([0, 1, 3, 6, 4]))!;
                         })
 
                         it('should look like this', () => {
                             expect(stringifyTree(tree0136)).toMatchSnapshot();
-                        })
-    
-                        it('should return winners', () => {
-                            const winners = [...tree0136.getWinnersInState(gameStateWithPositions([0, 1, 3, 6]))];
-                            expect(winners).toEqual([
-                                {
-                                    winner: Player.X,
-                                    state: gameStateWithPositions([0, 1, 3, 6])
-                                }
-                            ])
                         })
                     })
                 })
@@ -260,5 +227,194 @@ describe('a game state tree', () => {
             expect(stringifyTree(tree0521436.getForState(gameStateWithPositions([6, 5, 8, 7, 4, 3])))).toMatchSnapshot();
             expect(stringifyTree(tree0521436.getForState(gameStateWithPositions([6, 1, 0, 3, 4, 7])))).toMatchSnapshot();
         })
+    })
+
+    describe('that adds 026384', () => {
+        let tree026384: GameStateTree;
+
+        beforeEach(() => {
+            tree026384 = tree.addState(gameStateWithPositions([0, 2, 6, 3, 8, 4]))
+        })
+
+        it('should add winner for 026384', () => {
+            const result = tree026384.findWinnerFor(gameStateWithPositions([0, 2, 6, 3, 8, 4]));
+            expect(stringifyTree(result)).toMatchSnapshot();
+        })
+    })
+
+    describe('that adds 01364', () => {
+        let tree01364: GameStateTree;
+
+        beforeEach(() => {
+            tree01364 = tree.addState(gameStateWithPositions([0, 1, 3, 6, 4]))
+        })
+
+        it('should add winner for 01364', () => {
+            const result = tree01364.findWinnerFor(gameStateWithPositions([0, 1, 3, 6, 4]));
+            expect(stringifyTree(result)).toMatchSnapshot();
+        })
+
+        it('should add winner for 0136', () => {
+            const result = tree01364.findWinnerFor(gameStateWithPositions([0, 1, 3, 6]));
+            expect(stringifyTree(result)).toMatchSnapshot();
+        })
+
+        it('should add winner for 013', () => {
+            const result = tree01364.findWinnerFor(gameStateWithPositions([0, 1, 3]));
+            expect(stringifyTree(result)).toMatchSnapshot();
+        })
+
+        it('should add winner for 01', () => {
+            const result = tree01364.findWinnerFor(gameStateWithPositions([0, 1]));
+            expect(stringifyTree(result)).toMatchSnapshot();
+        })
+    })
+
+    it.each<[SerializedTree, SerializedTree]>([
+        [
+            {9: {w: 1}},
+            {}
+        ],
+        [
+            {0: {0: {w: 1}}},
+            {0: {}}
+        ],
+        [
+            {0: {1: {0: {}}}},
+            {0: {1: {}}}
+        ],
+        [
+            {a: 9} as SerializedTree,
+            {}
+        ],
+        [
+            {0: {1: {w: 3} as unknown as SerializedTree}},
+            {0: {1: {}}}
+        ],
+        [
+            {2: {1: {}}},
+            {0: {1: {}}}
+        ],
+        [
+            {8: {7: {6: {}}}},
+            {0: {1: {2: {}}}}
+        ],
+        [
+            {8: {5: {2: {}}}},
+            {0: {1: {2: {}}}}
+        ],
+        [
+            {6: {3: {4: {}}}},
+            {0: {1: {4: {}}}}
+        ],
+        [
+            {6: {7: {4: {}}}},
+            {0: {1: {4: {}}}}
+        ],
+        [
+            {2: {4: {7: {}}}},
+            {0: {4: {5: {}}}}
+        ],
+        [
+            {2: {4: {3: {}}}},
+            {0: {4: {5: {}}}}
+        ],
+        [
+            {0:{1:{w:1},2:{6:{3:{8:{w:1},w:1},w:1},w:1}}},
+            {0:{1:{w:1},2:{6:{3:{8:{w:1},w:1},w:1},w:1}}}
+        ]
+    ])('should deserialize %j', (input, expectedSerialized) => {
+        const tree = GameStateTreeImpl.fromJSON(input);
+        expect(tree.toJSON()).toEqual(expectedSerialized)
+    })
+
+    it.each<[SerializedTree, SerializedTree]>([
+        [
+            {9: {w: 1}},
+            {}
+        ],
+        [
+            {0: {0: {w: 1}}},
+            {0: {}}
+        ],
+        [
+            {0: {1: {0: {}}}},
+            {0: {1: {}}}
+        ],
+        [
+            {a: 9} as SerializedTree,
+            {}
+        ],
+        [
+            {0: {1: {w: 3} as unknown as SerializedTree}},
+            {0: {1: {}}}
+        ],
+        [
+            {2: {1: {}}},
+            {0: {1: {}}}
+        ],
+        [
+            {8: {7: {6: {}}}},
+            {0: {1: {2: {}}}}
+        ],
+        [
+            {8: {5: {2: {}}}},
+            {0: {1: {2: {}}}}
+        ],
+        [
+            {6: {3: {4: {}}}},
+            {0: {1: {4: {}}}}
+        ],
+        [
+            {6: {7: {4: {}}}},
+            {0: {1: {4: {}}}}
+        ],
+        [
+            {2: {4: {7: {}}}},
+            {0: {4: {5: {}}}}
+        ],
+        [
+            {2: {4: {3: {}}}},
+            {0: {4: {5: {}}}}
+        ],
+        [
+            {0: {1: {3: {6: {4: {w: 1}, w: 1}}}}},
+            {0: {1: {3: {6: {4: {w: 1}, w: 1}}}}}
+        ],
+        [
+            {0: {1: {3: {6: {4: {w: 1}}}}}},
+            {0: {1: {3: {6: {4: {w: 1}, w: 1}}}}}
+        ],
+        [
+            {0: {1: {3: {6: {4: {w: 2}}}}}},
+            {0: {1: {3: {6: {4: {w: 1}, w: 1}}}}}
+        ],
+        [
+            {0: {1: {3: {6: {4: {}, w: 1}}}}},
+            {0: {1: {3: {6: {4: {}, w: 1}}}}}
+        ],
+        [
+            {0: {1: {w: 1}}},
+            {0: {1: {w: 1}}},
+        ],
+        [
+            {0: {1: {w: 2}}},
+            {0: {1: {w: 1}}},
+        ],
+        [
+            {0: {3: {w: 1}}},
+            {0: {1: {w: 1}}},
+        ],
+        [
+            {6: {7: {w: 1}}},
+            {0: {1: {w: 1}}},
+        ],
+        [
+            {0:{1:{w:1},2:{6:{3:{8:{w:1},w:1},w:1},w:1}}},
+            {0:{1:{w:1},2:{6:{3:{8:{w:1},w:1},w:1},w:1}}}
+        ]
+    ])('should deserialize %j safely', (input, expectedSerialized) => {
+        const tree = GameStateTreeImpl.safeFromJSON(input);
+        expect(tree.toJSON()).toEqual(expectedSerialized)
     })
 })

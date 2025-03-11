@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeAll, Mock, afterEach } from 'vitest'
-import { mockPointerEvents, PointerEventsMock } from './mock-pointer-events';
-import { CustomPointerEventTarget } from '../src/scripts/pointer-events/types';
-import { createPointerEvents } from '../src/scripts/pointer-events/create-pointer-events';
+import { describe, it, expect, vi, beforeAll, type Mock, afterEach } from 'vitest'
+import { mockPointerEvents, type PointerEventsMock } from './mock-pointer-events';
+import type { CustomPointerEventTarget } from '@page/pointer-events/types';
+import { createPointerEvents } from '@page/pointer-events/create-pointer-events';
 
 vi.useFakeTimers();
 

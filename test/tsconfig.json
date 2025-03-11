@@ -1,0 +1,17 @@
+{
+    "extends": "../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../dist-types/test",
+        "skipLibCheck": true,
+        "rootDir": ".",
+        "paths": {
+            "@page/*": ["../src/scripts/page/*"],
+            "@shared/*": ["../src/scripts/shared/*"]
+        }
+    },
+    "references": [
+        {"path": "../src/scripts/page"},
+        {"path": "../src/scripts/shared"}
+    ],
+    "include": ["**/*"]
+}

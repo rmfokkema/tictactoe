@@ -1,14 +1,15 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { defineConfig, HtmlTagDescriptor, InlineConfig, PluginOption, build } from 'vite'
+import { defineConfig, type HtmlTagDescriptor, type InlineConfig, type PluginOption, build } from 'vite'
+import { addAliases } from './src/scripts/add-aliases';
 
 const inlineHeadScriptOutDir = fileURLToPath(new URL('./dist-inline-head-script', import.meta.url));
 const inlineHeadScriptFilePath = path.resolve(inlineHeadScriptOutDir, 'index.iife.js')
 const inlineHeadScriptConfig: InlineConfig = {
     build: {
         lib: {
-            entry: fileURLToPath(new URL('./src/scripts/inline-head-script.ts', import.meta.url)),
+            entry: fileURLToPath(new URL('./src/scripts/page/inline-head-script.ts', import.meta.url)),
             formats: ['iife'],
             fileName: 'index',
             name: 'inlineHeadScript'
@@ -43,5 +44,8 @@ function injectInlineHeadScript(): PluginOption {
 }
 export default defineConfig({
     root: './src',
-    plugins: [injectInlineHeadScript()]
+    plugins: [
+        injectInlineHeadScript(),
+        addAliases()
+    ]
 })

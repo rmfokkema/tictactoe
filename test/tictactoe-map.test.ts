@@ -1,18 +1,19 @@
-import { describe, beforeEach, it, expect, vi } from 'vitest'
-import { TestPlayer } from './player/test-player';
+import { describe, beforeEach, it, expect, vi, type Mock } from 'vitest'
+import type { TestPlayer } from './player/test-player';
 import { createTestPlayer } from './player/test-player-impl';
-import { MapPersister } from '../src/scripts/store/map-persister';
-import { TicTacToeMap } from '../src/scripts/map/tictactoemap';
-import { createTicTacToeMap } from '../src/scripts/content/map'
+import type { LocalMapPersister } from '@page/store/local-map-persister';
+import type { TicTacToeMap } from '@page/map/tictactoemap';
+import { createTicTacToeMap } from '@page/content/map'
 import { MockTheme } from './mock-theme';
 import { gameStateWithPositions } from './game-state-with-positions';
-import { SerializedTree } from '../src/scripts/state/serialization';
-import { GameState } from '../src/scripts/state/game-state';
+import type { SerializedTree } from '@shared/state/serialization';
+import type { GameState } from '@shared/state/game-state';
 import { MockBroadcastChannel } from './mock-broadcast-channel';
+import type { SharedWork } from '@shared/sharedworker/shared-work';
 
 describe('a tictactoe map', () => {
     const channel = new MockBroadcastChannel();
-    const persister: MapPersister = {
+    const persister: LocalMapPersister = {
         persist(map: SerializedTree): void {
             serialized = map;
         },
@@ -20,17 +21,40 @@ describe('a tictactoe map', () => {
             return serialized;
         }
     };
+    let sharedWorkStoreMapMock: Mock<() => Promise<unknown>>;
+    let sharedWorkGetVerifiedStoredMapMock: Mock<() => Promise<unknown>>;
     let player: TestPlayer;
-    let serialized: SerializedTree;
+    let serialized: SerializedTree | undefined;
+    let serializedInSharedWork: SerializedTree | undefined;
     let ticTacToeMap: TicTacToeMap<MockTheme>;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
         serialized = undefined;
         player = createTestPlayer();
+        sharedWorkStoreMapMock = vi.fn().mockImplementation((map) => {
+            serializedInSharedWork = map;
+            return Promise.resolve();
+        })
+        sharedWorkGetVerifiedStoredMapMock = vi.fn().mockImplementation((map) => {
+            serializedInSharedWork = map;
+            return Promise.resolve(map);
+        })
         ticTacToeMap = createTicTacToeMap(
             persister,
-            channel
+            channel,
+            {
+                sendRequest(method: keyof SharedWork, data: unknown){
+                    if(method === 'getVerifiedStoredMap'){
+                        // @ts-ignore
+                        return sharedWorkGetVerifiedStoredMapMock(...data);
+                    }else if(method === 'storeMap'){
+                        // @ts-ignore
+                        return sharedWorkStoreMapMock(...data);
+                    }
+                    throw new Error(`No mock defined for '${method}'`)
+                }
+            }
         );
         ticTacToeMap.renderOnGrid(
             player.grid
@@ -54,6 +78,10 @@ describe('a tictactoe map', () => {
             player2.play(8);
             const grid013645 = player2.grid;
             expect(grid013645.toString()).toMatchSnapshot();
+        })
+
+        it('should persist', () => {
+            expect(serialized).toEqual({0:{1:{3:{6:{4:{5:{}}}}}}})
         })
     })
 
@@ -130,7 +158,7 @@ describe('a tictactoe map', () => {
                 })
 
                 it('should delete states by double clicking', () => {
-                    player013.grid.findByPosition([0]).dblclick();
+                    player013.grid.findByPosition([0])!.dblclick();
                     expect(player.grid.toString()).toMatchSnapshot();
                 })
             })
@@ -156,8 +184,8 @@ describe('a tictactoe map', () => {
             const player0216384 = player021638.play(4);
             player0216385.play(4);
             player0216384.play(5);
-            player0216385.grid.findByPosition([5]).dblclick();
-            player0216384.grid.findByPosition([4]).dblclick();
+            player0216385.grid.findByPosition([5])!.dblclick();
+            player0216384.grid.findByPosition([4])!.dblclick();
         })
 
         it('should look like this', () => {
@@ -279,13 +307,13 @@ describe('a tictactoe map', () => {
         })
 
         it('should have notified the remote renderer', () => {
-            expect(channel.messageMock).toHaveBeenCalledWith({type: 'staterevealed', data: gameStateWithPositions([0])})
+            expect(channel.messageMock).toHaveBeenCalledWith({type: 'staterevealed', data: gameStateWithPositions([0]).getSummary()})
         })
 
         describe('and then removing 0', () => {
 
             beforeEach(() => {
-                player.grid.findByPosition([0, 0]).dblclick();
+                player.grid.findByPosition([0, 0])!.dblclick();
             })
 
             it('should look like this', () => {
@@ -293,7 +321,7 @@ describe('a tictactoe map', () => {
             })
 
             it('should have notified the remote renderer', () => {
-                expect(channel.messageMock).toHaveBeenCalledWith({type: 'statehidden', data: gameStateWithPositions([0])})
+                expect(channel.messageMock).toHaveBeenCalledWith({type: 'statehidden', data: gameStateWithPositions([0]).getSummary()})
             })
         })
     })
@@ -334,8 +362,8 @@ describe('a tictactoe map', () => {
         })
 
         it('should look like this', () => {
-            expect(player.grid.findByPosition([0, 2, 1, 6]).grid.toString()).toMatchSnapshot();
-            expect(player.grid.findByPosition([6, 0, 3, 8]).grid.toString()).toMatchSnapshot();
+            expect(player.grid.findByPosition([0, 2, 1, 6])!.grid.toString()).toMatchSnapshot();
+            expect(player.grid.findByPosition([6, 0, 3, 8])!.grid.toString()).toMatchSnapshot();
         })
     })
 
@@ -347,7 +375,7 @@ describe('a tictactoe map', () => {
         })
 
         it('should look like this', () => {
-            expect(player.grid.findByPosition([0, 1]).grid.toString()).toMatchSnapshot();
+            expect(player.grid.findByPosition([0, 1])!.grid.toString()).toMatchSnapshot();
         })
     })
 
@@ -359,7 +387,7 @@ describe('a tictactoe map', () => {
         })
 
         it('should look like this', () => {
-            expect(player.grid.findByPosition([0, 2, 1, 6, 3, 5, 8, 7]).grid.toString()).toMatchSnapshot();
+            expect(player.grid.findByPosition([0, 2, 1, 6, 3, 5, 8, 7])!.grid.toString()).toMatchSnapshot();
         })
     })
 
@@ -374,7 +402,7 @@ describe('a tictactoe map', () => {
         })
 
         it('should look like this', () => {
-            expect(player.grid.findByPosition([0, 1]).grid.toString()).toMatchSnapshot();
+            expect(player.grid.findByPosition([0, 1])!.grid.toString()).toMatchSnapshot();
         })
 
         it('should not have written to local storage', () => {
@@ -388,12 +416,28 @@ describe('a tictactoe map', () => {
             })
 
             it('should look like this', () => {
-                expect(player.grid.findByPosition([0, 1]).grid.toString()).toMatchSnapshot();
+                expect(player.grid.findByPosition([0, 1])!.grid.toString()).toMatchSnapshot();
             })
     
             it('should not have written to local storage', () => {
                 expect(serialized).toBeUndefined();
             })
+        })
+    })
+
+    describe('when the stored state is corrected', () => {
+
+        beforeEach(() => {
+            sharedWorkGetVerifiedStoredMapMock.mockImplementation(() => {
+                return Promise.resolve(serializedInSharedWork);
+            })
+            serialized = {0:{1:{w:2}}}
+            serializedInSharedWork = {0:{1:{w:1}}}
+            ticTacToeMap.load();
+        })
+
+        it('should have persisted the corrected map', () => {
+            expect(serialized).toEqual({0:{1:{w:1}}})
         })
     })
 
@@ -409,10 +453,10 @@ describe('a tictactoe map', () => {
     })
 
     function notifyRemoteStateRevealed(state: GameState): void {
-        channel.messageHandler({data: {type: 'staterevealed', data: state}} as MessageEvent)
+        channel.messageHandler({data: {type: 'staterevealed', data: state.getSummary()}} as MessageEvent)
     }
 
     function notifyRemoteStateHidden(state: GameState): void {
-        channel.messageHandler({data: {type: 'statehidden', data: state}} as MessageEvent)
+        channel.messageHandler({data: {type: 'statehidden', data: state.getSummary()}} as MessageEvent)
     }
 })

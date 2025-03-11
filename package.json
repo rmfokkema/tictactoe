@@ -18,6 +18,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@types/sharedworker": "^0.0.150",
     "cli-table3": "^0.6.5",
     "ef-infinite-canvas": "^0.6.7",
     "typescript": "^5.6.2",

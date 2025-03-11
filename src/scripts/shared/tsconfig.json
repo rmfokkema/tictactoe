@@ -1,0 +1,13 @@
+{
+    "extends": "../../../tsconfig-base.json",
+    "compilerOptions": {
+        "lib": [
+            "ESNext"
+        ],
+        "types": [],
+        "strict": true,
+        "rootDir": ".",
+        "outDir": "../../../dist-types/src/scripts/shared"
+    },
+    "include": ["**/*"]
+}

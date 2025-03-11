@@ -1,13 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { ClonedGameState, GameState } from '../src/scripts/state/game-state'
-import { Player } from '../src/scripts/player';
-import { MAIN_DIAGONAL } from '../src/scripts/three';
+import { GameStateImpl } from '@shared/state/game-state-impl'
+import { Player } from '@shared/player';
 import { gameStateWithPositions } from './game-state-with-positions';
+import { MAIN_DIAGONAL } from '@shared/three';
+import type { GameStateSummary } from '@shared/state/game-state-summary';
+import type { GameState } from '@shared/state/game-state';
 
 describe('a game state', () => {
 
     it('should have a current player', () => {
-        let state = GameState.initial;
+        let state = GameStateImpl.initial;
 
         expect(state.getCurrentPlayer()).toBe(Player.X)
 
@@ -17,7 +19,7 @@ describe('a game state', () => {
     })
 
     it('should return player at position', () => {
-        const state = GameState.initial.playPosition(0).playPosition(1);
+        const state = GameStateImpl.initial.playPosition(0).playPosition(1);
 
         const playersAtPositions = [...state.getPlayersAtPositions()];
         expect(playersAtPositions[0]).toBe(Player.X);
@@ -27,11 +29,11 @@ describe('a game state', () => {
 
     it.each<[GameState, GameState[]]>([
         [
-            GameState.initial,
+            GameStateImpl.initial,
             [
-                GameState.initial.playPosition(0),
-                GameState.initial.playPosition(1),
-                GameState.initial.playPosition(4)
+                GameStateImpl.initial.playPosition(0),
+                GameStateImpl.initial.playPosition(1),
+                GameStateImpl.initial.playPosition(4)
             ]
         ],
         [
@@ -79,11 +81,11 @@ describe('a game state', () => {
             ]
         ]
     ])('%j should have nonequivalent successors', (state, expectedNonequivalentSuccessors) => {
-        expect(state.getNonequivalentSuccessors()).toEqual(expectedNonequivalentSuccessors)
+        expect([...state.getNonequivalentSuccessors()]).toEqual(expectedNonequivalentSuccessors)
     })
 
     it('should return players at positions', () => {
-        const state = GameState.initial
+        const state = GameStateImpl.initial
             .playPosition(0)
             .playPosition(1)
             .playPosition(8)
@@ -108,22 +110,22 @@ describe('a game state', () => {
     })
 
     it('should equal', () => {
-        const state1 = GameState.initial.playPosition(2).playPosition(6);
-        const state2 = GameState.initial.playPosition(2).playPosition(6);
-        const state3 = GameState.initial.playPosition(2).playPosition(7);
+        const state1 = GameStateImpl.initial.playPosition(2).playPosition(6);
+        const state2 = GameStateImpl.initial.playPosition(2).playPosition(6);
+        const state3 = GameStateImpl.initial.playPosition(2).playPosition(7);
 
         expect(state1.equals(state2)).toBe(true)
         expect(state1.equals(state3)).toBe(false)
     })
 
     it('should not have a winner', () => {
-        const state = GameState.initial.playPosition(0).playPosition(4);
+        const state = GameStateImpl.initial.playPosition(0).playPosition(4);
 
         expect(state.findWinner()).toBe(undefined);
     })
 
     it('should have a winner', () => {
-        const state = GameState.initial
+        const state = GameStateImpl.initial
             .playPosition(0)
             .playPosition(1)
             .playPosition(3)
@@ -131,7 +133,7 @@ describe('a game state', () => {
             .playPosition(4)
             .playPosition(5)
             .playPosition(8)
-        const winner = state.findWinner();
+        const winner = state.findWinner()!;
 
         expect(winner.player).toBe(Player.X);
         expect(winner.three).toBe(MAIN_DIAGONAL)
@@ -220,11 +222,11 @@ describe('a game state', () => {
     })
 
     it.each<[number, GameState]>([
-        [10, GameState.initial.playPosition(8)],
-        [170, GameState.initial.playPosition(8).playPosition(7)]
+        [10, GameStateImpl.initial.playPosition(8)],
+        [170, GameStateImpl.initial.playPosition(8).playPosition(7)]
     ])('%d should be rivivable to game state %j', (positions, expectedState) => {
-        const impossible: ClonedGameState = {positions};
-        const revived = GameState.reviveCloned(impossible);
+        const impossible: GameStateSummary = {positions};
+        const revived = GameStateImpl.fromSummary(impossible);
         expect(revived).toEqual(expectedState);
     })
 })

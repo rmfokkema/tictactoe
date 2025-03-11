@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import { addAliases} from './src/scripts/add-aliases'
 
 export default defineConfig({
   test: {
@@ -7,4 +8,5 @@ export default defineConfig({
     hookTimeout: 10000,
     pool: 'forks'
   },
+  plugins: [addAliases()]
 })

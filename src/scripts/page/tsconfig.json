@@ -1,0 +1,20 @@
+{
+    "extends": "../../../tsconfig-base.json",
+    "compilerOptions": {
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "rootDir": ".",
+        "outDir": "../../../dist-types/src/scripts/page",
+        "paths": {
+            "@shared/*": ["../shared/*"]
+        },
+        "skipLibCheck": true
+    },
+    "include": ["**/*"],
+    "references": [
+        {"path": "../shared"}
+    ]
+}
