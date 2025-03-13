@@ -58,6 +58,10 @@ class SequenceTheme implements Theme {
 
 const allLightThemeProps: ThemeProps[] = [
     {
+        color: 'hsl(240 5% 82%)',
+        backgroundColor: 'hsl(57 5% 84%)'
+    },
+    {
         color: 'hsl(240 5% 80%)',
         backgroundColor: 'hsl(57 5% 85%)'
     },
@@ -84,6 +88,10 @@ const allLightThemeProps: ThemeProps[] = [
 ];
 
 const allDarkThemeProps: ThemeProps[] = [
+    {
+        color: 'hsl(0 0 8%)',
+        backgroundColor: 'hsl(0 0 4%)'
+    },
     {
         color: 'hsl(0 0 10%)',
         backgroundColor: 'hsl(0 0 5%)'
@@ -131,13 +139,13 @@ function determineThemeProps({all, index}: ThemeDeterminingProps): ThemeProps {
 }
 
 export const lightTheme = new SequenceTheme(
-    {all: allLightThemeProps, index: 5},
+    {all: allLightThemeProps, index: 6},
     determineThemeProps,
     getLightThemeWinner,
     getLightThemeLoser
 );
 export const darkTheme = new SequenceTheme(
-    {all: allDarkThemeProps, index: 5},
+    {all: allDarkThemeProps, index: 6},
     determineThemeProps,
     getDarkThemeWinner,
     getDarkThemeLoser
