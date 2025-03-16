@@ -18,7 +18,7 @@ export function createRequestClient(): RequestClient {
     }
     return {
         sendRequest(method: keyof SharedWork, data: unknown) {
-            const id = window.crypto.randomUUID();
+            const id = createRequestId();
             const {promise, resolve} = Promise.withResolvers<unknown>();
             pending.push({
                 fulfill: resolve,
@@ -42,5 +42,10 @@ export function createRequestClient(): RequestClient {
         }
         const [request] = pending.splice(index, 1);
         request.fulfill(response.data);
+    }
+
+    function createRequestId(): string {
+        const arr = window.crypto.getRandomValues(new Uint32Array(1));
+        return arr[0].toString();
     }
 }
