@@ -11,3 +11,6 @@ export interface ThemeSwitchProperties {
 export interface ThemeSwitch extends ThemeSwitchProperties, EventTargetLike<ThemeSwitchEventMap> {
 
 }
+export interface ThemeSwitchable {
+    switchTheme(props: ThemeSwitchProperties): void
+}

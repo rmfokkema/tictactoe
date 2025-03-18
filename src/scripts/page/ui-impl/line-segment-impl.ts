@@ -1,4 +1,4 @@
-import type { Point } from "../point";
+import type { Point } from "./point";
 import type { Theme } from "../themes";
 import { BorderDirection, type LineSegment, type LineSegmentMeasurements } from "./types";
 

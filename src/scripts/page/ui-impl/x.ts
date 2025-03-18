@@ -1,5 +1,5 @@
 import { getMarkLineWidth, type Measurements } from "../measurements";
-import type { Point } from "../point";
+import type { Point } from "./point";
 import type { Theme } from "../themes";
 import { type Three, isInColumn, isInRow, isMainDiagonal } from "@shared/three";
 import type { Mark } from "./mark";
@@ -10,7 +10,7 @@ export class X implements Mark {
         private readonly measurements: Measurements,
         private theme: Theme
     ){
-        this.lineWidth = getMarkLineWidth(measurements.size);
+        this.lineWidth = getMarkLineWidth(measurements.width);
     }
 
     public setTheme(theme: Theme): void {
@@ -18,7 +18,7 @@ export class X implements Mark {
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {
-        const {x, y, size} = this.measurements;
+        const {x, y, width: size} = this.measurements;
         ctx.save();
         ctx.lineWidth = this.lineWidth;
         ctx.strokeStyle = this.theme.color;
@@ -34,7 +34,7 @@ export class X implements Mark {
     }
 
     public getWinStart(three: Three): Point{
-        const {x, y, size} = this.measurements;
+        const {x, y, width: size} = this.measurements;
         if(isInRow(three)){
             return {x: x + size * (1 - 1 / Math.sqrt(2)) / 2, y: y + size / 2}
         }
@@ -48,7 +48,7 @@ export class X implements Mark {
     }
 
     public getWinEnd(three: Three): Point{
-        const {x, y, size} = this.measurements;
+        const {x, y, width: size} = this.measurements;
         if(isInRow(three)){
             return {x: x + size * (1 + 1 / Math.sqrt(2)) / 2, y: y + size / 2}
         }

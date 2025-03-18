@@ -1,3 +1,5 @@
+import type { ThemeVariant } from "./theme-variant"
+
 interface ThemeProps {
     readonly backgroundColor: string
     readonly color: string
@@ -17,6 +19,7 @@ interface ThemeDeterminingProps {
 export interface Theme extends ThemeProps {
     readonly loserTheme: Theme
     readonly winnerTheme: Theme
+    readonly variant: ThemeVariant
 }
 
 class SequenceTheme implements Theme {
@@ -35,7 +38,8 @@ class SequenceTheme implements Theme {
         private readonly determiningProps: ThemeDeterminingProps,
         private readonly determine: (props: ThemeDeterminingProps) => ThemeProps,
         private readonly createWinner: (props: ThemeDeterminingProps) => ThemeDeterminingProps,
-        private readonly createLoser: (props: ThemeDeterminingProps) => ThemeDeterminingProps
+        private readonly createLoser: (props: ThemeDeterminingProps) => ThemeDeterminingProps,
+        public readonly variant: ThemeVariant
     ){
         this.props = determine(determiningProps);
     }
@@ -44,14 +48,17 @@ class SequenceTheme implements Theme {
             this.createWinner(this.determiningProps),
             this.determine,
             this.createWinner,
-            this.createLoser);
+            this.createLoser,
+            this.variant
+        );
     }
     private createLoserTheme(): SequenceTheme {
         return new SequenceTheme(
             this.createLoser(this.determiningProps),
             this.determine,
             this.createWinner,
-            this.createLoser
+            this.createLoser,
+            this.variant
         );
     }
 }
@@ -142,11 +149,13 @@ export const lightTheme = new SequenceTheme(
     {all: allLightThemeProps, index: 6},
     determineThemeProps,
     getLightThemeWinner,
-    getLightThemeLoser
+    getLightThemeLoser,
+    'light'
 );
 export const darkTheme = new SequenceTheme(
     {all: allDarkThemeProps, index: 6},
     determineThemeProps,
     getDarkThemeWinner,
-    getDarkThemeLoser
+    getDarkThemeLoser,
+    'dark'
 )

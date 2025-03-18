@@ -10,7 +10,7 @@ export class GridBuilder {
     public constructor(
         private readonly measurements: GridCellMeasurements
     ){
-        const { size, x, y } = measurements;
+        const { width: size, x, y } = measurements;
         const lineWidth = this.lineWidth = size / 100;
         const cellSize = this.cellSize = (size - 2 * lineWidth) / 3;
         const right = x + size;
@@ -21,7 +21,7 @@ export class GridBuilder {
         this.horizontal2 = bottom - cellSize - lineWidth / 2;
     }
     public *getCellMeasurements(): Iterable<GridCellMeasurements>{
-        const {x, y, size: parentSize} = this.measurements;
+        const {x, y, width: parentSize} = this.measurements;
         const size = (parentSize - 2 * this.lineWidth) / 3;
         const halfLineWidth = this.lineWidth / 2;
         const columnXes = [x, this.vertical1 + halfLineWidth, this.vertical2 + halfLineWidth];
@@ -35,7 +35,8 @@ export class GridBuilder {
                 yield {
                     x: columnXes[columnIndex],
                     y: rowYs[rowIndex],
-                    size,
+                    width: size,
+                    height: size,
                     background: {
                         extendLeft,
                         extendRight,
@@ -52,7 +53,7 @@ export class GridBuilder {
                 direction: BorderDirection.Vertical,
                 position: this.vertical1,
                 start: this.measurements.y - this.measurements.background.extendTop,
-                end: this.measurements.y + this.measurements.size + this.measurements.background.extendBottom,
+                end: this.measurements.y + this.measurements.width + this.measurements.background.extendBottom,
                 lineWidth: this.lineWidth
             },
             intersection1: this.horizontal1,
@@ -66,7 +67,7 @@ export class GridBuilder {
                 direction: BorderDirection.Vertical,
                 position: this.vertical2,
                 start: this.measurements.y - this.measurements.background.extendTop,
-                end: this.measurements.y + this.measurements.size + this.measurements.background.extendBottom,
+                end: this.measurements.y + this.measurements.width + this.measurements.background.extendBottom,
                 lineWidth: this.lineWidth
             },
             intersection1: this.horizontal1,
@@ -80,7 +81,7 @@ export class GridBuilder {
                 direction: BorderDirection.Horizontal,
                 position: this.horizontal1,
                 start: this.measurements.x - this.measurements.background.extendLeft,
-                end: this.measurements.x + this.measurements.size + this.measurements.background.extendRight,
+                end: this.measurements.x + this.measurements.width + this.measurements.background.extendRight,
                 lineWidth: this.lineWidth
             },
             intersection1: this.vertical1,
@@ -94,7 +95,7 @@ export class GridBuilder {
                 direction: BorderDirection.Horizontal,
                 position: this.horizontal2,
                 start: this.measurements.x - this.measurements.background.extendLeft,
-                end: this.measurements.x + this.measurements.size + this.measurements.background.extendRight,
+                end: this.measurements.x + this.measurements.width + this.measurements.background.extendRight,
                 lineWidth: this.lineWidth
             },
             intersection1: this.vertical1,

@@ -1,5 +1,5 @@
 import { getMarkLineWidth, type Measurements } from "../measurements";
-import type { Point } from "../point";
+import type { Point } from "./point";
 import type { Theme } from "../themes";
 import { type Three, isInColumn, isInRow, isMainDiagonal } from "@shared/three";
 import type { Mark } from "./mark";
@@ -10,15 +10,15 @@ export class O implements Mark {
         private readonly measurements: Measurements,
         private theme: Theme
     ){
-        this.lineWidth = getMarkLineWidth(measurements.size);
+        this.lineWidth = getMarkLineWidth(measurements.width);
     }
 
     private getStraightWinDistanceFromEdge(): number{
-        return this.measurements.size / 8 - this.lineWidth / 4;
+        return this.measurements.width / 8 - this.lineWidth / 4;
     }
 
     private getDiagonalWinDistanceFromEdge(): number{
-        const { size } = this.measurements;
+        const { width: size } = this.measurements;
         return size / 4 - (size / 8 + this.lineWidth / 4) / Math.sqrt(2)
     }
 
@@ -27,7 +27,7 @@ export class O implements Mark {
     }
 
     public draw(ctx: CanvasRenderingContext2D): void{
-        const {x, y, size} = this.measurements;
+        const {x, y, width: size} = this.measurements;
         ctx.save();
         ctx.lineWidth = this.lineWidth;
         ctx.strokeStyle = this.theme.color;
@@ -38,7 +38,7 @@ export class O implements Mark {
     }
 
     public getWinStart(three: Three): Point{
-        const {x, y, size} = this.measurements;
+        const {x, y, width: size} = this.measurements;
         if(isInRow(three)){
             return {x: x + this.getStraightWinDistanceFromEdge(), y: y + size / 2}
         }
@@ -53,7 +53,7 @@ export class O implements Mark {
     }
 
     public getWinEnd(three: Three): Point{
-        const {x, y, size} = this.measurements;
+        const {x, y, width: size} = this.measurements;
         if(isInRow(three)){
             return {x: x + size - this.getStraightWinDistanceFromEdge(), y: y + size / 2}
         }

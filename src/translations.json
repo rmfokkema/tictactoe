@@ -1,0 +1,18 @@
+{
+    "en": {
+        "title": "The Map of Tic-Tac-Toe",
+        "explanation": "Click a square to see more. You can also zoom."
+    },
+    "nl": {
+        "title": "De boter-kaas-en-eierenkaart",
+        "explanation": "Klik op een vakje om meer te zien. Je kunt ook inzoomen."
+    },
+    "fr": {
+        "title": "Le plan du tic-tac-toe",
+        "explanation": "Cliquez sur une case pour en voir plus. Il s’élargit aussi."
+    },
+    "de": {
+        "title": "Die Karte des Tic Tac Toe",
+        "explanation": "Klicke auf ein Feld, um mehr zu sehen. Sie lässt sich auch vergrößern."
+    }
+}

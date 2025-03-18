@@ -1,7 +1,9 @@
 import type { InfiniteCanvasRenderingContext2D } from "ef-infinite-canvas"
 
-export interface Renderer {
+export interface Rerenderer {
     rerender(): void
+}
+export interface Renderer extends Rerenderer {
     setRenderable(renderable: Renderable): void
 }
 

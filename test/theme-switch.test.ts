@@ -5,9 +5,9 @@ import {
     type ThemePreference,
     type ThemePreferencePersister,
     type DarkThemePreferenceTracker,
-    createThemeSwitch,
     darkTheme,
-    lightTheme 
+    lightTheme, 
+    createInitialThemeSwitchState
 } from '@page/themes';
 import { MockBroadcastChannel } from './mock-broadcast-channel';
 
@@ -181,11 +181,10 @@ describe('a theme switch', () => {
             },
             removeEventListener(){}
         }
-        return createThemeSwitch(
-            mockThemeAreaTracker,
+        return createInitialThemeSwitchState(
             persister,
             darkThemePreferenceTracker,
             mockBroadcastChannel
-        )
+        ).getThemeSwitch(mockThemeAreaTracker);
     }
 })

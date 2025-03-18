@@ -1,6 +1,6 @@
 import type { InfiniteCanvasRenderingContext2D } from "ef-infinite-canvas";
 import type { CustomPointerEventMap, CustomPointerEventTarget } from "../pointer-events/types";
-import { getMarkLineWidth } from "../measurements";
+import { getMarkLineWidth, type Measurements } from "../measurements";
 import type { Theme } from "../themes/themes";
 import type { Grid, GridCell } from "../ui";
 import type { Winner } from "@shared/winner";
@@ -13,7 +13,7 @@ import { O } from "./o";
 import type { GridCellMeasurements } from "./types";
 import { Win } from "./win";
 import { X } from "./x";
-import type { Renderable, Renderer } from "../renderer/types";
+import type { Renderable, Rerenderer } from "../renderer/types";
 import type { Drawable } from "./drawable";
 
 class GridCellImpl implements GridCell<Theme> {
@@ -21,7 +21,7 @@ class GridCellImpl implements GridCell<Theme> {
     public content: Renderable | undefined;
     private eventTarget: CustomPointerEventTarget | undefined;
     public constructor(
-        private readonly renderer: Renderer,
+        private readonly renderer: Rerenderer,
         private readonly measurements: GridCellMeasurements,
         private readonly borders: GridCellBorder[],
         private readonly gridEventTarget: CustomPointerEventTarget,
@@ -36,7 +36,7 @@ class GridCellImpl implements GridCell<Theme> {
         if(this.theme === this.gridTheme){
             return;
         }
-        const {x, y, size, background: {extendLeft, extendRight, extendTop, extendBottom }} = this.measurements;
+        const {x, y, width: size, background: {extendLeft, extendRight, extendTop, extendBottom }} = this.measurements;
         ctx.fillStyle = this.theme.backgroundColor;
         ctx.fillRect(
             x - extendLeft,
@@ -117,7 +117,7 @@ export class GridImpl implements Grid<Theme>, Renderable {
         return this.cellImpls;
     }
     public constructor(
-        private readonly renderer: Renderer,
+        private readonly renderer: Rerenderer,
         measurements: GridCellMeasurements,
         eventTarget: CustomPointerEventTarget,
         public theme: Theme,
@@ -283,5 +283,28 @@ export class GridImpl implements Grid<Theme>, Renderable {
         )
         this.overlayContent = win;
         this.renderer.rerender();
+    }
+
+    public static create(
+        renderer: Rerenderer,
+        measurements: Measurements,
+        eventTarget: CustomPointerEventTarget,
+        theme: Theme
+    ): GridImpl{
+        return new GridImpl(
+            renderer,
+            {
+                ...measurements,
+                background: {
+                    extendLeft: 0,
+                    extendRight: 0,
+                    extendTop: 0,
+                    extendBottom: 0
+                }
+            },
+            eventTarget,
+            theme,
+            undefined
+        )
     }
 }

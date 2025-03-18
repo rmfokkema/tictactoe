@@ -1,4 +1,4 @@
-import type { Point } from "../point"
+import type { Point } from "./point"
 import type { Renderable } from "../renderer/types";
 import type { Three } from "@shared/three"
 import type { Drawable } from "./drawable";

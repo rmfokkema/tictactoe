@@ -90,34 +90,34 @@ describe('pointer events', () => {
         let area2Child2EventListenerMock: Mock;
 
         beforeAll(() => {
-            area1EventTarget = rootEventTarget.addChildForArea({x: 0, y: 0, size: 10});
+            area1EventTarget = rootEventTarget.addChildForArea({x: 0, y: 0, width: 10, height: 10});
             area1EventListenerMock = vi.fn().mockImplementation(allowCancelClickIfPossible);
             area1EventTarget.addEventListener('pointerdown', area1EventListenerMock)
             area1EventTarget.addEventListener('clickcancel', area1EventListenerMock)
 
-            area1Child1EventTarget = area1EventTarget.addChildForArea({x: 2, y: 4, size: 2});
+            area1Child1EventTarget = area1EventTarget.addChildForArea({x: 2, y: 4, width: 2, height: 2});
             area1Child1EventListenerMock = vi.fn().mockImplementation(allowCancelDoubleClickIfPossible);
             area1Child1EventTarget.addEventListener('pointerdown', area1Child1EventListenerMock);
             area1Child1EventTarget.addEventListener('click', area1Child1EventListenerMock);
             area1Child1EventTarget.addEventListener('dblclick', area1Child1EventListenerMock)
             area1Child1EventTarget.addEventListener('dblclickcancel', area1Child1EventListenerMock)
 
-            area1Child2EventTarget = area1EventTarget.addChildForArea({x: 6, y: 4, size: 2});
+            area1Child2EventTarget = area1EventTarget.addChildForArea({x: 6, y: 4, width: 2, height: 2});
             area1Child2EventListenerMock = vi.fn();
             area1Child2EventTarget.addEventListener('pointerdown', area1Child2EventListenerMock);
 
             
-            area2EventTarget = rootEventTarget.addChildForArea({x: 12, y: 0, size: 10});
+            area2EventTarget = rootEventTarget.addChildForArea({x: 12, y: 0, width: 10, height: 10});
             area2EventListenerMock = vi.fn();
             area2EventTarget.addEventListener('pointerdown', area2EventListenerMock);
 
 
-            area2Child1EventTarget = area2EventTarget.addChildForArea({x: 14, y: 4, size: 2});
+            area2Child1EventTarget = area2EventTarget.addChildForArea({x: 14, y: 4,  width: 2, height: 2});
             area2Child1EventListenerMock = vi.fn();
             area2Child1EventTarget.addEventListener('pointerdown', area2Child1EventListenerMock);
 
 
-            area2Child2EventTarget = area2EventTarget.addChildForArea({x: 18, y: 4, size: 2});
+            area2Child2EventTarget = area2EventTarget.addChildForArea({x: 18, y: 4,  width: 2, height: 2});
             area2Child2EventListenerMock = vi.fn();
             area2Child2EventTarget.addEventListener('pointerdown', area2Child2EventListenerMock);
             area2Child2EventTarget.addEventListener('click', area2Child2EventListenerMock);

@@ -17,6 +17,10 @@ interface ThemeSwitchState extends ThemeSwitchProperties{
     withThemeFromRemote(theme: ThemeVariant): ThemeSwitchState
 }
 
+interface InitialThemeSwitchState extends ThemeSwitchProperties {
+    getThemeSwitch(themeAreaTracker: ThemeAreaTracker): ThemeSwitch
+}
+
 function themeForVariant(variant: ThemeVariant): Theme {
     return variant === 'dark' ? darkTheme : lightTheme;
 }
@@ -71,55 +75,50 @@ function createThemeSwitchState(
     }
 }
 
-function createInitialThemeSwitchState(
+export function createInitialThemeSwitchState(
     persister: ThemePreferencePersister,
     darkThemePreferenceTracker: DarkThemePreferenceTracker,
-    remoteSwitch: RemoteThemeSwitch
-): ThemeSwitchState {
+    channel: BroadcastChannel
+): InitialThemeSwitchState {
+    const remoteSwitch = createRemoteThemeSwitch(channel);
     const derived = derivePersistableTheme(darkThemePreferenceTracker.prefersDarkTheme, persister);
     derived.persist(derived.read());
-    return createThemeSwitchState(
+    const initialState = createThemeSwitchState(
         persister,
         derived,
         remoteSwitch,
         derived.read(),
         true
-    )
-}
-
-export function createThemeSwitch(
-    themeAreaTracker: ThemeAreaTracker,
-    persister: ThemePreferencePersister,
-    darkThemePreferenceTracker: DarkThemePreferenceTracker,
-    channel: BroadcastChannel
-): ThemeSwitch {
-    const remoteSwitch = createRemoteThemeSwitch(channel);
-    let state = createInitialThemeSwitchState(
-        persister,
-        darkThemePreferenceTracker,
-        remoteSwitch
     );
-    const eventDispatcher: EventDispatcher<ThemeSwitchEventMap> = new EventDispatcher({change: []});
-    remoteSwitch.addEventListener('change', ({theme}) => {
-        state = state.withThemeFromRemote(theme);
-        eventDispatcher.dispatchEvent('change', {});
-    })
-    themeAreaTracker.addEventListener('change', ({primary}) => {
-        state = state.onPrimaryArea(primary);
-        eventDispatcher.dispatchEvent('change', {});
-    });
-    darkThemePreferenceTracker.addEventListener('change', ({prefersDarkTheme}) => {
-        state = state.withDarkThemePreference(prefersDarkTheme);
-        eventDispatcher.dispatchEvent('change', {})
-    })
     return {
-        get primaryTheme(){return state.primaryTheme;},
-        get secondaryTheme(){return state.secondaryTheme;},
-        addEventListener(type, handler) {
-            eventDispatcher.addEventListener(type, handler)
-        },
-        removeEventListener(type, handler) {
-            eventDispatcher.removeEventListener(type, handler)
-        },
+        get primaryTheme(){return initialState.primaryTheme},
+        get secondaryTheme(){return initialState.secondaryTheme},
+        getThemeSwitch(themeAreaTracker){
+            let state = initialState;
+            const eventDispatcher: EventDispatcher<ThemeSwitchEventMap> = new EventDispatcher({change: []});
+            remoteSwitch.addEventListener('change', ({theme}) => {
+                state = state.withThemeFromRemote(theme);
+                eventDispatcher.dispatchEvent('change', {});
+            })
+            themeAreaTracker.addEventListener('change', ({primary}) => {
+                state = state.onPrimaryArea(primary);
+                eventDispatcher.dispatchEvent('change', {});
+            });
+            darkThemePreferenceTracker.addEventListener('change', ({prefersDarkTheme}) => {
+                state = state.withDarkThemePreference(prefersDarkTheme);
+                eventDispatcher.dispatchEvent('change', {})
+            });
+            return {
+                get primaryTheme(){return state.primaryTheme;},
+                get secondaryTheme(){return state.secondaryTheme;},
+                addEventListener(type, handler) {
+                    eventDispatcher.addEventListener(type, handler)
+                },
+                removeEventListener(type, handler) {
+                    eventDispatcher.removeEventListener(type, handler)
+                },
+            }
+        }
     }
 }
+
