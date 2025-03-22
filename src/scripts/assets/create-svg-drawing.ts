@@ -6,14 +6,19 @@ interface State {
 }
 export interface SvgDrawing extends Drawing {
     getResult(): string
+    prepend(content: string): void
 }
 
 export function createSvgDrawing(width: number, height: number): SvgDrawing {
-    let currentResult = `<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`;
+    let svgStart = `<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`;
     const stateStack: State[] = [{lineColor: '#000', lineWidth: 1}];
+    let shapes = '';
     return {
         save,
         restore,
+        prepend(content: string){
+            svgStart += content;
+        },
         setLineColor(color: string){
             getCurrentState().lineColor = color;
         },
@@ -22,17 +27,17 @@ export function createSvgDrawing(width: number, height: number): SvgDrawing {
         },
         addLine(fromX: number, fromY: number, toX: number, toY: number){
             const {lineColor, lineWidth} = getCurrentState();
-            currentResult += `<line x1="${fromX}" y1="${fromY}" x2="${toX}" y2="${toY}" stroke="${lineColor}" stroke-width="${lineWidth}"/>`;
+            shapes += `<line x1="${fromX}" y1="${fromY}" x2="${toX}" y2="${toY}" stroke="${lineColor}" stroke-width="${lineWidth}"/>`;
         },
         addRectangle(x: number, y: number, width: number, height: number, color: string){
-            currentResult += `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${color}"/>`
+            shapes += `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${color}"/>`
         },
         addCircle(cx: number, cy: number, r: number){
             const {lineColor, lineWidth} = getCurrentState();
-            currentResult += `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${lineColor}" stroke-width="${lineWidth}" fill="rgba(0, 0, 0, 0)"/>`
+            shapes += `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${lineColor}" stroke-width="${lineWidth}" fill="rgba(0, 0, 0, 0)"/>`
         },
         getResult(){
-            return currentResult + `</svg>`;
+            return svgStart + shapes + `</svg>`;
         }
     }
     function save(): void{

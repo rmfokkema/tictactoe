@@ -10,11 +10,6 @@ function run(): void {
         document.documentElement.classList.add('dark');
     }
     document.title = getTranslations().title;
-    const iconLink = document.getElementById('icon')!;
-    iconLink.setAttribute('rel', 'icon');
-    iconLink.setAttribute('id', 'icon')
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    iconLink.setAttribute('href', prefersDark ? DARK_ICON : LIGHT_ICON);
 }
 
 run();

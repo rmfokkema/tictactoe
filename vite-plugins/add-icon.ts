@@ -2,8 +2,7 @@ import { type PluginOption } from 'vite'
 import { createIcon } from '../src/scripts/assets/create-icon';
 
 export function addIcon(): PluginOption {
-    const darkIconUrl = `data:image/svg+xml,${encodeURIComponent(createIcon('dark'))}`;
-    const lightIconUrl = `data:image/svg+xml,${encodeURIComponent(createIcon('light'))}`;
+    const iconUrl = `data:image/svg+xml,${encodeURIComponent(createIcon())}`;
     return {
         name: 'vite-plugin-add-icon-urls',
         transformIndexHtml(){
@@ -12,7 +11,7 @@ export function addIcon(): PluginOption {
                     tag: 'link',
                     attrs: {
                         rel: 'icon',
-                        href: darkIconUrl,
+                        href: iconUrl,
                         id: 'icon'
                     }
                 }
@@ -21,8 +20,7 @@ export function addIcon(): PluginOption {
         config(){
             return {
                 define: {
-                    DARK_ICON: `'${darkIconUrl}'`,
-                    LIGHT_ICON: `'${lightIconUrl}'`
+                    ICON_URL: `'${iconUrl}'`
                 }
             }
         }
