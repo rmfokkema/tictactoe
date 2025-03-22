@@ -6,6 +6,7 @@ import { addIcon } from './vite-plugins/add-icon';
 import { addMetadataToHead } from './vite-plugins/add-metadata-to-head';
 import { injectInlineCss } from './vite-plugins/inject-inline-css';
 import { addHtmlBody } from './vite-plugins/add-html-body';
+import { addBase } from './vite-plugins/add-base';
 
 export default defineConfig(() => {
     return {
@@ -16,7 +17,8 @@ export default defineConfig(() => {
             injectInlineCss(),
             addIcon(),
             injectInlineHeadScript(),
-            addAliases()
+            addAliases(),
+            addBase()
         ],
         build: {
             outDir: 'dist',

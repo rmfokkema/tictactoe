@@ -3,9 +3,12 @@ import translations from '../src/translations.json'
 
 type Language = keyof typeof translations;
 export function addMetadataToHead(): PluginOption {
-    
+    let base: string;
     return {
         name: 'vite-plugin-add-head-metadata',
+        configResolved(config) {
+            base = config.base;
+        },
         async transformIndexHtml(_, ctx){
             const language = getLanguage(ctx.filename);
             const { title, explanation } = translations[language];
@@ -51,7 +54,7 @@ export function addMetadataToHead(): PluginOption {
                     attrs: {
                         rel: 'alternate',
                         hreflang: l,
-                        href: l === 'en' ? '/' : `/${l}/`
+                        href: l === 'en' ? base : `${base}${l}/`
                     }
                 }))
             ]
