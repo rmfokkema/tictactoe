@@ -1,6 +1,7 @@
-import type { Point } from "./point";
-import type { Theme } from "../themes";
-import { BorderDirection, type LineSegment, type LineSegmentMeasurements } from "./types";
+import type { Point } from "../measurements";
+import type { Theme } from "../theme";
+import { BorderDirection, type LineSegment, type LineSegmentMeasurements } from "./grid-measurements";
+import type { Drawing } from "../drawing";
 
 function getStartAndEnd({
     direction,
@@ -35,14 +36,14 @@ function getStartAndEnd({
 class ThemedLineSegment implements LineSegment{
     public constructor(
         private readonly lineSegment: LineSegment,
-        private readonly lineWidth: number,
         private readonly theme: Theme){}
-    
-    public draw(ctx: CanvasRenderingContext2D): void{
-        ctx.save();
-        ctx.strokeStyle = this.theme.color;
-        this.lineSegment.draw(ctx);
-        ctx.restore();
+
+
+    public draw(drawing: Drawing): void{
+        drawing.save();
+        drawing.setLineColor(this.theme.color);
+        this.lineSegment.draw(drawing);
+        drawing.restore();
     }
 
     public themed(theme: Theme): LineSegment {
@@ -53,7 +54,7 @@ export class LineSegmentImpl implements LineSegment{
     private readonly start: Point;
     private readonly end: Point
     public constructor(
-        private readonly measurements: LineSegmentMeasurements
+        measurements: LineSegmentMeasurements
     ){
         const {start, end} = getStartAndEnd(measurements)
         this.start = start;
@@ -61,13 +62,10 @@ export class LineSegmentImpl implements LineSegment{
     }
 
     public themed(theme: Theme): LineSegment {
-        return new ThemedLineSegment(this, this.measurements.lineWidth, theme);
+        return new ThemedLineSegment(this, theme);
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void{
-        ctx.beginPath();
-        ctx.moveTo(this.start.x, this.start.y);
-        ctx.lineTo(this.end.x, this.end.y);
-        ctx.stroke();
+    public draw(drawing: Drawing): void {
+        drawing.addLine(this.start.x, this.start.y, this.end.x, this.end.y);
     }
 }

@@ -1,10 +1,10 @@
 import type { Measurements } from "../measurements";
-import type { Theme } from "../themes"
+import type { Drawable } from "../drawable";
+import type { Theme } from "../theme"
 
 export enum BorderDirection { Vertical, Horizontal }
 
-export interface LineSegment {
-    draw(ctx: CanvasRenderingContext2D): void
+export interface LineSegment extends Drawable{
     themed(theme: Theme): LineSegment
 }
 
@@ -32,4 +32,8 @@ export interface GridCellBackgroundMeasurements {
 
 export interface GridCellMeasurements extends Measurements{
     background: GridCellBackgroundMeasurements
+}
+
+export function getMarkLineWidth(cellSize: number): number{
+    return cellSize / (7 * Math.sqrt(2));
 }

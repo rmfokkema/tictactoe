@@ -23,9 +23,10 @@ function initialize(): void{
         createRequestClient()
     );
     const renderer = createRenderer(infCanvas.getContext('2d'));
+    const darkThemePreferenceTracker = createDarkThemePreferenceTracker();
     const initialThemeSwitchState = createInitialThemeSwitchState(
         new LocalStorageThemePreferencePersister(),
-        createDarkThemePreferenceTracker(),
+        darkThemePreferenceTracker,
         channel
     )
     const renderableMap = createRenderableMap(
@@ -39,7 +40,10 @@ function initialize(): void{
 
     renderer.setRenderable(renderableMap);
     const themeSwitch = initialThemeSwitchState.getThemeSwitch(renderableMap.themeAreaTracker);
-    themeSwitch.addEventListener('change', () => renderableMap.switchTheme(themeSwitch))
+    themeSwitch.addEventListener('change', () => renderableMap.switchTheme(themeSwitch));
+    darkThemePreferenceTracker.addEventListener('change', ({prefersDarkTheme}) => {
+        document.getElementById('icon')?.setAttribute('href', prefersDarkTheme ? DARK_ICON : LIGHT_ICON);
+    })
     renderer.rerender();
     map.load();
 }

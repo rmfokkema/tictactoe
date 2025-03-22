@@ -1,54 +1,36 @@
+import { defineConfig } from 'vite'
 import { fileURLToPath } from 'url';
-import path from 'path';
-import { readFile } from 'fs/promises';
-import { defineConfig, type HtmlTagDescriptor, type InlineConfig, type PluginOption, build } from 'vite'
 import { addAliases } from './src/scripts/add-aliases';
+import { injectInlineHeadScript } from './vite-plugins/inject-inline-head-script'
+import { addIcon } from './vite-plugins/add-icon';
+import { addMetadataToHead } from './vite-plugins/add-metadata-to-head';
+import { injectInlineCss } from './vite-plugins/inject-inline-css';
+import { addHtmlBody } from './vite-plugins/add-html-body';
 
-const inlineHeadScriptOutDir = fileURLToPath(new URL('./dist-inline-head-script', import.meta.url));
-const inlineHeadScriptFilePath = path.resolve(inlineHeadScriptOutDir, 'index.iife.js')
-const inlineHeadScriptConfig: InlineConfig = {
-    build: {
-        lib: {
-            entry: fileURLToPath(new URL('./src/scripts/page/inline-head-script.ts', import.meta.url)),
-            formats: ['iife'],
-            fileName: 'index',
-            name: 'inlineHeadScript'
-        },
-        outDir: inlineHeadScriptOutDir,
-        emptyOutDir: true
-    }
-};
-
-function injectInlineHeadScript(): PluginOption {
-    let inlineHeadScriptContent: string | undefined;
+export default defineConfig(() => {
     return {
-        name: 'vite-plugin-inline-head-script',
-        async transformIndexHtml(): Promise<HtmlTagDescriptor[]>{
-            const content = await getInlineScriptContent();
-            return [
-                {
-                    tag: 'script',
-                    children: content,
-                    injectTo: 'head'
+        root: './src',
+        plugins: [
+            addMetadataToHead(),
+            addHtmlBody(),
+            injectInlineCss(),
+            addIcon(),
+            injectInlineHeadScript(),
+            addAliases()
+        ],
+        build: {
+            outDir: 'dist',
+            rollupOptions: {
+                input: [
+                    fileURLToPath(new URL('./src/index.html', import.meta.url)),
+                    fileURLToPath(new URL('./src/nl/index.html', import.meta.url)),
+                    fileURLToPath(new URL('./src/de/index.html', import.meta.url)),
+                    fileURLToPath(new URL('./src/fr/index.html', import.meta.url))
+                ],
+                output: {
+                    inlineDynamicImports: false
                 }
-            ];
+            }
         }
-    };
-    async function getInlineScriptContent(): Promise<string>{
-        if(inlineHeadScriptContent === undefined){
-            await build(inlineHeadScriptConfig);
-            inlineHeadScriptContent = await readFile(inlineHeadScriptFilePath, {encoding: 'utf-8'});
-        }
-        return inlineHeadScriptContent;
-    }
-}
-export default defineConfig({
-    root: './src',
-    plugins: [
-        injectInlineHeadScript(),
-        addAliases()
-    ],
-    build: {
-        outDir: 'dist'
     }
 })

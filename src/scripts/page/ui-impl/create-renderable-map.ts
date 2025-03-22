@@ -11,6 +11,7 @@ import { createAreas, type MapPartMeasurements } from "./areas";
 import { createTextArea } from "./create-text-area";
 import { createGithubLink } from "./create-github-link";
 import type { RenderableMapPart } from "./renderable-map-part";
+import { createInfiniteCanvasDrawing } from "./infinite-canvas-drawing";
 
 function createRenderableMapPart(
     map: TicTacToeMap,
@@ -29,7 +30,8 @@ function createRenderableMapPart(
     const githubLink = createGithubLink(githubLinkMeasurements, theme, rerenderer, eventTarget);
     return {
         draw(ctx) {
-            grid.draw(ctx);
+            const drawing = createInfiniteCanvasDrawing(ctx)
+            grid.draw(drawing);
             textArea.draw(ctx);
             githubLink.draw(ctx);
         },

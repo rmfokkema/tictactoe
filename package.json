@@ -8,6 +8,7 @@
     "dev": "vite dev",
     "test": "vitest run",
     "build": "vite build",
+    "build-inline": "vite build --config vite.config.inline.ts",
     "preview": "vite preview",
     "check-types": "tsc --build"
   },

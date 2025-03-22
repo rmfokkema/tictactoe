@@ -1,4 +1,4 @@
-import type { Theme } from "../themes";
+import type { Theme } from "../theme";
 import { GridBorder } from "./grid-border";
 import { GridBorderPart } from "./grid-border-part";
 

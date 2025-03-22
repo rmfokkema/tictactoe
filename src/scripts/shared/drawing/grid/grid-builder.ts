@@ -1,4 +1,4 @@
-import { BorderDirection, type GridBorderMeasurements, type GridCellMeasurements } from "./types";
+import { BorderDirection, type GridBorderMeasurements, type GridCellMeasurements } from "./grid-measurements";
 
 export class GridBuilder {
     private readonly vertical1: number

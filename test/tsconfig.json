@@ -7,7 +7,12 @@
         "paths": {
             "@page/*": ["../src/scripts/page/*"],
             "@shared/*": ["../src/scripts/shared/*"]
-        }
+        },
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
+        ],
     },
     "references": [
         {"path": "../src/scripts/page"},

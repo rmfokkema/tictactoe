@@ -1,0 +1,14 @@
+body {
+    background-color: hsl(57 5% 95%);
+}
+@media(prefers-color-scheme: dark){
+    body{
+        background-color: hsl(0 0 10%);
+    }
+}
+html.dark body {
+    background-color: hsl(0 0 10%);
+}
+html.light body {
+    background-color: hsl(57 5% 95%);
+}

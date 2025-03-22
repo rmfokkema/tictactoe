@@ -1,5 +1,6 @@
 import { EventDispatcher } from "../events/event-dispatcher";
-import { type Measurements, measurementsInclude } from "../measurements";
+import { measurementsInclude } from "../measurements";
+import type { Measurements } from "@shared/drawing";
 import type { CustomPointerEventDispatcher, CustomPointerEventMap, CustomPointerEventTarget, PointerDownEventResult } from "./types";
 
 export class PointerEventTargetImpl implements CustomPointerEventDispatcher {

@@ -1,5 +1,5 @@
 import type { EventTargetLike } from "../events/types"
-import type { Measurements } from "../measurements"
+import type { Measurements } from "@shared/drawing"
 
 export interface CustomPointerEvent {
     type: string

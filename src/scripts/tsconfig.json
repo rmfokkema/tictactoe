@@ -4,5 +4,5 @@
         "outDir": "../../dist-types/src/scripts"
     },
     "include": ["**/*"],
-    "exclude": ["page/**/*", "shared/**/*", "sharedworker/**/*"]
+    "exclude": ["page/**/*", "shared/**/*", "sharedworker/**/*", "assets/**/*"]
 }

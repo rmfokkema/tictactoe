@@ -4,7 +4,6 @@
         "lib": [
             "ESNext"
         ],
-        "types": [],
         "strict": true,
         "rootDir": ".",
         "outDir": "../../../dist-types/src/scripts/shared"

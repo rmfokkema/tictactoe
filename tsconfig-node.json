@@ -5,7 +5,14 @@
         "skipLibCheck": true
     },
     "references": [
-        {"path": "src/scripts"}
+        {"path": "src/scripts"},
+        {"path": "src/scripts/assets"}
     ],
-    "include": ["vite.config.ts", "vitest.config.ts"]
+    "include": [
+        "vite.config.ts",
+        "vite.config.inline.ts",
+        "vitest.config.ts",
+        "src/translations.json",
+        "vite-plugins/**/*"
+    ]
 }

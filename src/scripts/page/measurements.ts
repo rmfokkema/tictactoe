@@ -1,11 +1,6 @@
-export interface ScreenMeasurements {
-    width: number
-    height: number
-}
+import type { Measurements } from '@shared/drawing'
 
-export interface Measurements{
-    x: number
-    y: number
+export interface ScreenMeasurements {
     width: number
     height: number
 }

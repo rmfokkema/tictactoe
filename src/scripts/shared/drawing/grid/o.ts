@@ -1,8 +1,9 @@
-import { getMarkLineWidth, type Measurements } from "../measurements";
-import type { Point } from "./point";
-import type { Theme } from "../themes";
-import { type Three, isInColumn, isInRow, isMainDiagonal } from "@shared/three";
+import { getMarkLineWidth } from "./grid-measurements";
+import type { Measurements, Point } from "../measurements";
+import type { Theme } from "../theme";
+import { type Three, isInColumn, isInRow, isMainDiagonal } from "../../three";
 import type { Mark } from "./mark";
+import type { Drawing } from "../drawing";
 
 export class O implements Mark {
     private readonly lineWidth: number;
@@ -26,15 +27,13 @@ export class O implements Mark {
         this.theme = theme;
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void{
+    public draw(drawing: Drawing): void {
         const {x, y, width: size} = this.measurements;
-        ctx.save();
-        ctx.lineWidth = this.lineWidth;
-        ctx.strokeStyle = this.theme.color;
-        ctx.beginPath();
-        ctx.arc(x + size / 2, y + size / 2, size / 4, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.restore();
+        drawing.save();
+        drawing.setLineWidth(this.lineWidth);
+        drawing.setLineColor(this.theme.color);
+        drawing.addCircle(x + size / 2, y + size / 2, size / 4);
+        drawing.restore();
     }
 
     public getWinStart(three: Three): Point{

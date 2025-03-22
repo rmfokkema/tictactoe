@@ -1,9 +1,9 @@
 import type { TransformationRepresentation } from "ef-infinite-canvas";
-import type { Measurements, ScreenMeasurements } from "../measurements";
+import type { ScreenMeasurements } from "../measurements";
+import type { Measurements, Point } from "@shared/drawing";
 import type { Renderable } from "../renderer/types";
 import type { ThemeSwitchable, ThemeSwitchProperties } from "../themes/theme-switch";
 import type { ScreenPositionCalculator } from "./screen-position";
-import type { Point } from "./point";
 import { Layout } from "./layout";
 import type { TextAreaMeasurements } from "./text-area-measurements";
 import type { GithubLinkMeasurements } from "./github-link-measurements";

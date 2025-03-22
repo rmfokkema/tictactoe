@@ -1,7 +1,8 @@
-import type { Theme } from "../themes";
+import type { Drawing } from "../drawing";
+import type { Theme } from "../theme";
 import { getSection, getSide, GridBorderPart, GridBorderSection, GridBorderSide } from "./grid-border-part";
 import { LineSegmentImpl } from "./line-segment-impl";
-import type { GridBorderMeasurements, LineSegment } from "./types";
+import type { GridBorderMeasurements, LineSegment } from "./grid-measurements";
 
 
 class BorderSection {
@@ -112,7 +113,7 @@ export class GridBorder{
         this.setLineSegments();
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void{
-        this.lineSegments.forEach(s => s.draw(ctx))
+    public draw(drawing: Drawing): void{
+        this.lineSegments.forEach(s => s.draw(drawing))
     }
 }

@@ -1,15 +1,5 @@
+import type { Theme as ThemeProps } from "@shared/drawing"
 import type { ThemeVariant } from "./theme-variant"
-
-interface ThemeProps {
-    readonly backgroundColor: string
-    readonly color: string
-}
-
-interface Hsl {
-    h: number
-    s: number
-    l: number
-}
 
 interface ThemeDeterminingProps {
     index: number,
