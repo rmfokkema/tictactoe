@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite'
 import { inlineHeadScriptOutDir } from './vite-plugins/constants';
-import { addIcon } from './vite-plugins/add-icon';
 
 export default defineConfig({
     build: {
@@ -13,6 +12,5 @@ export default defineConfig({
         },
         outDir: inlineHeadScriptOutDir,
         emptyOutDir: true
-    },
-    plugins: [addIcon()]
+    }
 })

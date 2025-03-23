@@ -7,6 +7,7 @@ import { addMetadataToHead } from './vite-plugins/add-metadata-to-head';
 import { injectInlineCss } from './vite-plugins/inject-inline-css';
 import { addHtmlBody } from './vite-plugins/add-html-body';
 import { addBase } from './vite-plugins/add-base';
+import { addDynamicAssets } from './vite-plugins/add-dynamic-assets';
 
 export default defineConfig(() => {
     return {
@@ -15,6 +16,7 @@ export default defineConfig(() => {
             addMetadataToHead(),
             addHtmlBody(),
             injectInlineCss(),
+            addDynamicAssets(),
             addIcon(),
             injectInlineHeadScript(),
             addAliases(),
