@@ -7,6 +7,16 @@ interface PendingRequest {
     id: string
 }
 
+function promiseWithResolvers<T>(): {promise: Promise<T>, resolve: (v: T) => void, reject: (err: unknown) => void}{
+    let resolve: (v: T) => void = () => {};
+    let reject: (err: unknown) => void = () => {};
+    const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+    })
+    return {promise, resolve, reject};
+}
+
 export function createRequestClient(): RequestClient {
     const worker = new SharedWorker(new URL('../../sharedworker/main.ts', import.meta.url), {type: 'module'});
     const pending: PendingRequest[] = [];
@@ -19,7 +29,7 @@ export function createRequestClient(): RequestClient {
     return {
         sendRequest(method: keyof SharedWork, data: unknown) {
             const id = createRequestId();
-            const {promise, resolve} = Promise.withResolvers<unknown>();
+            const {promise, resolve} = promiseWithResolvers<unknown>();
             pending.push({
                 fulfill: resolve,
                 id

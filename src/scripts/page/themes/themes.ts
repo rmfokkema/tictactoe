@@ -86,32 +86,32 @@ const allLightThemeProps: ThemeProps[] = [
 
 const allDarkThemeProps: ThemeProps[] = [
     {
-        color: 'hsl(0 0 8%)',
-        backgroundColor: 'hsl(0 0 4%)'
+        color: 'hsl(0 0% 8%)',
+        backgroundColor: 'hsl(0 0% 4%)'
     },
     {
-        color: 'hsl(0 0 10%)',
-        backgroundColor: 'hsl(0 0 5%)'
+        color: 'hsl(0 0% 10%)',
+        backgroundColor: 'hsl(0 0% 5%)'
     },
     {
-        color: 'hsl(0 0 12%)',
-        backgroundColor: 'hsl(0 0 7%)'
+        color: 'hsl(0 0% 12%)',
+        backgroundColor: 'hsl(0 0% 7%)'
     },
     {
-        color: 'hsl(0 0 20%)',
-        backgroundColor: 'hsl(0 0 9%)'
+        color: 'hsl(0 0% 20%)',
+        backgroundColor: 'hsl(0 0% 9%)'
     },
     {
-        color: 'hsl(0 0 30%)',
-        backgroundColor: 'hsl(0 0 10%)'
+        color: 'hsl(0 0% 30%)',
+        backgroundColor: 'hsl(0 0% 10%)'
     },
     {
-        color: 'hsl(0 0 40%)',
-        backgroundColor: 'hsl(0 0 10%)'
+        color: 'hsl(0 0% 40%)',
+        backgroundColor: 'hsl(0 0% 10%)'
     },
     {
-        color: 'hsl(0 0 60%)',
-        backgroundColor: 'hsl(0 0 10%)'
+        color: 'hsl(0 0% 60%)',
+        backgroundColor: 'hsl(0 0% 10%)'
     },
 ]
 
