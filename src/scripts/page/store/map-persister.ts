@@ -1,6 +1,7 @@
 import type { SerializedTree } from "@shared/state/serialization";
 import type { LocalMapPersister } from "./local-map-persister";
-import type { SharedWorkClient } from "../sharedworker/shared-work-client";
+import type { AsyncWork } from "@shared/remote-communication";
+import type { SharedWork } from "@shared/shared-work/shared-work";
 
 export interface MapPersister {
     persist(map: SerializedTree): Promise<void>
@@ -9,7 +10,7 @@ export interface MapPersister {
 
 export function createMapPersister(
     localPersister: LocalMapPersister,
-    sharedWorkClient: SharedWorkClient
+    sharedWorkClient: AsyncWork<SharedWork>
 ): MapPersister {
     return {
         async persist(map: SerializedTree){
@@ -18,7 +19,8 @@ export function createMapPersister(
         },
         async read(){
             const fromLocal = localPersister.read();
-            const verified = await sharedWorkClient.getVerifiedStoredMap(fromLocal);
+            await sharedWorkClient.verifyAndStoreMap(fromLocal);
+            const verified = await sharedWorkClient.getStoredMap();
             return verified;
         }
     }

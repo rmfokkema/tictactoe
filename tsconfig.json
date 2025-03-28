@@ -4,6 +4,7 @@
         {"path": "./src/scripts/page"},
         {"path": "./src/scripts/shared"},
         {"path": "./src/scripts/sharedworker"},
+        {"path": "./src/scripts/dedicatedworker"},
         {"path": "./src/scripts/assets"},
         {"path": "./test"}
     ],

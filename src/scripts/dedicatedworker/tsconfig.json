@@ -1,0 +1,18 @@
+{
+    "extends": "../../../tsconfig-base.json",
+    "compilerOptions": {
+        "types": [],
+        "lib": [
+            "ESNext",
+            "WebWorker"
+        ],
+        "outDir": "../../../dist-types/src/scripts/dedicatedworker",
+        "paths": {
+            "@shared/*": ["../shared/*"]
+        }
+    },
+    "references": [
+        {"path": "../shared"}
+    ],
+    "include": ["**/*"]
+}

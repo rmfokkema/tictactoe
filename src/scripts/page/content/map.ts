@@ -6,19 +6,18 @@ import type { Theme, Grid } from "../ui";
 import type { MapRenderer, TicTacToeMap, RenderedMap} from "../map";
 import type { GameState } from "@shared/state/game-state";
 import { createBroadcastChannelRenderer } from "../store/broadcast-channel-renderer";
-import { createSharedWorkClient } from "../sharedworker/create-shared-work-client";
-import type { RequestClient } from "../sharedworker/request-client";
 import { createMapPersister } from "../store/map-persister";
+import type { AsyncWork } from "@shared/remote-communication";
+import type { SharedWork } from "@shared/shared-work/shared-work";
 
 export function createTicTacToeMap(
     localPersister: LocalMapPersister,
     broadcastChannel: BroadcastChannel,
-    sharedWorkRequestClient: RequestClient
+    sharedWorkClient: AsyncWork<SharedWork>
 ): TicTacToeMap {
     let tree: GameStateTree = GameStateTreeImpl.initial;
     const mapRenderers: MapRenderer[] = [];
     const remote = createBroadcastChannelRenderer(broadcastChannel);
-    const sharedWorkClient = createSharedWorkClient(sharedWorkRequestClient);
     const mapPersister = createMapPersister(localPersister, sharedWorkClient);
 
     remote.addEventListener('staterevealed', (s) => {

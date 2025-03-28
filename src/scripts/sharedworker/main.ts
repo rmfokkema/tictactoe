@@ -1,15 +1,10 @@
-import { isRequest } from '@shared/sharedworker/worker-message'
-import { createRequestServer } from './request-server';
-import { SharedWorkImpl } from './shared-work-impl';
+import { createRequestServer } from '@shared/remote-communication';
+import { SharedWorkImpl } from '@shared/shared-work/shared-work-impl';
 
 const requestServer = createRequestServer(new SharedWorkImpl());
 
 onconnect = (connectEvent) => {
     const port = connectEvent.ports[0];
-    port.onmessage = (e) => {
-        const data = e.data;
-        if(isRequest(data)){
-            port.postMessage(requestServer.getReponse(data))
-        }
-    }
+    requestServer.listen(port);
+    port.start();
 }

@@ -6,9 +6,9 @@ import { createTicTacToeMap } from './content/map';
 import { createInitialThemeSwitchState } from './themes/create-theme-switch';
 import { createDarkThemePreferenceTracker } from './themes/create-dark-theme-preference-tracker';
 import { LocalStorageThemePreferencePersister } from './themes/local-storage-theme-preference-persister';
-import { createRequestClient } from './sharedworker/create-request-client';
 import { createPointerEvents } from './pointer-events/create-pointer-events';
 import { createRenderableMap } from './ui-impl/create-renderable-map';
+import { createSharedWorkClient } from './shared-work/create-shared-work-client';
 
 function initialize(): void{
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -20,7 +20,7 @@ function initialize(): void{
     const map = createTicTacToeMap(
         new LocalStorageMapPersister(),
         channel,
-        createRequestClient()
+        createSharedWorkClient()
     );
     const renderer = createRenderer(infCanvas.getContext('2d'));
     const initialThemeSwitchState = createInitialThemeSwitchState(

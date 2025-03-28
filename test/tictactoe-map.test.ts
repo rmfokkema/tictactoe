@@ -4,12 +4,12 @@ import { createTestPlayer } from './player/test-player-impl';
 import type { LocalMapPersister } from '@page/store/local-map-persister';
 import type { TicTacToeMap } from '@page/map/tictactoemap';
 import { createTicTacToeMap } from '@page/content/map'
-import { MockTheme } from './mock-theme';
 import { gameStateWithPositions } from './game-state-with-positions';
 import type { SerializedTree } from '@shared/state/serialization';
 import type { GameState } from '@shared/state/game-state';
 import { MockBroadcastChannel } from './mock-broadcast-channel';
-import type { SharedWork } from '@shared/sharedworker/shared-work';
+import type { SharedWork } from '@shared/shared-work/shared-work';
+import type { AsyncWork } from '@shared/remote-communication';
 
 describe('a tictactoe map', () => {
     const channel = new MockBroadcastChannel();
@@ -22,7 +22,8 @@ describe('a tictactoe map', () => {
         }
     };
     let sharedWorkStoreMapMock: Mock<() => Promise<unknown>>;
-    let sharedWorkGetVerifiedStoredMapMock: Mock<() => Promise<unknown>>;
+    let sharedWorkVerifyAndStoreMapMock: Mock<() => Promise<void>>
+    let sharedWorkGetStoredMapMock: Mock<() => Promise<unknown>>;
     let player: TestPlayer;
     let serialized: SerializedTree | undefined;
     let serializedInSharedWork: SerializedTree | undefined;
@@ -36,25 +37,21 @@ describe('a tictactoe map', () => {
             serializedInSharedWork = map;
             return Promise.resolve();
         })
-        sharedWorkGetVerifiedStoredMapMock = vi.fn().mockImplementation((map) => {
+        sharedWorkVerifyAndStoreMapMock = vi.fn().mockImplementation((map) => {
             serializedInSharedWork = map;
-            return Promise.resolve(map);
+            return Promise.resolve();
+        })
+        sharedWorkGetStoredMapMock = vi.fn().mockImplementation(() => {
+            return Promise.resolve(serializedInSharedWork);
         })
         ticTacToeMap = createTicTacToeMap(
             persister,
             channel,
             {
-                sendRequest(method: keyof SharedWork, data: unknown){
-                    if(method === 'getVerifiedStoredMap'){
-                        // @ts-ignore
-                        return sharedWorkGetVerifiedStoredMapMock(...data);
-                    }else if(method === 'storeMap'){
-                        // @ts-ignore
-                        return sharedWorkStoreMapMock(...data);
-                    }
-                    throw new Error(`No mock defined for '${method}'`)
-                }
-            }
+                storeMap: sharedWorkStoreMapMock,
+                verifyAndStoreMap: sharedWorkVerifyAndStoreMapMock,
+                getStoredMap: sharedWorkGetStoredMapMock
+            } as AsyncWork<SharedWork>
         );
         ticTacToeMap.renderOnGrid(
             player.grid
@@ -428,7 +425,10 @@ describe('a tictactoe map', () => {
     describe('when the stored state is corrected', () => {
 
         beforeEach(() => {
-            sharedWorkGetVerifiedStoredMapMock.mockImplementation(() => {
+            sharedWorkVerifyAndStoreMapMock.mockImplementation(() => {
+                return Promise.resolve();
+            })
+            sharedWorkGetStoredMapMock.mockImplementation(() => {
                 return Promise.resolve(serializedInSharedWork);
             })
             serialized = {0:{1:{w:2}}}
