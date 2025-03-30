@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import { fileURLToPath } from 'url';
 import { addAliases } from './src/scripts/add-aliases';
 import { injectInlineHeadScript } from './vite-plugins/inject-inline-head-script'
-import { addIcon } from './vite-plugins/add-icon';
 import { addMetadataToHead } from './vite-plugins/add-metadata-to-head';
 import { injectInlineCss } from './vite-plugins/inject-inline-css';
 import { addHtmlBody } from './vite-plugins/add-html-body';
@@ -17,7 +16,6 @@ export default defineConfig(() => {
             addHtmlBody(),
             injectInlineCss(),
             addDynamicAssets(),
-            addIcon(),
             injectInlineHeadScript(),
             addAliases(),
             addBase()

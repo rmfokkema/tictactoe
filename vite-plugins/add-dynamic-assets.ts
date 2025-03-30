@@ -1,6 +1,7 @@
 import type { PluginOption } from "vite"
 import { createIcon } from "../src/scripts/assets/create-icon"
-import { faviconFileName } from "./constants"
+import { createOgImage } from '../src/scripts/assets/create-og-image'
+import { faviconFileName, ogImageFileName } from "./constants"
 
 export interface DynamicAsset {
     fileName: string
@@ -13,6 +14,13 @@ const dynamicAssets: DynamicAsset[] = [
         fileName: faviconFileName,
         contentType: 'image/svg+xml',
         getContent(){return createIcon();}
+    },
+    {
+        fileName: ogImageFileName,
+        contentType: 'image/svg+xml',
+        getContent() {
+            return createOgImage();
+        },
     }
 ]
 
