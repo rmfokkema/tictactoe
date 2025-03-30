@@ -20,10 +20,10 @@ function createClientWithChannel(channel: ChannelLike, requestTimeout: number): 
 export function createSharedWorkClient(): AsyncWork<SharedWork> {
     if(!sharedWorkerIsAvailable()){
         const worker = new Worker(new URL('../../dedicatedworker/main.ts', import.meta.url), {type: 'module'});
-        return createClientWithChannel(worker, 1000);
+        return createClientWithChannel(worker, 2000);
     }
     const worker = new SharedWorker(new URL('../../sharedworker/main.ts', import.meta.url), {type: 'module'});
-    const client = createClientWithChannel(worker.port, 300);
+    const client = createClientWithChannel(worker.port, 2000);
     worker.port.start();
     return client;
 }
