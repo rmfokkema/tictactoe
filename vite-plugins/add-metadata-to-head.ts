@@ -75,7 +75,7 @@ export function addMetadataToHead(): PluginOption {
                     tag: 'meta',
                     attrs: {
                         property: 'og:image:width',
-                        content: '300'
+                        content: '600'
                     },
                     injectTo: 'head-prepend'
                 },
@@ -83,7 +83,7 @@ export function addMetadataToHead(): PluginOption {
                     tag: 'meta',
                     attrs: {
                         property: 'og:image:height',
-                        content: '300'
+                        content: '600'
                     },
                     injectTo: 'head-prepend'
                 },

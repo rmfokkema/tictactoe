@@ -5,15 +5,15 @@ import { createCanvasDrawing } from "./create-canvas-drawing";
 
 export function createOgImage(): Readable {
     const theme: Theme = {
-        color: '#000',
+        color: 'hsl(240 5% 15%)',
         backgroundColor: 'rgba(0, 0, 0, 0)'
     };
-    const drawing = createCanvasDrawing(300, 300);
+    const drawing = createCanvasDrawing(600, 600);
     const grid = GridImpl.create({
-        x: 10,
-        y: 10,
-        width: 280,
-        height: 280
+        x: 20,
+        y: 20,
+        width: 560,
+        height: 560
     }, theme);
 
     const grid0 = grid.cells[0].displayGrid();
@@ -52,6 +52,7 @@ export function createOgImage(): Readable {
     grid85.cells[5].displayO();
     grid87.cells[8].displayX();
     grid87.cells[7].displayO();
+    drawing.addRectangle(0, 0, 600, 600, 'hsl(57 5% 95%)')
     grid.draw(drawing);
     return drawing.getPNGImage();
 }
