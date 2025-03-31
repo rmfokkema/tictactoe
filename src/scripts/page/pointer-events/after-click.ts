@@ -44,4 +44,8 @@ export class AfterClick implements Gesture {
     public handlePointerUp(): void {
         
     }
+
+    public handlePointerCancel(): void {
+        
+    }
 }

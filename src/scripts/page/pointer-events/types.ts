@@ -36,7 +36,7 @@ export interface CustomPointerEventDispatcher extends CustomPointerEventTarget {
     dispatchDoubleClick(): void
 }
 
-export type PointerEventType = 'pointerdown' | 'pointerup' | 'pointermove'
+export type PointerEventType = 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel'
 export type PointerEventMap = Pick<GlobalEventHandlersEventMap, PointerEventType>
 
 export type PointerEventTargetLike = EventTargetLike<PointerEventMap>
@@ -45,6 +45,7 @@ export interface Gesture {
     handlePointerDown(event: PointerEvent): void
     handlePointerMove(event: PointerEvent): void
     handlePointerUp(event: PointerEvent): void
+    handlePointerCancel(event: PointerEvent): void
 }
 
 export interface CustomPointerDownEventProperties {

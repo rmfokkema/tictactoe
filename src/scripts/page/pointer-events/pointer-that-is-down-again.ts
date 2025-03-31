@@ -30,4 +30,12 @@ export class PointerThatIsDownAgain implements Gesture{
         this.target.dispatchDoubleClick();
         this.replaceGesture((factory) => factory.createNoop())
     }
+
+    public handlePointerCancel(event: PointerEvent): void {
+        if(event.pointerId !== this.props.pointerId){
+            return;
+        }
+        this.target.dispatchDoubleClickCancel();
+        this.replaceGesture((factory) => factory.createNoop())
+    }
 }

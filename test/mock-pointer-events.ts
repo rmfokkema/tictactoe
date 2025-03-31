@@ -11,7 +11,8 @@ export function mockPointerEvents(): PointerEventsMock {
     const listeners: {[key in PointerEventType]: ((ev: GlobalEventHandlersEventMap[key]) => void)[]} = {
         pointerdown: [],
         pointermove: [],
-        pointerup: []
+        pointerup: [],
+        pointercancel: []
     };
 
     return {

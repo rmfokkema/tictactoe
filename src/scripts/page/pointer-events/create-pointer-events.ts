@@ -24,6 +24,10 @@ class CustomPointerEventProducer {
         this.gesture.handlePointerUp(event);
     }
 
+    public handlePointerCancel(event: PointerEvent): void {
+        this.gesture.handlePointerCancel(event)
+    }
+
     private replaceGesture(oldValue: Gesture, newValueFn: () => Gesture): void {
         if(oldValue !== this.gesture){
             return;
@@ -45,6 +49,9 @@ export function createPointerEvents(
     });
     pointerEvents.addEventListener('pointermove', (ev) => {
         eventProducer.handlePointerMove(ev)
+    });
+    pointerEvents.addEventListener('pointercancel', (ev) => {
+        eventProducer.handlePointerCancel(ev)
     });
     return rootTarget;
 }

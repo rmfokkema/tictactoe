@@ -32,4 +32,8 @@ export class NoopGesture implements Gesture {
     public handlePointerUp(): void {
         
     }
+
+    public handlePointerCancel(): void {
+        
+    }
 }
