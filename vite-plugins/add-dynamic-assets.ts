@@ -1,4 +1,5 @@
 import type { PluginOption } from "vite"
+import type { Readable } from "stream"
 import { createIcon } from "../src/scripts/assets/create-icon"
 import { createOgImage } from '../src/scripts/assets/create-og-image'
 import { faviconFileName, ogImageFileName } from "./constants"
@@ -6,7 +7,7 @@ import { faviconFileName, ogImageFileName } from "./constants"
 export interface DynamicAsset {
     fileName: string
     contentType: string
-    getContent: () => string
+    getContent: () => string | Readable
 }
 
 const dynamicAssets: DynamicAsset[] = [
@@ -17,7 +18,7 @@ const dynamicAssets: DynamicAsset[] = [
     },
     {
         fileName: ogImageFileName,
-        contentType: 'image/svg+xml',
+        contentType: 'image/png',
         getContent() {
             return createOgImage();
         },
@@ -25,7 +26,7 @@ const dynamicAssets: DynamicAsset[] = [
 ]
 
 function addDynamicAssets(assets: DynamicAsset[]): PluginOption[] {
-    const assetContents = assets.map((a) => ({asset: a, content: a.getContent()}));
+    
 
     return [
         {
@@ -38,28 +39,42 @@ function addDynamicAssets(assets: DynamicAsset[]): PluginOption[] {
                         next();
                         return;
                     }
-                    const assetContent = assetContents.find(({asset}) => asset.fileName === match[1]);
-                    if(!assetContent){
+                    const asset = assets.find((asset) => asset.fileName === match[1]);
+                    if(!asset){
                         next();
                         return;
                     }
-                    const { content, asset: {contentType}} = assetContent;
-                    res.setHeader('Content-Type', contentType);
-                    res.write(content);
-                    res.end();
+                    const content = asset.getContent();
+                    res.setHeader('Content-Type', asset.contentType);
+                    if(typeof content === 'string'){
+                        res.write(content);
+                        res.end();
+                    }else{
+                        content.pipe(res);
+                    }
                 })
             }
         },
         {
             name: 'vite-plugin-emit-dynamic-assets',
             apply: 'build',
-            buildEnd(){
-                for(const assetContent of assetContents){
-                    this.emitFile({
-                        type: 'asset',
-                        source: assetContent.content,
-                        fileName: assetContent.asset.fileName
-                    })
+            async buildEnd(){
+                for(const asset of assets){
+                    const content = asset.getContent();
+                    if(typeof content === 'string'){
+                        this.emitFile({
+                            type: 'asset',
+                            source: content,
+                            fileName: asset.fileName
+                        })
+                    }else{
+                        const buffer = await new Response(content).arrayBuffer();
+                        this.emitFile({
+                            type: 'asset',
+                            source: new Uint8Array(buffer),
+                            fileName: asset.fileName
+                        })
+                    }
                 }
             }
         }

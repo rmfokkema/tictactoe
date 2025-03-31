@@ -6,6 +6,7 @@
         "lib": [
             "ESNext"
         ],
+        "types": ["node"]
     },
     "include": ["**/*"],
     "references": [{"path": "../shared"}]

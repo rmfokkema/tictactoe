@@ -1,13 +1,14 @@
-import { createSvgDrawing } from "./create-svg-drawing";
+import type { Readable } from "stream";
 import { GridImpl } from '../shared/drawing/grid'
 import type { Theme } from '../shared/drawing'
+import { createCanvasDrawing } from "./create-canvas-drawing";
 
-export function createOgImage(): string {
+export function createOgImage(): Readable {
     const theme: Theme = {
         color: '#000',
         backgroundColor: 'rgba(0, 0, 0, 0)'
     };
-    const drawing = createSvgDrawing(300, 300);
+    const drawing = createCanvasDrawing(300, 300);
     const grid = GridImpl.create({
         x: 10,
         y: 10,
@@ -52,6 +53,5 @@ export function createOgImage(): string {
     grid87.cells[8].displayX();
     grid87.cells[7].displayO();
     grid.draw(drawing);
-    drawing.prepend(`<style>@media(prefers-color-scheme: dark){line, circle{stroke: #fff;}}</style>`)
-    return drawing.getResult();
+    return drawing.getPNGImage();
 }

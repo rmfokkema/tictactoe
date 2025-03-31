@@ -91,7 +91,7 @@ export function addMetadataToHead(): PluginOption {
                     tag: 'meta',
                     attrs: {
                         property: 'og:image:type',
-                        content: 'image/svg+xml'
+                        content: 'image/png'
                     },
                     injectTo: 'head-prepend'
                 },
