@@ -1,3 +1,4 @@
+import type { TransformationRepresentation } from "ef-infinite-canvas";
 import type { CustomPointerEventDispatcher, Gesture, GestureReplaceFn } from "./types";
 
 export class AfterClick implements Gesture {
@@ -10,34 +11,30 @@ export class AfterClick implements Gesture {
         this.timeout = setTimeout(() => replaceGesture((factory) => factory.createNoop()), 500)
     }
 
-    public handlePointerDown(event: PointerEvent): void{
+    public handlePointerDown(event: PointerEvent, transformation: TransformationRepresentation): void{
         clearTimeout(this.timeout);
         const target = this.rootTarget.findTarget(event.offsetX, event.offsetY);
         if(!target){
             return;
         }
         if(target !== this.target){
-            const { cancelClickAllowed } = target.dispatchPointerDown(event);
-            if(event.pointerType === 'mouse' && cancelClickAllowed){
-                event.preventDefault();
-            }
             this.replaceGesture((factory) => factory.createPointerDown(target, {
+                offsetX: event.offsetX,
+                offsetY: event.offsetY,
                 pointerId: event.pointerId,
-                cancelClickAllowed
+                transformation
             }))
         }else{
-            const { cancelDoubleClickAllowed } = target.dispatchPointerDown(event);
-            if(event.pointerType === 'mouse' && cancelDoubleClickAllowed){
-                event.preventDefault();
-            }
             this.replaceGesture((factory) => factory.createPointerDownAgain(target, {
+                offsetX: event.offsetX,
+                offsetY: event.offsetY,
                 pointerId: event.pointerId,
-                cancelDoubleClickAllowed
+                transformation
             }))
         }
     }
 
-    public handlePointerMove(): void {
+    public handleTransformationChange(): void {
         
     }
 

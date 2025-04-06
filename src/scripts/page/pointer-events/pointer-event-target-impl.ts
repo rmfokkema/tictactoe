@@ -1,7 +1,7 @@
 import { EventDispatcher } from "../events/event-dispatcher";
 import { measurementsInclude } from "../measurements";
 import type { Measurements } from "@shared/drawing";
-import type { CustomPointerEventDispatcher, CustomPointerEventMap, CustomPointerEventTarget, PointerDownEventResult } from "./types";
+import type { CustomPointerEventDispatcher, CustomPointerEventMap, CustomPointerEventTarget } from "./types";
 
 export class PointerEventTargetImpl implements CustomPointerEventDispatcher {
     private readonly children: PointerEventTargetImpl[] = [];
@@ -27,33 +27,7 @@ export class PointerEventTargetImpl implements CustomPointerEventDispatcher {
         }
         this.children.splice(index, 1)
     }
-    public dispatchPointerDown(event: PointerEvent): PointerDownEventResult {
-        let cancelClickAllowed = false;
-        let cancelDoubleClickAllowed = false;
-        const customEvent: CustomPointerEventMap['pointerdown'] =  {
-            type: 'pointerdown',
-            allowCancelClick(){
-                cancelClickAllowed = true;
-            },
-            allowCancelDoubleClick(){
-                cancelDoubleClickAllowed = true;
-            }
-        }
-        this.eventDispatcher.dispatchEvent('pointerdown', customEvent);
-        return { cancelClickAllowed, cancelDoubleClickAllowed };
-    }
-    public dispatchClickCancel(): void {
-        const event: CustomPointerEventMap['clickcancel'] =  {
-            type: 'clickcancel'
-        }
-        this.eventDispatcher.dispatchEvent('clickcancel', event);
-    }
-    public dispatchDoubleClickCancel(): void {
-        const event: CustomPointerEventMap['dblclickcancel'] =  {
-            type: 'dblclickcancel'
-        }
-        this.eventDispatcher.dispatchEvent('dblclickcancel', event);
-    }
+
     public dispatchClick(): void {
         const event: CustomPointerEventMap['click'] =  {
             type: 'click'

@@ -1,3 +1,4 @@
+import type { TransformationRepresentation } from "ef-infinite-canvas";
 import type { CustomPointerEventDispatcher, Gesture, GestureReplaceFn } from "./types";
 
 export class NoopGesture implements Gesture {
@@ -8,24 +9,22 @@ export class NoopGesture implements Gesture {
 
     }
 
-    public handlePointerDown(event: PointerEvent): void {
+    public handlePointerDown(event: PointerEvent, transformation: TransformationRepresentation): void {
         const target = this.rootTarget.findTarget(event.offsetX, event.offsetY);
         if(!target){
             return;
         }
-        const { cancelClickAllowed } = target.dispatchPointerDown(event);
-        if(event.pointerType === 'mouse' && cancelClickAllowed){
-            event.preventDefault();
-        }
         this.replaceGesture((factory) => {
             return factory.createPointerDown(target, {
+                offsetX: event.offsetX,
+                offsetY: event.offsetY,
                 pointerId: event.pointerId,
-                cancelClickAllowed
+                transformation
             })
         })
     }
 
-    public handlePointerMove(): void {
+    public handleTransformationChange(): void {
         
     }
 

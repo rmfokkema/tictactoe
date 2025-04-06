@@ -1,8 +1,10 @@
+import type { TransformationRepresentation } from "ef-infinite-canvas";
 import { AfterClick } from "./after-click";
 import { NoopGesture } from "./noop-gesture";
 import { PointerThatIsDown } from "./pointer-that-is-down";
 import { PointerThatIsDownAgain } from "./pointer-that-is-down-again";
 import type { CustomPointerDownAgainEventProperties, CustomPointerDownEventProperties, CustomPointerEventDispatcher, Gesture, GestureFactory } from "./types";
+import { transformPosition } from "./transform-position";
 
 export class GestureFactoryImpl implements GestureFactory {
     public constructor(
@@ -17,18 +19,24 @@ export class GestureFactoryImpl implements GestureFactory {
         return result;
     }
     public createPointerDown(target: CustomPointerEventDispatcher, props: CustomPointerDownEventProperties): Gesture {
+        const {x: screenOffsetX, y: screenOffsetY} = transformPosition(props.transformation, props.offsetX, props.offsetY);
         const result = new PointerThatIsDown(
             (newGestureFn) => this.gestureReplacer(result, () => newGestureFn(this)),
             target,
-            props
+            props,
+            screenOffsetX,
+            screenOffsetY
         );
         return result;
     }
     public createPointerDownAgain(target: CustomPointerEventDispatcher, props: CustomPointerDownAgainEventProperties): Gesture {
+        const {x: screenOffsetX, y: screenOffsetY} = transformPosition(props.transformation, props.offsetX, props.offsetY);
         const result = new PointerThatIsDownAgain(
             (newGestureFn) => this.gestureReplacer(result, () => newGestureFn(this)),
             target,
-            props
+            props,
+            screenOffsetX,
+            screenOffsetY
         );
         return result;
     }

@@ -38,11 +38,8 @@ const listTableOptions: TableConstructorOptions = {
 export class MockGridCell implements GridCell<MockTheme>, TestPlayerContext {
     private winner = false;
     private listeners: {[Key in keyof CustomPointerEventMap]: ((ev: CustomPointerEventMap[Key]) => void)[]} = {
-        pointerdown: [],
         click: [],
-        clickcancel: [],
-        dblclick: [],
-        dblclickcancel: []
+        dblclick: []
     };
     private content: Mark | MockGrid | undefined;
     public get grid(): MockGrid {

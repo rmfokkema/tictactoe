@@ -1,28 +1,33 @@
+import type { TransformationEvent } from "ef-infinite-canvas";
 import type { CustomPointerDownEventProperties, CustomPointerEventDispatcher, Gesture, GestureReplaceFn } from "./types";
+import { transformPosition } from "./transform-position";
 
 export class PointerThatIsDown implements Gesture {
     public constructor(
         private readonly replaceGesture: GestureReplaceFn,
         private readonly target: CustomPointerEventDispatcher,
-        private readonly props: CustomPointerDownEventProperties
+        private readonly props: CustomPointerDownEventProperties,
+        private readonly screenOffsetX: number,
+        private readonly screenOffsetY: number
     ){
 
     }
 
     public handlePointerDown(event: PointerEvent): void {
-        if(!this.props.cancelClickAllowed || event.pointerId === this.props.pointerId){
+        if(event.pointerId === this.props.pointerId){
             return;
         }
-        this.target.dispatchClickCancel();
         this.replaceGesture((factory) => factory.createNoop())
     }
 
-    public handlePointerMove(event: PointerEvent): void {
-        if(!this.props.cancelClickAllowed || event.pointerId !== this.props.pointerId){
-            return;
+    public handleTransformationChange(event: TransformationEvent): void {
+        const {x: newScreenX, y: newScreenY} = transformPosition(event.inverseTransformation, this.props.offsetX, this.props.offsetY);
+        const diffX = newScreenX - this.screenOffsetX;
+        const diffY = newScreenY - this.screenOffsetY;
+        const dist = diffX ** 2 + diffY ** 2;
+        if(dist > 9){
+            this.replaceGesture((factory) => factory.createNoop())
         }
-        this.target.dispatchClickCancel();
-        this.replaceGesture((factory) => factory.createNoop())
     }
 
     public handlePointerUp(event: PointerEvent): void {
@@ -37,7 +42,6 @@ export class PointerThatIsDown implements Gesture {
         if(event.pointerId !== this.props.pointerId){
             return;
         }
-        this.target.dispatchClickCancel();
         this.replaceGesture((factory) => factory.createNoop())
     }
 }

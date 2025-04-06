@@ -1,3 +1,4 @@
+import type { InfiniteCanvas, EventMap as InfiniteCanvasEventMap, TransformationRepresentation, TransformationEvent } from "ef-infinite-canvas"
 import type { EventTargetLike } from "../events/types"
 import type { Measurements } from "@shared/drawing"
 
@@ -5,19 +6,7 @@ export interface CustomPointerEvent {
     type: string
 }
 
-export interface PointerDownEventResult {
-    cancelClickAllowed: boolean
-    cancelDoubleClickAllowed: boolean
-}
-
 export interface CustomPointerEventMap {
-    pointerdown: CustomPointerEvent & {
-        type: 'pointerdown',
-        allowCancelClick(): void
-        allowCancelDoubleClick(): void
-    }
-    clickcancel: CustomPointerEvent & {type: 'clickcancel'}
-    dblclickcancel: CustomPointerEvent & {type: 'dblclickcancel'}
     click: CustomPointerEvent & {type: 'click'}
     dblclick: CustomPointerEvent & {type: 'dblclick'}
 }
@@ -29,33 +18,34 @@ export interface CustomPointerEventTarget extends EventTargetLike<CustomPointerE
 
 export interface CustomPointerEventDispatcher extends CustomPointerEventTarget {
     findTarget(x: number, y: number): CustomPointerEventDispatcher | undefined
-    dispatchPointerDown(event: PointerEvent): PointerDownEventResult
-    dispatchClickCancel(): void
-    dispatchDoubleClickCancel(): void
     dispatchClick(): void
     dispatchDoubleClick(): void
 }
 
-export type PointerEventType = 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel'
-export type PointerEventMap = Pick<GlobalEventHandlersEventMap, PointerEventType>
+export type InfiniteCanvasPointerEventType = 'pointerdown' | 'pointerup' | 'pointercancel' | 'transformationchange'
+export type PointerEventMapFromInfiniteCanvas = Pick<InfiniteCanvasEventMap, InfiniteCanvasPointerEventType>
 
-export type PointerEventTargetLike = EventTargetLike<PointerEventMap>
+export type PointerEventsFromInfiniteCanvas = EventTargetLike<PointerEventMapFromInfiniteCanvas> & Pick<InfiniteCanvas, 'inverseTransformation'>
 
 export interface Gesture {
-    handlePointerDown(event: PointerEvent): void
-    handlePointerMove(event: PointerEvent): void
+    handlePointerDown(event: PointerEvent, transformation: TransformationRepresentation): void
     handlePointerUp(event: PointerEvent): void
     handlePointerCancel(event: PointerEvent): void
+    handleTransformationChange(event: TransformationEvent): void
 }
 
 export interface CustomPointerDownEventProperties {
+    offsetX: number
+    offsetY: number
     pointerId: number
-    cancelClickAllowed: boolean
+    transformation: TransformationRepresentation
 }
 
 export interface CustomPointerDownAgainEventProperties {
+    offsetX: number
+    offsetY: number
     pointerId: number
-    cancelDoubleClickAllowed: boolean
+    transformation: TransformationRepresentation
 }
 
 export interface GestureFactory {

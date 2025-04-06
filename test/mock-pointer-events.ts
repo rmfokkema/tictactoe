@@ -1,16 +1,17 @@
-import type { PointerEventTargetLike, PointerEventType } from '@page/pointer-events/types'
+import type { EventMap as InfiniteCanvasEventMap } from "ef-infinite-canvas"
+import type { PointerEventsFromInfiniteCanvas, InfiniteCanvasPointerEventType } from '@page/pointer-events/types'
 
-export type MockEvent = Pick<GlobalEventHandlersEventMap[PointerEventType], 'pointerId' | 'offsetX' | 'offsetY' | 'pointerType'> & {
-    type: PointerEventType
+export type MockEvent = (Pick<InfiniteCanvasEventMap['pointerdown'], 'pointerId' | 'offsetX' | 'offsetY'> | InfiniteCanvasEventMap['transformationchange']) & {
+    type: InfiniteCanvasPointerEventType
 }
-export interface PointerEventsMock extends PointerEventTargetLike{
+export interface PointerEventsMock extends PointerEventsFromInfiniteCanvas{
     dispatchEvent(event: MockEvent): void
 }
 
 export function mockPointerEvents(): PointerEventsMock {
-    const listeners: {[key in PointerEventType]: ((ev: GlobalEventHandlersEventMap[key]) => void)[]} = {
+    const listeners: {[key in InfiniteCanvasPointerEventType]: ((ev: InfiniteCanvasEventMap[key]) => void)[]} = {
         pointerdown: [],
-        pointermove: [],
+        transformationchange: [],
         pointerup: [],
         pointercancel: []
     };
@@ -20,16 +21,14 @@ export function mockPointerEvents(): PointerEventsMock {
             listeners[type].push(listener);
         },
         removeEventListener(){},
-        dispatchEvent
+        dispatchEvent,
+        inverseTransformation: {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}
     };
 
     function dispatchEvent(event: MockEvent): void{
-        const ev = {
-            preventDefault(){},
-            ...event
-        } as GlobalEventHandlersEventMap[PointerEventType];
         for(const listener of listeners[event.type].slice()){
-            listener(ev);
+            // @ts-ignore
+            listener(event);
         }
     }
 }
