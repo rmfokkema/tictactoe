@@ -17,6 +17,7 @@ import type { Drawing } from "../drawing";
 class GridCellImpl implements GridCell{
     private theme: Theme;
     public content: Drawable | undefined;
+    public grid: Grid | undefined;
     public constructor(
         public readonly measurements: GridCellMeasurements,
         private readonly borders: GridCellBorder[],
@@ -69,11 +70,13 @@ class GridCellImpl implements GridCell{
             this
         );
         this.content = newGrid;
+        this.grid = newGrid;
         return newGrid;
     }
 
     public clear(): void {
         this.content = undefined;
+        this.grid = undefined;
         this.theme = this.gridTheme;
     }
 
@@ -106,7 +109,7 @@ export class GridImpl  implements Grid {
         return this.cellImpls;
     }
     public constructor(
-        measurements: GridCellMeasurements,
+        public readonly measurements: GridCellMeasurements,
         public theme: Theme,
         private readonly cell: GridCellImpl | undefined
     ){

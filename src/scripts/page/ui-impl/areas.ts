@@ -7,6 +7,7 @@ import type { ScreenPositionCalculator } from "./screen-position";
 import { Layout } from "./layout";
 import type { TextAreaMeasurements } from "./text-area-measurements";
 import type { GithubLinkMeasurements } from "./github-link-measurements";
+import type { RenderableMapPart } from "./renderable-map-part";
 
 export interface MapPartMeasurements {
     grid: Measurements
@@ -17,7 +18,11 @@ export interface Areas extends ThemeSwitchable, Renderable, ScreenPositionCalcul
     getMeasurements(): {
         primary: MapPartMeasurements
         secondary: MapPartMeasurements
-    }
+    },
+    setParts(parts: {
+        primary: RenderableMapPart
+        secondary: RenderableMapPart
+    }): void;
 }
 function getMeasurementsFromLayout(layout: Layout, rotated: boolean): MapPartMeasurements {
     const grid = layout.getChild([0, 0])!;
@@ -32,6 +37,8 @@ export function createAreas(
 ): Areas {
     let primaryTheme = initialPrimaryTheme;
     let secondaryTheme = initialSecondaryTheme;
+    let primaryPart: RenderableMapPart | undefined;
+    let secondaryPart: RenderableMapPart | undefined;
     const allPoints: Point[] = [
         {x: 0, y: 0},
         {x: width, y: 0},
@@ -132,8 +139,17 @@ export function createAreas(
             }
         },
         draw(ctx){
+            ctx.save();
             ctx.fillStyle = primaryTheme.backgroundColor;
+            ctx.beginPath();
+            ctx.moveTo(squareSize, squareSize);
+            ctx.lineToInfinityInDirection(1, -1);
+            ctx.lineToInfinityInDirection(-1, -1);
+            ctx.lineToInfinityInDirection(-1, 1);
+            ctx.clip();
             ctx.fillRect(-Infinity, -Infinity, Infinity, Infinity);
+            primaryPart?.draw(ctx);
+            ctx.restore();
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(squareSize, squareSize);
@@ -143,11 +159,18 @@ export function createAreas(
             ctx.clip();
             ctx.fillStyle = secondaryTheme.backgroundColor;
             ctx.fillRect(-Infinity, -Infinity, Infinity, Infinity);
+            secondaryPart?.draw(ctx)
             ctx.restore();
         },
         switchTheme(props){
             primaryTheme = props.primaryTheme;
             secondaryTheme = props.secondaryTheme;
+            primaryPart?.setTheme(props.primaryTheme);
+            secondaryPart?.setTheme(props.secondaryTheme);
+        },
+        setParts({primary, secondary}){
+            primaryPart = primary;
+            secondaryPart = secondary;
         }
     }
     function isInPrimaryArea(point: Point): boolean {

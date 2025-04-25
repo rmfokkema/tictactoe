@@ -5,6 +5,7 @@ import { gameStateWithPositions } from './game-state-with-positions';
 import { MAIN_DIAGONAL } from '@shared/three';
 import type { GameStateSummary } from '@shared/state/game-state-summary';
 import type { GameState } from '@shared/state/game-state';
+import type { EquivalentPositions } from '@shared/state/equivalent-positions';
 
 describe('a game state', () => {
 
@@ -26,6 +27,102 @@ describe('a game state', () => {
         expect(playersAtPositions[1]).toBe(Player.O);
         expect(playersAtPositions[2]).toBe(0)
     })
+
+    it.each<[GameState, number[][]]>([
+        [
+            GameStateImpl.initial.playPosition(0),
+            [
+                [0],
+                [2],
+                [6],
+                [8]
+            ]
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            [
+                [0, 1],
+                [0, 3],
+                [2, 1],
+                [2, 5],
+                [6, 3],
+                [6, 7],
+                [8, 5],
+                [8, 7]
+            ]
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1).playPosition(3),
+            [
+                [0, 1, 3],
+                [0, 3, 1],
+                [2, 1, 5],
+                [2, 5, 1],
+                [6, 3, 7],
+                [6, 7, 3],
+                [8, 5, 7],
+                [8, 7, 5]
+            ]
+        ],
+        [
+            GameStateImpl.initial.playPosition(4),
+            [
+                [4]
+            ]
+        ],
+        [
+            GameStateImpl.initial.playPosition(4).playPosition(5),
+            [
+                [4, 1],
+                [4, 3],
+                [4, 5],
+                [4, 7]
+            ]
+        ]
+    ])('%j should return equivalent positions', (gameState, expected) => {
+        const equivalents = [...flattenEquivalentPositions(gameState.getEquivalentPositions())];
+        expect(equivalents.length).toBe(expected.length);
+        for(const expectedItem of expected){
+            expect(equivalents).toContainEqual(expectedItem)
+        }
+    })
+
+    it.each<[GameState, GameState]>([
+        [
+            GameStateImpl.initial.playPosition(2).playPosition(1),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(2).playPosition(5),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(8).playPosition(5),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(8).playPosition(7),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(6).playPosition(7),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(6).playPosition(3),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(3),
+            GameStateImpl.initial.playPosition(0).playPosition(1)
+        ]
+    ])('%j should have as canonical %j', (state, expectedCanonical) => {
+        expect(state.getCanonical()).toEqual(expectedCanonical)
+    });
 
     it.each<[GameState, GameState[]]>([
         [
@@ -184,6 +281,46 @@ describe('a game state', () => {
         expect(state.getEquivalentWithSameLineage(otherState)).toEqual(expectedEquivalent)
     })
 
+    it.each<[GameState, GameState, boolean]>([
+        [
+            GameStateImpl.initial.playPosition(0),
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            true
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            true
+        ],
+        [
+            GameStateImpl.initial.playPosition(2),
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            true
+        ],
+        [
+            GameStateImpl.initial.playPosition(0),
+            GameStateImpl.initial.playPosition(2).playPosition(1),
+            true
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            GameStateImpl.initial.playPosition(0),
+            false
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            GameStateImpl.initial.playPosition(2),
+            false
+        ],
+        [
+            GameStateImpl.initial.playPosition(0).playPosition(1),
+            GameStateImpl.initial.playPosition(8).playPosition(7).playPosition(4),
+            true
+        ]
+    ])('%j is predecessor of %j should be %s', (state, possibleDescendant, expectedToBePredecessor) => {
+        expect(state.isPredecessorOf(possibleDescendant)).toBe(expectedToBePredecessor)
+    })
+
     describe('state [0, 4, 2, 6, 8, 3, 5]', () => {
         let state: GameState;
 
@@ -230,3 +367,16 @@ describe('a game state', () => {
         expect(revived).toEqual(expectedState);
     })
 })
+
+function *flattenEquivalentPositions(positions: Iterable<EquivalentPositions>): Iterable<number[]>{
+    for(const item of positions){
+        let positionReturned = false;
+        for(const flattenedItem of flattenEquivalentPositions(item.successors())){
+            yield [item.position, ...flattenedItem]
+            positionReturned = true;
+        }
+        if(!positionReturned){
+            yield [item.position];
+        }
+    }
+}

@@ -55,28 +55,6 @@ describe('a position array', () => {
         })
     })
 
-    describe('when position 3 is removed', () => {
-        let position3Removed: PositionArray;
-
-        beforeEach(() => {
-            position3Removed = array.removePosition(3);
-        })
-
-        it('should have correct length', () => {
-            expect(position3Removed.length).toBe(8);
-        })
-
-        it.each<[number, number]>([
-            [0, 0],
-            [2, 2],
-            [3, 4],
-            [4, 5],
-            [7, 8]
-        ])('should at index %d return position %d', (index: number, expectedPosition: number) => {
-            expect(position3Removed.positionAt(index)).toBe(expectedPosition)
-        })
-    });
-
     describe('when position at index 3 is removed', () => {
         let removedOnIndex3: PositionArray;
 

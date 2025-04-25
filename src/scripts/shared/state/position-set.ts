@@ -31,6 +31,29 @@ export class PositionSet{
         }
     }
 
+    public *findTransformations(player: Player, position: number): Iterable<{transformation: Transformation, positionSet: PositionSet}> {
+        const seen = new Set<number>();
+        for(const ownTransformation of this.getOwnTransformations()){
+            const newPositionSet = this.withPlayerAtPosition(player, ownTransformation.positions[position]);
+            if(seen.has(newPositionSet.positions)){
+                continue;
+            }
+            yield {transformation: ownTransformation, positionSet: newPositionSet};
+            seen.add(newPositionSet.positions);
+        }
+    }
+
+    public findTransformationToEquivalent(fromPosition: number): Transformation | undefined {
+        for(const emptyPosition of this.getEmptyPositions()){
+            for(const transformation of this.getOwnTransformations()){
+                if(transformation.positions[fromPosition] === emptyPosition){
+                    return transformation;
+                }
+            }
+        }
+        return undefined;
+    }
+
     public findTransformation(from: number, to: number): Transformation | undefined {
         for(const transformation of this.getOwnTransformations()){
             if(transformation.positions[from] === to){

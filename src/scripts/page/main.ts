@@ -9,14 +9,18 @@ import { LocalStorageThemePreferencePersister } from './themes/local-storage-the
 import { createPointerEvents } from './pointer-events/create-pointer-events';
 import { createRenderableMap } from './ui-impl/create-renderable-map';
 import { createSharedWorkClient } from './shared-work/create-shared-work-client';
+import { createSelection } from './selection/create-selection';
+import { createUrlSelection } from './selection/url-selection';
 
-function initialize(): void{
+async function initialize(): Promise<void>{
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const { width, height } = canvas.getBoundingClientRect();
     canvas.width = width * devicePixelRatio;
     canvas.height = height * devicePixelRatio;
     const infCanvas = new InfiniteCanvas(canvas, {units: Units.CSS, greedyGestureHandling: true});
     const channel = new BroadcastChannel('tictactoemap');
+    const selection = createSelection();
+    const urlSelection = createUrlSelection();
     const map = createTicTacToeMap(
         new LocalStorageMapPersister(),
         channel,
@@ -36,12 +40,15 @@ function initialize(): void{
         renderer,
         initialThemeSwitchState
     )
-
+    selection.useSelector(renderableMap.selector);
+    selection.useSelector(urlSelection);
+    map.addStateRenderer(selection);
     renderer.setRenderable(renderableMap);
     const themeSwitch = initialThemeSwitchState.getThemeSwitch(renderableMap.themeAreaTracker);
     themeSwitch.addEventListener('change', () => renderableMap.switchTheme(themeSwitch));
     renderer.rerender();
-    map.load();
+    await map.load();
+    urlSelection.load();
 }
 
 initialize();

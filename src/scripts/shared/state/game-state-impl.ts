@@ -1,12 +1,15 @@
 import { otherPlayer, Player } from "../player";
 import { getThrees } from "../three";
-import { combine, Identity, type Transformation } from "../transformations";
+import { combine, Identity } from "../transformations";
 import type { Winner } from "../winner";
 import type { GameStateSummary } from "./game-state-summary";
 import { combinedGenerator } from "./combined-generator";
 import type { GameState } from "./game-state";
 import { PositionBuilder } from "./position-builder";
 import { PositionSet } from "./position-set";
+import { PositionReader } from "./position-reader";
+import type { EquivalentPositions } from "./equivalent-positions";
+import { getEquivalentPositions } from "./equivalent-positions-impl";
 
 export class GameStateImpl implements GameState {
     public get id(): number {return this.positionBuilder.positions;}
@@ -18,8 +21,12 @@ export class GameStateImpl implements GameState {
 
     }
 
+    public getEquivalentPositions(): Iterable<EquivalentPositions> {
+        return getEquivalentPositions(this.positionBuilder.positions);
+    }
+
     public getPositions(): Generator<number> {
-        return PositionBuilder.readAllPositions(this.positionBuilder.positions);
+        return PositionReader.readAllPositions(this.positionBuilder.positions);
     }
 
     public *getNonequivalentSuccessors(): Iterable<GameState> {
@@ -31,6 +38,59 @@ export class GameStateImpl implements GameState {
                 nextPlayer
             )
         }
+    }
+
+    public getCanonical(): GameState {
+        const thisPositions = this.getPositions();
+        let positionBuilder = PositionBuilder.initial;
+        let positionSet = new PositionSet(0);
+        let transformation = Identity;
+        let player = Player.X;
+        for(const thisPosition of thisPositions){
+            const transformedThisPosition = transformation.positions[thisPosition];
+            const additionalTransformation = positionSet.findTransformationToEquivalent(transformedThisPosition);
+            if(!additionalTransformation){
+                continue;
+            }
+            transformation = combine(transformation, additionalTransformation);
+            const canonicalPosition = additionalTransformation.positions[transformedThisPosition];
+            positionBuilder = positionBuilder.write(canonicalPosition);
+            positionSet = positionSet.withPlayerAtPosition(player, canonicalPosition);
+            player = otherPlayer(player);
+        }
+        return new GameStateImpl(positionBuilder, positionSet, player);
+    }
+
+    public isPredecessorOf(other: GameState): boolean {
+        const thisPositions = this.getPositions();
+        const otherPositions = other.getPositions();
+        let positionBuilder = PositionBuilder.initial;
+        let positionSet = new PositionSet(0);
+        let transformation = Identity;
+        let player = Player.X;
+
+        for(const [thisPosition, otherPosition] of combinedGenerator(thisPositions, otherPositions)){
+            if(thisPosition === undefined){
+                break;
+            }
+            if(otherPosition === undefined){
+                return false;
+            }
+
+            let equivalentPosition: number = transformation.positions[thisPosition];
+            if(otherPosition !== equivalentPosition){
+                const additionalTransformation = positionSet.findTransformation(equivalentPosition, otherPosition);
+                if(!additionalTransformation){
+                    return false;
+                }
+                transformation = combine(transformation, additionalTransformation);
+                equivalentPosition = otherPosition;
+            }
+            positionBuilder = positionBuilder.write(equivalentPosition);
+            positionSet = positionSet.withPlayerAtPosition(player, equivalentPosition);
+            player = otherPlayer(player);
+        }
+        return true;
     }
 
     public getEquivalentWithSameLineage(predecessor: GameState): GameState | undefined {
@@ -123,7 +183,7 @@ export class GameStateImpl implements GameState {
         let positionBuilder = PositionBuilder.initial;
         let positionSet = new PositionSet(0);
         let player = Player.X;
-        for(const position of PositionBuilder.readAllPositions(cloned.positions)){
+        for(const position of PositionReader.readAllPositions(cloned.positions)){
             positionSet = positionSet.withPlayerAtPosition(player, position);
             positionBuilder = positionBuilder.write(position);
             player = otherPlayer(player);

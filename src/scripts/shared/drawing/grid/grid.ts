@@ -15,9 +15,11 @@ export interface GridSlot extends Slot {
 }
 export interface GridCell extends MarkSlot, GridSlot {
     measurements: Measurements
+    grid: Grid | undefined
 }
 
 export interface Grid extends Drawable {
+    measurements: Measurements
     theme: Theme
     setTheme(theme: Theme): void
     cells: readonly [

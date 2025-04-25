@@ -1,8 +1,9 @@
 import { EventDispatcher } from "../events/event-dispatcher";
-import type { MapRendererEventMap, RemoteMapRenderer } from "../map";
+import type { MapRendererEventMap, StateRenderer } from "../map";
 import type { GameStateSummary } from "@shared/state/game-state-summary";
 import { GameStateImpl } from "@shared/state/game-state-impl";
 import type { GameState } from "@shared/state/game-state";
+import type { EventTargetLike } from "../events/types";
 
 interface StateHiddenMessage {
     type: 'statehidden',
@@ -29,7 +30,7 @@ function isBroadcastChannelMessage(value: unknown): value is BroadcastChannelMes
 
 export function createBroadcastChannelRenderer(
     channel: BroadcastChannel
-): RemoteMapRenderer {
+): StateRenderer & EventTargetLike<MapRendererEventMap> {
     const eventDispatcher: EventDispatcher<MapRendererEventMap> = new EventDispatcher({
         statehidden: [],
         staterevealed: []

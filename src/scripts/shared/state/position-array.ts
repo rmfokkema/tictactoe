@@ -195,16 +195,6 @@ export class PositionArray {
         return index === undefined ? -1 : index;
     }
 
-    public removePosition(position: number): PositionArray {
-        const index = this.indices.getIndexOfPosition(position);
-        if(index === undefined){
-            return this;
-        }
-        const newIndices = this.indices.removePosition(position);
-        const newPositions = this.positions.removePosition(index);
-        return new PositionArray(newPositions, newIndices, this.length - 1);
-    }
-
     public removeAtIndex(index: number): PositionArray {
         const position = this.positions.getPosition(index);
         if(position === undefined){

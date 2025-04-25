@@ -108,11 +108,10 @@ export class GridImpl implements Grid<Theme>, Drawable {
 
     public static create(
         renderer: Rerenderer,
-        measurements: Measurements,
+        grid: GridGrid,
         eventTarget: CustomPointerEventTarget,
         theme: Theme
     ): GridImpl{
-        const gridGrid = GridGridImpl.create(measurements, theme);
-        return new GridImpl(gridGrid, renderer, eventTarget, theme);
+        return new GridImpl(grid, renderer, eventTarget, theme);
     }
 }
