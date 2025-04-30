@@ -41,11 +41,9 @@ export interface CustomPointerDownEventProperties {
     transformation: TransformationRepresentation
 }
 
-export interface CustomPointerDownAgainEventProperties {
-    offsetX: number
-    offsetY: number
-    pointerId: number
-    transformation: TransformationRepresentation
+export interface CustomPointer {
+    id: number
+    isCancelledBy(transformationEvent: TransformationEvent): boolean
 }
 
 export interface GestureFactory {
@@ -55,7 +53,7 @@ export interface GestureFactory {
         props: CustomPointerDownEventProperties
     ): Gesture
     createAfterClick(target: CustomPointerEventDispatcher): Gesture
-    createPointerDownAgain(target: CustomPointerEventDispatcher, props: CustomPointerDownAgainEventProperties): Gesture
+    createPointerDownAgain(target: CustomPointerEventDispatcher, props: CustomPointerDownEventProperties): Gesture
 }
 
 export type GestureReplaceFn = (newValueFn: (factory: GestureFactory) => Gesture) => void

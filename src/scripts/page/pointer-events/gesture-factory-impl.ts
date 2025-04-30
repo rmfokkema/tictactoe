@@ -1,10 +1,9 @@
-import type { TransformationRepresentation } from "ef-infinite-canvas";
 import { AfterClick } from "./after-click";
 import { NoopGesture } from "./noop-gesture";
 import { PointerThatIsDown } from "./pointer-that-is-down";
 import { PointerThatIsDownAgain } from "./pointer-that-is-down-again";
-import type { CustomPointerDownAgainEventProperties, CustomPointerDownEventProperties, CustomPointerEventDispatcher, Gesture, GestureFactory } from "./types";
-import { transformPosition } from "./transform-position";
+import type { CustomPointerDownEventProperties, CustomPointerEventDispatcher, Gesture, GestureFactory } from "./types";
+import { CustomPointerImpl } from "./custom-pointer-impl";
 
 export class GestureFactoryImpl implements GestureFactory {
     public constructor(
@@ -19,24 +18,20 @@ export class GestureFactoryImpl implements GestureFactory {
         return result;
     }
     public createPointerDown(target: CustomPointerEventDispatcher, props: CustomPointerDownEventProperties): Gesture {
-        const {x: screenOffsetX, y: screenOffsetY} = transformPosition(props.transformation, props.offsetX, props.offsetY);
+        const customPointer = CustomPointerImpl.create(props)
         const result = new PointerThatIsDown(
             (newGestureFn) => this.gestureReplacer(result, () => newGestureFn(this)),
             target,
-            props,
-            screenOffsetX,
-            screenOffsetY
+            customPointer
         );
         return result;
     }
-    public createPointerDownAgain(target: CustomPointerEventDispatcher, props: CustomPointerDownAgainEventProperties): Gesture {
-        const {x: screenOffsetX, y: screenOffsetY} = transformPosition(props.transformation, props.offsetX, props.offsetY);
+    public createPointerDownAgain(target: CustomPointerEventDispatcher, props: CustomPointerDownEventProperties): Gesture {
+        const customPointer = CustomPointerImpl.create(props)
         const result = new PointerThatIsDownAgain(
             (newGestureFn) => this.gestureReplacer(result, () => newGestureFn(this)),
             target,
-            props,
-            screenOffsetX,
-            screenOffsetY
+            customPointer
         );
         return result;
     }
