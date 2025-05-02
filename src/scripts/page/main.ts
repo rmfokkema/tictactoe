@@ -11,8 +11,12 @@ import { createRenderableMap } from './ui-impl/create-renderable-map';
 import { createSharedWorkClient } from './shared-work/create-shared-work-client';
 import { createSelection } from './selection/create-selection';
 import { createUrlSelection } from './selection/url-selection';
+import fontFaceUrl from '../../FaxSansBeta.otf';
 
 async function initialize(): Promise<void>{
+    const fontFace = new FontFace('FaxSans', `url("${fontFaceUrl}") format("opentype")`);
+    await fontFace.load();
+    document.fonts.add(fontFace)
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const { width, height } = canvas.getBoundingClientRect();
     canvas.width = width * devicePixelRatio;
