@@ -4,6 +4,7 @@ import type { TextAreaMeasurements } from "./text-area-measurements";
 import type { RenderableMapPart } from "./renderable-map-part";
 import { getTranslations } from "../get-translations";
 
+const FaxSansTextWidthScaleErrorFactor = 1.1;
 interface CalculatedMeasurements {
     scalingFactor: number
     titleHeight: number
@@ -21,9 +22,10 @@ export function createTextArea(
     return {
         draw(ctx) {
             ctx.save();
-            ctx.font = '3em Helvetica';
+            ctx.font = '3em FaxSans';
             ctx.textBaseline = 'top'
             const { scalingFactor, titleHeight } = getCalculatedMeasurements(ctx);
+
             if(rotated){
                 ctx.transform(-scalingFactor, 0, 0, -scalingFactor, x + width, y + height)
             }else{
@@ -32,7 +34,7 @@ export function createTextArea(
             
             ctx.fillStyle = theme.color;
             ctx.fillText(title, 0, 0);
-            ctx.font = '1em Helvetica';
+            ctx.font = '1em FaxSans';
             ctx.fillText(explanation, 0, titleHeight * 1.2)
             ctx.restore();
         },
@@ -46,7 +48,7 @@ export function createTextArea(
         }
         const metrics = ctx.measureText(title);
         const ratio = metrics.width / width;
-        const scalingFactor = ratio > 1 ? 1 / ratio : 1;
+        const scalingFactor = ratio > 1 ? 1 / (ratio * FaxSansTextWidthScaleErrorFactor) : 1;
         const titleHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
         const result: CalculatedMeasurements = {
             scalingFactor,
