@@ -111,7 +111,7 @@ export function addMetadataToHead(): PluginOption {
     }
     function calculateBaseUrl(): string {
         if(!devServer){
-            return 'https://emilefokkema.github.io'
+            return 'https://tictactoemap.com'
         }
         const resolvedUrls = devServer.resolvedUrls;
         if(!resolvedUrls){
