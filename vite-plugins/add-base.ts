@@ -5,7 +5,7 @@ export function addBase(): PluginOption {
         name: 'vite-plugin-add-base',
         apply: 'build',
         config(){
-            return {base: '/tictactoe'}
+            return {base: '/'}
         }
     }
 }
