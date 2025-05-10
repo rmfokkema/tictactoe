@@ -34,6 +34,14 @@ export function addMetadataToHead(): PluginOption {
                     },
                     injectTo: 'head-prepend'
                 },
+		{
+		    tag: 'meta',
+		    attrs: {
+                        name: 'theme-color',
+                        value: '#333'
+                    },
+		    injectTo: 'head-prepend'
+		},
                 {
                     tag: 'link',
                     attrs: {
