@@ -19,14 +19,14 @@ export function addMetadataToHead(): PluginOption {
             const language = getLanguage(ctx.filename);
             const { title, explanation } = translations[language];
             return [
-		{
+		        {
                     tag: 'meta',
                     attrs: {
                         charset: 'utf-8'
                     },
                     injectTo: 'head-prepend'
                 },
-		{
+		        {
                     tag: 'meta',
                     attrs: {
                         name: 'viewport',
@@ -34,14 +34,22 @@ export function addMetadataToHead(): PluginOption {
                     },
                     injectTo: 'head-prepend'
                 },
-		{
-		    tag: 'meta',
-		    attrs: {
-                        name: 'theme-color',
-                        value: '#333'
+                {
+                    tag: 'meta',
+                    attrs: {
+                        name: 'mobile-web-app-capable',
+                        content: 'yes'
                     },
-		    injectTo: 'head-prepend'
-		},
+                    injectTo: 'head-prepend'
+                },
+                {
+                    tag: 'meta',
+                    attrs: {
+                                name: 'theme-color',
+                                value: '#333'
+                            },
+                    injectTo: 'head-prepend'
+                },
                 {
                     tag: 'link',
                     attrs: {
@@ -50,7 +58,7 @@ export function addMetadataToHead(): PluginOption {
                         sizes: 'any'
                     }
                 },
-		{
+		        {
                     tag: 'link',
                     attrs: {
                         rel: 'manifest',
